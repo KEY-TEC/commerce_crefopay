@@ -1,0 +1,7 @@
+commerce_crefopay.config:
+  title: 'Crefopay'
+  route_name: commerce_crefopay.config
+  description: 'Configure the base url, the store id and the merchant password for Crefopay.'
+  parent: system.admin_config_services
+  weight: 99
+

@@ -1,0 +1,6 @@
+name: Commerce Crefopay test
+description: Commerce Crefopay test module.
+package: commerce_crefopay
+
+type: module
+core: 8.x

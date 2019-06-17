@@ -1,0 +1,7 @@
+commerce_crefopay.config:
+  path: '/admin/config/crefopay/config'
+  defaults:
+    _form: '\Drupal\commerce_crefopay\Form\CrefopayConfigForm'
+    _title: 'Crefopay configuration'
+  requirements:
+    _permission: 'administer site configuration'

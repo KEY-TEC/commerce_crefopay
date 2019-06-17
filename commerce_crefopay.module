@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * OpenEuropa module.
+ */
+
+declare(strict_types = 1);
+
+/**
+ * Implements hook_theme().
+ */
+function commerce_crefopay_theme() {
+  return [
+    'crefopay_payment' => [
+      'variables' => [
+      ],
+    ],
+  ];
+}
+
+function commerce_crefopay_subscripton_plans_options() {
+  /** @var \Drupal\commerce_crefopay\SubscriptionManager $subscription_manager */
+  $subscription_client = \Drupal::service('commerce_crefopay.subscription_client');
+  $plans = $subscription_client->getSubscriptionPlans();
+  $options = [];
+  /** @var \Upg\Library\Request\Objects\SubscriptionPlan $plan */
+  foreach ($plans as $plan) {
+    $options[$plan->getPlanReference()] = $plan->getName();
+  }
+  return $options;
+}

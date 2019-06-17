@@ -1,0 +1,5 @@
+crefopay:
+  version: "3.0"
+  js:
+    "js/secure-fields-init.js": { minified: false }
+    "https://libs.crefopay.de/3.0/secure-fields.js": { minified: false }

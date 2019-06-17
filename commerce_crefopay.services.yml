@@ -1,0 +1,24 @@
+services:
+
+  commerce_crefopay.person_builder:
+    class: Drupal\commerce_crefopay\Client\Builder\PersonBuilder
+    arguments: []
+  commerce_crefopay.address_builder:
+    class: Drupal\commerce_crefopay\Client\Builder\AddressBuilder
+    arguments: []
+  commerce_crefopay.basket_builder:
+    class: Drupal\commerce_crefopay\Client\Builder\BasketBuilder
+    arguments: []
+  commerce_crefopay.amount_builder:
+    class: Drupal\commerce_crefopay\Client\Builder\AmountBuilder
+    arguments: []
+
+  commerce_crefopay.config_provider:
+    class: Drupal\commerce_crefopay\ConfigProvider
+    arguments: ['@config.factory']
+  commerce_crefopay.subscription_client:
+    class: Drupal\commerce_crefopay\Client\SubscriptionClient
+    arguments: ['@commerce_crefopay.config_provider']
+  commerce_crefopay.transaction_client:
+    class: Drupal\commerce_crefopay\Client\TransactionClient
+    arguments: ['@commerce_crefopay.config_provider','@commerce_crefopay.person_builder','@commerce_crefopay.address_builder', '@commerce_crefopay.basket_builder', '@commerce_crefopay.amount_builder']

@@ -1,0 +1,17 @@
+name: Commerce Crefopay test
+description: Commerce Crefopay test template.
+package: commerce_crefopay
+type: module
+
+core: 8.x
+dependencies:
+  - commerce
+  - commerce:commerce_product
+  - commerce:commerce_store
+  - commerce:commerce_cart
+  - commerce:commerce_order
+  - commerce:commerce_payment
+  - state_machine
+  - path
+  - text
+  - datetime_range
