@@ -99,3 +99,6 @@ Please read [the full documentation](https://github.com/openeuropa/openeuropa) f
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the available versions, see the [tags on this repository](https://github.com/openeuropa/commerce_crefopay/tags).
+
+# Urls
+crefopay/confirm?merchantID=516&orderID=5&paymentInstrumentID=&paymentMethod=BILL&storeID=KGTX4QORh2ONyok

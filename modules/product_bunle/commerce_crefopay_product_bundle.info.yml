@@ -1,0 +1,9 @@
+name: Commerce Crefopay (Product Bundle support)
+description: Product Bundle integration for Crefpay subscriptions.
+package: commerce_crefopay
+type: module
+
+core: 8.x
+dependencies:
+  - commerce_crefopay
+  - commerce_product_bundle

@@ -13,7 +13,7 @@ class AmountBuilder {
    */
   public function buildFromOrderItem(OrderItemInterface $order_item) {
     $amount = new Amount();
-    $amount->setAmount(ceil($order_item->getTotalPrice()));
+    $amount->setAmount(ceil($order_item->getTotalPrice()->getNumber()));
 
     return $amount;
   }
@@ -25,7 +25,7 @@ class AmountBuilder {
    */
   public function buildFromOrder(OrderInterface $order) {
     $amount = new Amount();
-    $amount->setAmount(ceil($order->getTotalPrice()));
+    $amount->setAmount(ceil($order->getTotalPrice()->getNumber()));
     return $amount;
   }
 }

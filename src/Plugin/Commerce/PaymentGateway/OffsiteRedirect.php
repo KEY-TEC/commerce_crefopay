@@ -29,48 +29,6 @@ class OffsiteRedirect extends OffsitePaymentGatewayBase {
   /**
    * {@inheritdoc}
    */
-  public function defaultConfiguration() {
-    return [
-      'redirect_method' => 'post',
-    ] + parent::defaultConfiguration();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $form = parent::buildConfigurationForm($form, $form_state);
-
-    // A real gateway would always know which redirect method should be used,
-    // it's made configurable here for test purposes.
-    $form['redirect_method'] = [
-      '#type' => 'radios',
-      '#title' => $this->t('Redirect method'),
-      '#options' => [
-        'get' => $this->t('Redirect via GET (302 header)'),
-        'post' => $this->t('Redirect via POST (automatic)'),
-        'post_manual' => $this->t('Redirect via POST (manual)'),
-      ],
-      '#default_value' => $this->configuration['redirect_method'],
-    ];
-
-    return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    parent::submitConfigurationForm($form, $form_state);
-    if (!$form_state->getErrors()) {
-      $values = $form_state->getValue($form['#parents']);
-      $this->configuration['redirect_method'] = $values['redirect_method'];
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function onReturn(OrderInterface $order, Request $request) {
     // @todo Add examples of request validation.
     // Note: Since requires_billing_information is FALSE, the order is

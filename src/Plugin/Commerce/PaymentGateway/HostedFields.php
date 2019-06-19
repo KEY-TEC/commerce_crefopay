@@ -18,9 +18,11 @@ use Drupal\Core\Form\FormStateInterface;
 /**
 * Provides the HostedFields payment gateway.
 *
+* Not supported right now!
+*
 * @CommercePaymentGateway(
 *   id = "commerce_crefopay_hostedfields",
-*   label = "Crefopay (Hosted Fields)",
+*   label = "Crefopay (Hosted Fields) - Not supported right now",
 *   display_label = "Crefopay",
 *   forms = {
 *     "add-payment-method" = "Drupal\commerce_crefopay\PluginForm\HostedFields\PaymentMethodAddForm",
@@ -35,43 +37,7 @@ use Drupal\Core\Form\FormStateInterface;
 class HostedFields extends OnsitePaymentGatewayBase {
 
   public function createPayment(PaymentInterface $payment, $capture = TRUE) {
-    $this->assertPaymentState($payment, ['new']);
-    $payment_method = $payment->getPaymentMethod();
-    $this->assertPaymentMethod($payment_method);
-    $amount = $payment->getAmount();
-    $currency_code = $payment->getAmount()->getCurrencyCode();
-
-
-    $transaction_data = [
-      'channel' => 'CommerceGuys_BT_Vzero',
-      'merchantAccountId' => $this->configuration['merchant_account_id'][$currency_code],
-      // orderId must be unique.
-      'orderId' => $payment->getOrderId() . '-' . $this->time->getCurrentTime(),
-      'amount' => $amount->getNumber(),
-      'options' => [
-        'submitForSettlement' => $capture,
-      ],
-    ];
-    if ($payment_method->isReusable()) {
-      $transaction_data['paymentMethodToken'] = $payment_method->getRemoteId();
-    }
-    else {
-      $transaction_data['paymentMethodNonce'] = $payment_method->getRemoteId();
-    }
-
-    try {
-      //$result = $this->api->transaction()->sale($transaction_data);
-      //ErrorHelper::handleErrors($result);
-    }
-    catch (\Braintree\Exception $e) {
-      ErrorHelper::handleException($e);
-    }
-
-    $next_state = $capture ? 'completed' : 'authorization';
-    $payment->setState($next_state);
-    $payment->setRemoteId($result->transaction->id);
-    // @todo Find out how long an authorization is valid, set its expiration.
-    $payment->save();
+    // @TODO: Implemnet createPayment.
 
   }
 
