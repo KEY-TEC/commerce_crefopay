@@ -6,7 +6,6 @@ use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\commerce_payment\PluginForm\PaymentOffsiteForm as BasePaymentOffsiteForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Entity\User;
-use mysql_xdevapi\Exception;
 
 class PaymentOffsiteForm extends BasePaymentOffsiteForm {
 
