@@ -2,7 +2,13 @@
 
 namespace Drupal\commerce_crefopay\Client;
 
+use Drupal\address\AddressInterface;
+use Drupal\commerce_crefopay\Client\Builder\AddressBuilder;
+use Drupal\commerce_crefopay\Client\Builder\AmountBuilder;
+use Drupal\commerce_crefopay\Client\Builder\BasketBuilder;
+use Drupal\commerce_crefopay\Client\Builder\PersonBuilder;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
+use Drupal\commerce_order\Entity\Order;
 use Drupal\user\Entity\User;
 use Upg\Library\Request\GetSubscriptionPlans as RequestGetSubscriptionPlans;
 use Upg\Library\Api\GetSubscriptionPlans as ApiGetSubscriptionPlans;
@@ -12,33 +18,24 @@ use Upg\Library\Api\CreateSubscription as ApiCreateSubscription;
 
 use Upg\Library\Request\Objects\Amount;
 use Upg\Library\Request\Objects\AmountRange;
-use Upg\Library\Request\Objects\BasketItem;
 use Upg\Library\Response\SuccessResponse;
 
-class SubscriptionClient {
+class SubscriptionClient extends AbstractClient {
 
-  private $configProvider;
-
-  /**
-   * ConfigProvider constructor.
-   */
-  public function __construct(ConfigProviderInterface $config_provider) {
-    $this->configProvider = $config_provider;
-  }
-  public function createSubscription(User $user, $plan_reference) {
+  public function createSubscription(Order $order, User $user, AddressInterface $billing_address, $plan_reference) {
     $subscription_create_request = new RequestCreateSubscription($this->configProvider->getConfig());
-    $subscription_create_request->setSubscriptionID('start XX');
+    $subscription_create_request->setSubscriptionID($order->id());
+    $subscription_create_request->setIntegrationType("HostedPageBefore");
     $subscription_create_request->setPlanReference($plan_reference);
-    $subscription_create_request->setAmount(new Amount(1));
-    $basketItem = new BasketItem();
-    $basketItem->setBasketItemID('1');
-    $basketItem->setBasketItemCount(1);
-    $basketItem->setBasketItemAmount(new Amount(1));
-    $basketItem->setBasketItemText('Test');
+    $subscription_create_request->setAmount($this->amountBuilder->buildFromOrder($order));
+    $subscription_create_request->setUserData($this->personBuilder->build($user));
     $subscription_create_request->setUserID($user->id());
+    $subscription_create_request->setBillingAddress($this->addressBuilder->build($billing_address));
+    $subscription_create_request->setIntegrationType("HostedPageBefore");
     $subscription_create_request->setLocale('DE');
     $subscription_create_request->setUserType(Type::USER_TYPE_PRIVATE);
-    $subscription_create_request->addBasketItem($basketItem);
+    $basket_item = $this->basketBuilder->build($order);
+    $subscription_create_request->addBasketItem($basket_item);
     $subscriptions_create_api = new ApiCreateSubscription($this->configProvider->getConfig(), $subscription_create_request);
     $result = $subscriptions_create_api->sendRequest();
     if ($result instanceof SuccessResponse) {

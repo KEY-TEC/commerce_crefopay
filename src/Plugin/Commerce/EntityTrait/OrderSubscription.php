@@ -9,20 +9,20 @@ use Drupal\commerce\Plugin\Commerce\EntityTrait\EntityTraitBase;
  * Provides the "order_item_subscription" trait.
  *
  * @CommerceEntityTrait(
- *   id = "order_item_crefopay_subscription",
- *   label = @Translation("Subscription"),
- *   entity_types = {"commerce_order_item"}
+ *   id = "order_crefopay_subscription",
+ *   label = @Translation("Order type used for a crefopay subscription"),
+ *   entity_types = {"commerce_order"}
  * )
  */
-class OrderItemSubscription extends EntityTraitBase {
+class OrderSubscription extends EntityTraitBase {
 
   /**
    * {@inheritdoc}
    */
   public function buildFieldDefinitions() {
     $fields = [];
-    $fields['rental_quantity'] = BundleFieldDefinition::create('commerce_rental_quantity')
-      ->setLabel(t('Rental Quantity'))
+    $fields['crefopay_is_subscription'] = BundleFieldDefinition::create('boolean')
+      ->setLabel(t('Subscription Order '))
       ->setDescription(t('Rental Quantity'))
       ->setCardinality(-1)
       ->setRequired(TRUE)

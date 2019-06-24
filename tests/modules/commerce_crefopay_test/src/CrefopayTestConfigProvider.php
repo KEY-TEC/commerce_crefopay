@@ -11,6 +11,10 @@ Class CrefopayTestConfigProvider implements ConfigProviderInterface {
     return new Config($this->getConfigArray());
   }
 
+  public function getSubscriptionOrderTypeId() {
+    return 'subscription';
+  }
+
   public function getConfigArray() {
     return [
       'merchantID' => '516',

@@ -52,6 +52,20 @@ class CrefopayConfigForm extends ConfigFormBase {
       '#default_value' => $config->get('merchantPassword'),
       '#required' => TRUE,
     ];
+
+    $order_types = \Drupal::entityTypeManager()->getStorage('commerce_order_type')->loadMultiple();
+    $order_types_options = [];
+    foreach ($order_types as $order_type) {
+      $order_types_options[$order_type->id()] = $order_type->label();
+    }
+
+    $form['subscriptionOrderTypeId'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Subscription Order Type'),
+      '#default_value' => $config->get('subscriptionOrderTypeId'),
+      '#required' => FALSE,
+      '#options' => $order_types_options
+    ];
     return $form;
   }
 
@@ -66,6 +80,7 @@ class CrefopayConfigForm extends ConfigFormBase {
     $config->set('storeID', $form_state->getValue('storeID'));
     $config->set('merchantID', $form_state->getValue('merchantID'));
     $config->set('merchantPassword', $form_state->getValue('merchantPassword'));
+    $config->set('subscriptionOrderTypeId', $form_state->getValue('subscriptionOrderTypeId'));
     $config->save();
     return parent::submitForm($form, $form_state);
   }

@@ -20,6 +20,11 @@ Class ConfigProvider implements ConfigProviderInterface {
     return new Config($this->getConfigArray());
   }
 
+  public function getSubscriptionOrderTypeId() {
+    $config = $this->configFactory->get('commerce_crefopay.settings');
+    return $config->get('subscriptionOrderTypeId');
+  }
+
   public function getConfigArray() {
     $config = $this->configFactory->get('commerce_crefopay.settings');
     return [

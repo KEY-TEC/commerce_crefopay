@@ -15,7 +15,6 @@ class PaymentMethodAddForm extends BasePaymentMethodAddForm {
     // Default to a known valid test credit card number.
     $element['crefopay_payment']['#theme'] = 'crefopay_payment';
 
-    header("Access-Control-Allow-Origin: https://api.crefopay.de/secureFields/getSession");
     return $element;
   }
 
