@@ -11,7 +11,7 @@ use Drupal\commerce_crefopay\Plugin\Commerce\EntityTrait\PurchasableEntitySubscr
  * @CommerceEntityTrait(
  *   id = "purchasable_bundle_entity_subscription_plan",
  *   label = @Translation("Bundle Subscription Plan"),
- *   entity_types = {"commerce_product_variation"}
+ *   entity_types = {"commerce_product_bundle"}
  * )
  */
 class BundleSubscriptionPlan extends PurchasableEntitySubscriptionPlan {
