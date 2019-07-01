@@ -26,6 +26,17 @@ commerce_crefopay.callback_success:
     _access: 'TRUE'
   options:
     no_cache: TRUE
+
+commerce_crefopay.callback_notification:
+  path: '/crefopay/notification'
+  defaults:
+    _controller: '\Drupal\commerce_crefopay\Controller\Callback\Notification::execute'
+    _title: 'Notification'
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
 #commerce_crefopay.callback_failure:
 #  path: '/crefopay/failure'
 #  defaults:

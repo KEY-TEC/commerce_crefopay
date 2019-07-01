@@ -1,0 +1,1 @@
+curl -d "orderID=121&userID=value1&pactionStatus=done&subscriptionID=12&transactionStatus=12" -H "Content-Type: application/x-www-form-urlencoded" -X POST http://commerce-crefopay.docksal/crefopay/notification
