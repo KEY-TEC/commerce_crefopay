@@ -6,7 +6,7 @@ use CommerceGuys\Addressing\Address;
 use Drupal\address\AddressInterface;
 use Drupal\commerce_crefopay\Client\Builder\AddressBuilder;
 use Drupal\commerce_crefopay\Client\Builder\PersonBuilder;
-use Drupal\commerce_crefopay\Client\Builder\UuidBuilder;
+use Drupal\commerce_crefopay\Client\Builder\IdBuilder;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\user\Entity\User;
 use Upg\Library\Api\Exception\ApiError;
@@ -26,22 +26,22 @@ class UserClient {
 
   private $addressBuilder;
 
-  private $uuidBuilder;
+  private $idBuilder;
 
   /**
    * ConfigProvider constructor.
    */
-  public function __construct(ConfigProviderInterface $config_provider, UuidBuilder $uuid_builder, PersonBuilder $person_builder, AddressBuilder $address_builder) {
+  public function __construct(ConfigProviderInterface $config_provider, IdBuilder $uuid_builder, PersonBuilder $person_builder, AddressBuilder $address_builder) {
     $this->configProvider = $config_provider;
     $this->personBuilder = $person_builder;
     $this->addressBuilder = $address_builder;
-    $this->uuidBuilder = $uuid_builder;
+    $this->idBuilder = $uuid_builder;
 
   }
   public function registerOrUpdateUser(User $user, AddressInterface $billing_address) {
     $crefo_existing_user = $this->getUser($user);
     $register_user_request = new RequestRegisterUser($this->configProvider->getConfig());
-    $register_user_request->setUserID($this->uuidBuilder->id($user));
+    $register_user_request->setUserID($this->idBuilder->id($user));
     $register_user_request->setUserType(Type::USER_TYPE_PRIVATE);
 
     $crefo_user = $this->personBuilder->build($user, $billing_address);
@@ -90,7 +90,7 @@ class UserClient {
    */
   public function getUser(User $user) {
     $user_get_request = new RequestGetUser($this->configProvider->getConfig());
-    $user_get_request->setUserID($this->uuidBuilder->id($user));
+    $user_get_request->setUserID($this->idBuilder->id($user));
     $user_get_api = new ApiGetUser($this->configProvider->getConfig(), $user_get_request);
     try {
       $result = $user_get_api->sendRequest();

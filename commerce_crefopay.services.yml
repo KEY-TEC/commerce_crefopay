@@ -7,22 +7,22 @@ services:
     arguments: []
   commerce_crefopay.basket_builder:
     class: Drupal\commerce_crefopay\Client\Builder\BasketBuilder
-    arguments: ['@commerce_crefopay.uuid_builder']
+    arguments: ['@commerce_crefopay.id_builder']
   commerce_crefopay.amount_builder:
     class: Drupal\commerce_crefopay\Client\Builder\AmountBuilder
     arguments: []
-  commerce_crefopay.uuid_builder:
-    class: Drupal\commerce_crefopay\Client\Builder\UuidBuilder
+  commerce_crefopay.id_builder:
+    class: Drupal\commerce_crefopay\Client\Builder\IdBuilder
     arguments: []
   commerce_crefopay.config_provider:
     class: Drupal\commerce_crefopay\ConfigProvider
     arguments: ['@config.factory']
   commerce_crefopay.subscription_client:
     class: Drupal\commerce_crefopay\Client\SubscriptionClient
-    arguments: ['@commerce_crefopay.config_provider', '@commerce_crefopay.uuid_builder', '@commerce_crefopay.person_builder', '@commerce_crefopay.address_builder', '@commerce_crefopay.basket_builder', '@commerce_crefopay.amount_builder']
+    arguments: ['@commerce_crefopay.config_provider', '@commerce_crefopay.id_builder', '@commerce_crefopay.person_builder', '@commerce_crefopay.address_builder', '@commerce_crefopay.basket_builder', '@commerce_crefopay.amount_builder']
   commerce_crefopay.transaction_client:
     class: Drupal\commerce_crefopay\Client\TransactionClient
-    arguments: ['@commerce_crefopay.config_provider', '@commerce_crefopay.uuid_builder', '@commerce_crefopay.person_builder', '@commerce_crefopay.address_builder', '@commerce_crefopay.basket_builder', '@commerce_crefopay.amount_builder']
+    arguments: ['@commerce_crefopay.config_provider', '@commerce_crefopay.id_builder', '@commerce_crefopay.person_builder', '@commerce_crefopay.address_builder', '@commerce_crefopay.basket_builder', '@commerce_crefopay.amount_builder']
   commerce_crefopay.subscription_order_type_resolver:
     class: Drupal\commerce_crefopay\Resolver\SubscriptionOrderTypeResolver
     arguments: ['@entity_type.manager', '@commerce_crefopay.config_provider']

@@ -17,34 +17,35 @@ class TransactionClient extends AbstractClient {
 
   public function captureTransaction(Order $order, $payment_method, $payment_instrument_id) {
     $request = new RequestCapture($this->configProvider->getConfig());
-    $request->setOrderID($this->uuidBuilder->id($order));
+    $request->setOrderID($this->idBuilder->id($order));
     $request->setPaymentMethod($payment_method);
     $request->setPaymentInstrumentID($payment_instrument_id);
     $reserve_transaction = new Reserve($this->configProvider->getConfig(), $request);
     $result = $reserve_transaction->sendRequest();
     if ($result instanceof SuccessResponse) {
-      return $result->getData('redirectUrl');
+      $all_data = $result->getAllData();
+      return isset($all_data['redirectUrl']) ? $all_data['redirectUrl'] : NULL;
     }
   }
 
-
   public function reserveTransaction(Order $order, $payment_method, $payment_instrument_id) {
     $request = new RequestReserve($this->configProvider->getConfig());
-    $request->setOrderID($this->uuidBuilder->id($order));
+    $request->setOrderID($this->idBuilder->id($order));
     $request->setPaymentMethod($payment_method);
     $request->setPaymentInstrumentID($payment_instrument_id);
     $reserve_transaction = new Reserve($this->configProvider->getConfig(), $request);
     $result = $reserve_transaction->sendRequest();
     if ($result instanceof SuccessResponse) {
-      return $result->getData('redirectUrl');
+      $all_data = $result->getAllData();
+      return isset($all_data['redirectUrl']) ? $all_data['redirectUrl'] : NULL;
     }
   }
 
   public function createTransaction(Order $order, User $user, AddressInterface $billing_address) {
     $request = new RequestCreateTransaction($this->configProvider->getConfig());
     $amount = $this->amountBuilder->buildFromOrder($order);
-    $request->setUserID($this->uuidBuilder->id($user));
-    $request->setOrderID($this->uuidBuilder->id($order));
+    $request->setUserID($this->idBuilder->id($user));
+    $request->setOrderID($this->idBuilder->id($order));
     $request->setIntegrationType("HostedPageBefore");
     $request->setAmount($amount);
     $request->setAutoCapture(TRUE);
@@ -61,11 +62,12 @@ class TransactionClient extends AbstractClient {
     try {
       $result = $create_transaction->sendRequest();
       if ($result instanceof SuccessResponse) {
-        return $result->getData('redirectUrl');
+        $all_data = $result->getAllData();
+        return isset($all_data['redirectUrl']) ? $all_data['redirectUrl'] : NULL;
       }
     }
     catch (ApiError $api_error) {
-      $this->handleValidationExceptions($api_error, $this->uuidBuilder->id($order));
+      $this->handleValidationExceptions($api_error, $this->idBuilder->id($order));
     }
     return NULL;
   }

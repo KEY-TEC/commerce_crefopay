@@ -26,12 +26,12 @@ class SubscriptionClient extends AbstractClient {
 
   public function createSubscription(Order $order, User $user, AddressInterface $billing_address, $plan_reference) {
     $subscription_create_request = new RequestCreateSubscription($this->configProvider->getConfig());
-    $subscription_create_request->setSubscriptionID($this->uuidBuilder->id($order));
+    $subscription_create_request->setSubscriptionID($this->idBuilder->id($order));
     $subscription_create_request->setIntegrationType("HostedPageBefore");
     $subscription_create_request->setPlanReference($plan_reference);
     $subscription_create_request->setAmount($this->amountBuilder->buildFromOrder($order));
     $subscription_create_request->setUserData($this->personBuilder->build($user, $billing_address));
-    $subscription_create_request->setUserID($this->uuidBuilder->id($user));
+    $subscription_create_request->setUserID($this->idBuilder->id($user));
     $subscription_create_request->setBillingAddress($this->addressBuilder->build($billing_address));
     $subscription_create_request->setIntegrationType("HostedPageBefore");
     $subscription_create_request->setLocale($this->personBuilder->getLangcode($user));

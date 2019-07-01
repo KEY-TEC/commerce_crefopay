@@ -2,7 +2,6 @@
 
 namespace Drupal\commerce_crefopay\Client\Builder;
 
-use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_order\Entity\OrderItemInterface;
 use Upg\Library\Request\AbstractRequest;
@@ -12,15 +11,15 @@ use Upg\Library\Request\Objects\Amount;
 class BasketBuilder {
 
   /**
-   * @var \Drupal\commerce_crefopay\Client\Builder\UuidBuilder
+   * @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder
    */
-  private $uuidBuilder;
+  private $idBuilder;
 
   /**
    * ConfigProvider constructor.
    */
-  public function __construct(UuidBuilder $uuid_builder) {
-    $this->uuidBuilder = $uuid_builder;
+  public function __construct(IdBuilder $uuid_builder) {
+    $this->idBuilder = $uuid_builder;
   }
 
   /**

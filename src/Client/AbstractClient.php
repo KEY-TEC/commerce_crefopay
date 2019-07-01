@@ -6,7 +6,7 @@ use Drupal\commerce_crefopay\Client\Builder\AddressBuilder;
 use Drupal\commerce_crefopay\Client\Builder\AmountBuilder;
 use Drupal\commerce_crefopay\Client\Builder\BasketBuilder;
 use Drupal\commerce_crefopay\Client\Builder\PersonBuilder;
-use Drupal\commerce_crefopay\Client\Builder\UuidBuilder;
+use Drupal\commerce_crefopay\Client\Builder\IdBuilder;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Upg\Library\Api\Exception\ApiError;
 use Upg\Library\Api\Exception\Validation;
@@ -49,19 +49,19 @@ abstract class AbstractClient {
   protected $amountBuilder;
 
   /**
-   * @var \Drupal\commerce_crefopay\Client\Builder\UuidBuilder
+   * @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder
    */
-  protected $uuidBuilder;
+  protected $idBuilder;
   /**
    * AbstractClient constructor.
    */
-  public function __construct(ConfigProviderInterface $config_provider, UuidBuilder $uuid_builder, PersonBuilder $person_builder, AddressBuilder $address_builder, BasketBuilder $basket_builder, AmountBuilder $amount_builder) {
+  public function __construct(ConfigProviderInterface $config_provider, IdBuilder $uuid_builder, PersonBuilder $person_builder, AddressBuilder $address_builder, BasketBuilder $basket_builder, AmountBuilder $amount_builder) {
     $this->configProvider = $config_provider;
     $this->personBuilder = $person_builder;
     $this->addressBuilder = $address_builder;
     $this->basketBuilder = $basket_builder;
     $this->amountBuilder = $amount_builder;
-    $this->uuidBuilder = $uuid_builder;
+    $this->idBuilder = $uuid_builder;
   }
 
 }

@@ -11,8 +11,8 @@ class Confirm extends ControllerBase {
 
   public function execute(Request $request) {
 
-    /** @var \Drupal\commerce_crefopay\Client\Builder\UuidBuilder $id_service */
-    $id_service = \Drupal::service('commerce_crefopay.uuid_builder');
+    /** @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder $id_service */
+    $id_service = \Drupal::service('commerce_crefopay.id_builder');
     $order_id = $id_service->realId($request->query->get('orderID'));
     $payment_method = $request->get('paymentMethod');
     $payment_instrument_id = $request->get('paymentInstrumentID');

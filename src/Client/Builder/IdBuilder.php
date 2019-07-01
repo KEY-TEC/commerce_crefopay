@@ -3,10 +3,19 @@
 namespace Drupal\commerce_crefopay\Client\Builder;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Site\Settings;
 
-class UuidBuilder {
+class IdBuilder {
 
-  private $prefix = "TEST-4-";
+  private $prefix = "";
+
+  /**
+   * ConfigProvider constructor.
+   */
+  public function __construct() {
+    $this->prefix = Settings::get('crefopay_id_prefix');
+  }
+
   /**
    * @param EntityInterface $entity
    *

@@ -65,8 +65,7 @@ class PaymentOffsiteForm extends BasePaymentOffsiteForm {
 
     }
 
-    $data = [
-    ];
+    $data = [];
     $form = $this->buildRedirectForm($form, $form_state, $redirect_url, $data, 'GET');
     return $form;
   }

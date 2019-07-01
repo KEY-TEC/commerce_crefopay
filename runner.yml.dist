@@ -24,6 +24,7 @@ drupal:
     - "./vendor/bin/drush cr"
   settings:
     settings:
+      crefopay_id_prefix: "TEST-2"
       file_scan_ignore_directories:
         - "node_modules"
         - "bower_components"
