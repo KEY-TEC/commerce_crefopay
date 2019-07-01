@@ -32,6 +32,7 @@ abstract class AbstractClientTest extends UnitTestCase {
   protected $orderMock;
 
   public function setUp() {
+    $uuid = time();
     $this->userMock = $this->getMockBuilder('Drupal\user\Entity\User')
       ->disableOriginalConstructor()
       ->getMock();
@@ -39,11 +40,15 @@ abstract class AbstractClientTest extends UnitTestCase {
       ->method('id')
       ->will($this->returnValue(12));
     $this->userMock->expects($this->any())
+      ->method('uuid')
+      ->will($this->returnValue("USER-" . $uuid));
+
+    $this->userMock->expects($this->any())
       ->method('getEmail')
       ->will($this->returnValue("christian.wiedemann@key-tec.de"));
 
     /** @var \Drupal\user\Entity\User $user */
-    $this->billingAddressMock = $this->getMockBuilder('CommerceGuys\Addressing\Address')
+    $this->billingAddressMock = $this->getMockBuilder('Drupal\address\Plugin\Field\FieldType\AddressItem')
       ->disableOriginalConstructor()
       ->getMock();
     $this->billingAddressMock->expects($this->any())
@@ -57,8 +62,11 @@ abstract class AbstractClientTest extends UnitTestCase {
       ->method('getAddressLine1')
       ->will($this->returnValue("Blutenburgstr. 68"));
     $this->billingAddressMock->expects($this->any())
-      ->method('getAdministrativeArea')
+      ->method('getLocality')
       ->will($this->returnValue("Munich"));
+    $this->billingAddressMock->expects($this->any())
+      ->method('getAdministrativeArea')
+      ->will($this->returnValue("Bavaria"));
     $this->billingAddressMock->expects($this->any())
       ->method('getCountryCode')
       ->will($this->returnValue("DE"));
@@ -70,6 +78,10 @@ abstract class AbstractClientTest extends UnitTestCase {
     $order_item_mock = $this->getMockBuilder('Drupal\commerce_order\Entity\OrderItem')
       ->disableOriginalConstructor()
       ->getMock();
+    $order_item_mock->expects($this->any())
+      ->method('uuid')
+      ->will($this->returnValue("OITEM-" . $uuid));
+
     $order_item_mock->expects($this->any())
       ->method('getTotalPrice')
       ->will($this->returnValue(new Price(100, "USD")));
@@ -85,13 +97,19 @@ abstract class AbstractClientTest extends UnitTestCase {
       ->getMock();
     $this->orderMock->expects($this->any())
       ->method('id')
-      ->will($this->returnValue(15));
+      ->will($this->returnValue(17));
+    $this->orderMock->expects($this->any())
+      ->method('uuid')
+      ->will($this->returnValue("ORD-" . $uuid));
 
     $this->orderMock->expects($this->any())
       ->method('getItems')
       ->will($this->returnValue(
         [$order_item_mock]
       ));
+    $this->orderMock->expects($this->any())
+      ->method('getTotalPrice')
+      ->will($this->returnValue(new Price(100, "USD")));
 
   }
 

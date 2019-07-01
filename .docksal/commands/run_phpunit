@@ -48,5 +48,5 @@ is_windows ()
 #-------------------------- Functions --------------------------------
 
 
-cd $DOCROOT_PATH
-fin exec "php core/scripts/run-tests.sh --sqlite ../sqllite/sqlite.sql --color --verbose --url http://commerce-crefopay.docksal $* "
+cd $PROJECT_ROOT
+fin exec /var/www/vendor/bin/phpunit

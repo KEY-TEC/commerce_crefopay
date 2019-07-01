@@ -9,7 +9,7 @@ commerce_crefopay.config:
 commerce_crefopay.callback_confirm:
   path: '/crefopay/confirm'
   defaults:
-    _controller: '\Drupal\commerce_crefopay\Controller\Callback\Success::execute'
+    _controller: '\Drupal\commerce_crefopay\Controller\Callback\Confirm::execute'
     _title: 'payment was successfully made'
   requirements:
     _access: 'TRUE'

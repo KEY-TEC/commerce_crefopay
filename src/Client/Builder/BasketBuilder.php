@@ -2,13 +2,26 @@
 
 namespace Drupal\commerce_crefopay\Client\Builder;
 
+use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_order\Entity\OrderItemInterface;
+use Upg\Library\Request\AbstractRequest;
 use Upg\Library\Request\Objects\BasketItem;
 use Upg\Library\Request\Objects\Amount;
-use Upg\Library\Request\CreateTransaction as CreateTransactionRequest;
 
 class BasketBuilder {
+
+  /**
+   * @var \Drupal\commerce_crefopay\Client\Builder\UuidBuilder
+   */
+  private $uuidBuilder;
+
+  /**
+   * ConfigProvider constructor.
+   */
+  public function __construct(UuidBuilder $uuid_builder) {
+    $this->uuidBuilder = $uuid_builder;
+  }
 
   /**
    * @param \Drupal\commerce_order\Entity\OrderInterface $order
@@ -16,13 +29,11 @@ class BasketBuilder {
    *
    * @return void
    */
-  public function build(OrderInterface $order, CreateTransactionRequest $createTransactionRequest) {
+  public function build(OrderInterface $order, AbstractRequest $createTransactionRequest) {
     /** @var $quoteItem QuoteItem */
     foreach ($order->getItems() as $order_item) {
-      if ((bool) intval($order_item->getTotalPrice()->getNumber())) {
-        $basket_item = $this->buildItem($order_item);
-        $createTransactionRequest->addBasketItem($basket_item);
-      }
+      $basket_item = $this->buildItem($order_item);
+      $createTransactionRequest->addBasketItem($basket_item);
     }
   }
 
@@ -34,12 +45,12 @@ class BasketBuilder {
   private function buildItem(OrderItemInterface $order_item) {
     $basket_item = new BasketItem();
     $basket_item_amount = new Amount();
-    $basket_item_amount->setAmount(ceil($order_item->getTotalPrice()->getNumber()));
-
+    $basket_item_amount->setAmount(round($order_item->getTotalPrice()->getNumber() * 100));
+    $basket_item->setBasketItemID($order_item->id());
+    $basket_item->setBasketItemCount($order_item->getQuantity());
     $basket_item->setBasketItemText($order_item->getTitle());
     $basket_item->setBasketItemCount(ceil($order_item->getQuantity()));
     $basket_item->setBasketItemAmount($basket_item_amount);
-
     return $basket_item;
   }
 }

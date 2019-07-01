@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_crefopay\PluginForm\OffsiteRedirect;
 
+use Drupal\commerce_crefopay\Client\OrderIdAlreadyExistsException;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\commerce_payment\PluginForm\PaymentOffsiteForm as BasePaymentOffsiteForm;
 use Drupal\Core\Form\FormStateInterface;
@@ -35,7 +36,6 @@ class PaymentOffsiteForm extends BasePaymentOffsiteForm {
 
     if ($subscription_order_type_id === $order->bundle()) {
       $items = $order->getItems();
-
       $plan_reference = NULL;
       foreach ($items as $item) {
         $purchased_product = $item->getPurchasedEntity();
@@ -55,7 +55,14 @@ class PaymentOffsiteForm extends BasePaymentOffsiteForm {
     else {
       /** @var \Drupal\commerce_crefopay\Client\TransactionClient $transaction_client */
       $transaction_client = \Drupal::service('commerce_crefopay.transaction_client');
-      $redirect_url = $transaction_client->createTransaction($order, $user, $address);
+      try {
+        $redirect_url = $transaction_client->createTransaction($order, $user, $address);
+        $form['#redirect_url'] = $redirect_url;
+      }
+      catch (OrderIdAlreadyExistsException $oe) {
+
+      }
+
     }
 
     $data = [

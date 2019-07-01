@@ -23,7 +23,7 @@ class AddressBuilder {
     $crefo_pay_address->setCity($address->getLocality());
     $crefo_pay_address->setState($address->getAdministrativeArea());
     $crefo_pay_address->setCountry($address->getCountryCode());
-
+    $crefo_pay_address->setAdditional($address->getAdditionalName());
     return $crefo_pay_address;
   }
 }

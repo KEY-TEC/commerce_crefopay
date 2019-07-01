@@ -3,10 +3,13 @@
 namespace Drupal\commerce_crefopay\Client;
 
 use CommerceGuys\Addressing\Address;
+use Drupal\address\AddressInterface;
 use Drupal\commerce_crefopay\Client\Builder\AddressBuilder;
 use Drupal\commerce_crefopay\Client\Builder\PersonBuilder;
+use Drupal\commerce_crefopay\Client\Builder\UuidBuilder;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\user\Entity\User;
+use Upg\Library\Api\Exception\ApiError;
 use Upg\Library\Request\RegisterUser as RequestRegisterUser;
 use Upg\Library\Api\RegisterUser as ApiRegisterUser;
 use Upg\Library\Api\UpdateUser as ApiUpdateUser;
@@ -23,23 +26,27 @@ class UserClient {
 
   private $addressBuilder;
 
+  private $uuidBuilder;
+
   /**
    * ConfigProvider constructor.
    */
-  public function __construct(ConfigProviderInterface $config_provider, PersonBuilder $person_builder, AddressBuilder $address_builder) {
+  public function __construct(ConfigProviderInterface $config_provider, UuidBuilder $uuid_builder, PersonBuilder $person_builder, AddressBuilder $address_builder) {
     $this->configProvider = $config_provider;
     $this->personBuilder = $person_builder;
     $this->addressBuilder = $address_builder;
+    $this->uuidBuilder = $uuid_builder;
+
   }
-  public function registerOrUpdateUser(User $user, Address $billing_address) {
+  public function registerOrUpdateUser(User $user, AddressInterface $billing_address) {
     $crefo_existing_user = $this->getUser($user);
     $register_user_request = new RequestRegisterUser($this->configProvider->getConfig());
-    $register_user_request->setUserID($user->id());
+    $register_user_request->setUserID($this->uuidBuilder->id($user));
     $register_user_request->setUserType(Type::USER_TYPE_PRIVATE);
 
     $crefo_user = $this->personBuilder->build($user, $billing_address);
     $crefo_billing_address = $this->addressBuilder->build($billing_address);
-    $register_user_request->setLocale('DE');
+    $register_user_request->setLocale($this->personBuilder->getLangcode($user));
     $register_user_request->setUserData($crefo_user);
     $register_user_request->setBillingAddress($crefo_billing_address);
 
@@ -83,12 +90,23 @@ class UserClient {
    */
   public function getUser(User $user) {
     $user_get_request = new RequestGetUser($this->configProvider->getConfig());
-    $user_get_request->setUserID($user->id());
+    $user_get_request->setUserID($this->uuidBuilder->id($user));
     $user_get_api = new ApiGetUser($this->configProvider->getConfig(), $user_get_request);
-    $result = $user_get_api->sendRequest();
-    if ($result instanceof SuccessResponse) {
-      $user = $result->getData('userData');
-      return $user;
+    try {
+      $result = $user_get_api->sendRequest();
+      if ($result instanceof SuccessResponse) {
+        $user = $result->getData('userData');
+        return $user;
+      }
+    }
+    catch (ApiError $api_error) {
+      // Return for "User already exists Exception" (2015).
+      if ($api_error->getCode() === 2015) {
+        return NULL;
+      }
+      else {
+        throw $api_error;
+      }
     }
     return NULL;
   }

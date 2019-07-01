@@ -30,7 +30,8 @@ class TransactionClientTest extends AbstractClientTest {
     $this->transactionClient = new TransactionClient(new CrefopayTestConfigProvider(), new PersonBuilder(), new AddressBuilder(), new BasketBuilder(), new AmountBuilder());
   }
   public function testCreateTransaction(){
-    $this->transactionClient->createTransaction($this->orderMock, $this->userMock, $this->billingAddressMock);
+    $result = $this->transactionClient->createTransaction($this->orderMock, $this->userMock, $this->billingAddressMock);
+    $this->assertTrue($result);
 
   }
 

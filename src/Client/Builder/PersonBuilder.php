@@ -27,4 +27,12 @@ class PersonBuilder {
     return $person;
   }
 
+  public function getLangcode(User $user) {
+    $langcode = $user->getPreferredLangcode();
+    if ($langcode === NULL) {
+      return 'DE';
+    }
+    return strtoupper($langcode);
+  }
+
 }

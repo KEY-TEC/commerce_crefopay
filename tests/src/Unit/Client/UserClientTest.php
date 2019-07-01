@@ -25,11 +25,12 @@ class UserClientTest extends AbstractClientTest {
     parent::setUp();
     $this->userClient = new UserClient(new CrefopayTestConfigProvider(), new PersonBuilder(), new AddressBuilder());
   }
+
   public function testGetUser(){
     $user = $this->userClient->getUser($this->userMock);
-    $this->assertNotNull($user);
-
+    $this->assertNull($user);
   }
+
   public function testRegisterOrUpdateUser(){
     $user = $this->userClient->registerOrUpdateUser($this->userMock, $this->billingAddressMock);
     $this->assertNotNull($user);

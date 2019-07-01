@@ -18,7 +18,7 @@ class BasketItemBuilder
         $basketItem = new BasketItem();
         $basketItemAmount = new Amount();
         $basketItemAmount->setAmount(ceil($item->getTotalPrice() * 100));
-
+        $basketItem->setBasketItemID($item->uuid());
         $basketItem->setBasketItemText($item->getTitle());
         $basketItem->setBasketItemCount($item->getQuantity());
         $basketItem->setBasketItemAmount($basketItemAmount);
