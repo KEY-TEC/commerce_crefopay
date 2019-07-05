@@ -15,7 +15,11 @@ abstract class AbstractClient {
 
 
   protected function handleValidationExceptions(ApiError $api_error, $order_id) {
-    if ($api_error->getCode() === 2008) {
+    if (
+      $api_error->getCode() === 2008 ||
+      $api_error->getCode() === 2050
+
+    ) {
       throw new OrderIdAlreadyExistsException($order_id);
     }
     else {

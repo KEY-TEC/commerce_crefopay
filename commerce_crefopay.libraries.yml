@@ -3,3 +3,7 @@ crefopay:
   js:
     "js/secure-fields-init.js": { minified: false }
     "https://libs.crefopay.de/3.0/secure-fields.js": { minified: false }
+  css:
+    component:
+      css/base.css: {}
+

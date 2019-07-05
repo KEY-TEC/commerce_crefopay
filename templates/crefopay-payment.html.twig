@@ -1,46 +1,82 @@
-{{ attach_library('commerce_crefopay/crefopay') }}
-<div>
-    <label><input type="radio" data-crefopay="paymentMethod" value="PREPAID">Cash in advance</label><br>
-</div>
-<div>
-    <label><input type="radio" data-crefopay="paymentMethod" value="BILL">Bill payment</label><br>
-</div>
-<div>
-    <label><input type="radio" data-crefopay="paymentMethod" value="DD">Direct debit</label><br>
-    <label>Account holder: <input type="text" data-crefopay="paymentInstrument.bankAccountHolder" placeholder="John Doe"></label><br>
-    <label>IBAN: <input type="text" data-crefopay="paymentInstrument.iban" placeholder="DE12 3456 7890 1112 1314"></label><br>
-    <label>BIC: <input type="text" data-crefopay="paymentInstrument.bic" placeholder="SFRTDE20000"></label><br>
-    <label><input type="radio" data-crefopay="paymentInstrument.id" value="Aqc9O5SSJuQTDHC9KXFE0Q">Registered bank account (IBAN: DE12 3456 7890 1112 1314)</label>
-</div>
-<div>
-    <label><input type="radio" data-crefopay="paymentMethod" value="CC">Creditcard</label><br>
-    <span>Accountholder: </span>
-    <div data-crefopay-placeholder="paymentInstrument.accountHolder"></div>
-    <span>Number: </span>
-    <div data-crefopay-placeholder="paymentInstrument.number"></div>
-    <span>Validity: </span>
-    <div data-crefopay-placeholder="paymentInstrument.validity"></div>
-    <span>CVV: </span>
-    <div data-crefopay-placeholder="paymentInstrument.cvv"></div>
-    <label><input type="radio" data-crefopay="paymentInstrument.id" value="Aqc9O5SSJuQTDHC9KXFE0Q">Registered creditcard (Number: 12***********3456)</label>
-</div>
-<div>
-    <label><input type="radio" data-crefopay="paymentMethod" value="PAYPAL">PayPal</label><br>
-</div>
-<div>
-    <label><input type="radio" data-crefopay="paymentMethod" value="SU">Sofort</label><br>
-</div>
-<div>
-    <label><input type="radio" data-crefopay="paymentMethod" value="CC3D">Creditcard 3D-secure</label><br>
-    <span>Accountholder: </span>
-    <div data-crefopay-placeholder="paymentInstrument.accountHolder"></div>
-    <span>Number: </span>
-    <div data-crefopay-placeholder="paymentInstrument.number"></div>
-    <span>Validity: </span>
-    <div data-crefopay-placeholder="paymentInstrument.validity"></div>
-    <span>CVV: </span>
-    <div data-crefopay-placeholder="paymentInstrument.cvv"></div>
-</div>
-<div>
-    <label><input type="radio" data-crefopay="paymentMethod" value="COD">Cash on delivery</label><br>
+<div class="crefopay-form">
+    <div class="crefopay-form__error">
+
+    </div>
+    {% if allowed_methods.PREPAID %}
+    <div data-crefopay-tab="PREPAID" class="crefopay-form__tab">
+        <label><input name="paymentMethod" type="radio" data-crefopay="paymentMethod" value="PREPAID">Cash in
+            advance</label><br>
+    </div>
+    {% endif %}
+    {% if allowed_methods.BILL %}
+    <div data-crefopay-tab="BILL" class="crefopay-form__tab">
+        <label><input name="paymentMethod" type="radio" data-crefopay="paymentMethod" value="BILL">Bill
+            payment</label><br>
+    </div>
+    {% endif %}
+    {% if allowed_methods.DD %}
+    <div data-crefopay-tab="DD" class="crefopay-form__tab">
+        <label><input name="paymentMethod" type="radio" data-crefopay="paymentMethod" value="DD">Direct
+            debit</label><br>
+        <div class="crefopay-form__tab-content">
+            <label>Account holder: <input type="text" data-crefopay="paymentInstrument.bankAccountHolder"
+                                          placeholder="John Doe"></label><br>
+            <label>IBAN: <input type="text" data-crefopay="paymentInstrument.iban"
+                                placeholder="DE12 3456 7890 1112 1314"></label><br>
+            <label>BIC: <input type="text" data-crefopay="paymentInstrument.bic" placeholder="SFRTDE20000"></label><br>
+            <label><input type="radio" data-crefopay="paymentInstrument.id" value="Aqc9O5SSJuQTDHC9KXFE0Q">Registered
+                bank
+                account (IBAN: DE12 3456 7890 1112 1314)</label>
+        </div>
+    </div>
+    {% endif %}
+    {% if allowed_methods.CC %}
+    <div data-crefopay-tab="CC" class="crefopay-form__tab">
+        <label><input name="paymentMethod" type="radio" data-crefopay="paymentMethod" value="CC">Creditcard</label><br>
+        <div class="crefopay-form__tab-content">
+            <span>Accountholder: </span>
+            <div data-crefopay-placeholder="paymentInstrument.accountHolder"></div>
+            <span>Number: </span>
+            <div data-crefopay-placeholder="paymentInstrument.number"></div>
+            <span>Validity: </span>
+            <div data-crefopay-placeholder="paymentInstrument.validity"></div>
+            <span>CVV: </span>
+            <div data-crefopay-placeholder="paymentInstrument.cvv"></div>
+            <label><input type="radio" data-crefopay="paymentInstrument.id" value="Aqc9O5SSJuQTDHC9KXFE0Q">Registered
+                creditcard (Number: 12***********3456)</label>
+        </div>
+    </div>
+    {% endif %}
+    {% if allowed_methods.PAYPAL %}
+    <div data-crefopay-tab="PAYPAL" class="crefopay-form__tab">
+        <label><input name="paymentMethod" type="radio" data-crefopay="paymentMethod" value="PAYPAL">PayPal</label><br>
+    </div>
+    {% endif %}
+    {% if allowed_methods.SU %}
+    <div data-crefopay-tab="SU" class="crefopay-form__tab">
+        <label><input name="paymentMethod" type="radio" data-crefopay="paymentMethod" value="SU">Sofort</label><br>
+    </div>
+    {% endif %}
+    {% if allowed_methods.CC3D %}
+    <div data-crefopay-tab="CC3D" class="crefopay-form__tab">
+        <label><input name="paymentMethod" type="radio" data-crefopay="paymentMethod" value="CC3D">Creditcard 3D-secure</label>
+        <div class="crefopay-form__tab-content">
+            <span>Accountholder: </span>
+            <div data-crefopay-placeholder="paymentInstrument.accountHolder"></div>
+            <span>Number: </span>
+            <div data-crefopay-placeholder="paymentInstrument.number"></div>
+            <span>Validity: </span>
+            <div data-crefopay-placeholder="paymentInstrument.validity"></div>
+            <span>CVV: </span>
+            <div data-crefopay-placeholder="paymentInstrument.cvv"></div>
+        </div>
+    </div>
+    {% endif %}
+    {% if allowed_methods.COD %}
+    <div data-crefopay-tab="COD">
+        <label><input name="paymentMethod" type="radio" data-crefopay="paymentMethod" value="COD">Cash on
+            delivery</label><br>
+    </div>
+    {% endif %}
+    <div class="crefo-send" value="Senden">Senden</div>
 </div>

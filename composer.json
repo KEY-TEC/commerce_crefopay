@@ -22,8 +22,10 @@
     "require": {
         "php": "^7.1",
         "crefopay/php-clientlibrary": "dev-develop",
+        "drupal/address_checkout": "^1.0@alpha",
         "drupal/commerce": "^2",
-        "drupal/commerce_recurring": "^1.0@beta"
+        "drupal/commerce_recurring": "^1.0@beta",
+        "drupal/commerce_shipping": "^2.0@beta"
     },
     "require-dev": {
         "composer/installers": "~1.5",

@@ -1,0 +1,18 @@
+.crefopay-form__tab-content {
+    display: none;
+}
+
+.crefopay-form__tab--active .crefopay-form__tab-content {
+    display: block;
+}
+
+.crefopay-form__error {
+    display: none;
+    border: 1px solid red;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.crefopay-form__error--show {
+    display: block;
+}

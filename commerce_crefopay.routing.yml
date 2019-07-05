@@ -9,19 +9,27 @@ commerce_crefopay.config:
 commerce_crefopay.callback_confirm:
   path: '/crefopay/confirm'
   defaults:
-    _controller: '\Drupal\commerce_crefopay\Controller\Callback\Confirm::execute'
+    _controller: '\Drupal\commerce_crefopay\Controller\Callback::confirm'
     _title: 'payment was successfully made'
   requirements:
     _access: 'TRUE'
   options:
     no_cache: TRUE
 
-
 commerce_crefopay.callback_success:
   path: '/crefopay/success'
   defaults:
-    _controller: '\Drupal\commerce_crefopay\Controller\Callback\Success::execute'
+    _controller: '\Drupal\commerce_crefopay\Controller\Callback::success'
     _title: 'payment was successfully made'
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+
+commerce_crefopay.callback_failure:
+  path: '/crefopay/failure'
+  defaults:
+    _controller: '\Drupal\commerce_crefopay\Controller\Callback::failure'
   requirements:
     _access: 'TRUE'
   options:
@@ -30,14 +38,12 @@ commerce_crefopay.callback_success:
 commerce_crefopay.callback_notification:
   path: '/crefopay/notification'
   defaults:
-    _controller: '\Drupal\commerce_crefopay\Controller\Callback\Notification::execute'
+    _controller: '\Drupal\commerce_crefopay\Controller\Callback::notification'
     _title: 'Notification'
   methods:  [POST]
   requirements:
     _access: 'TRUE'
   options:
     no_cache: TRUE
-#commerce_crefopay.callback_failure:
-#  path: '/crefopay/failure'
-#  defaults:
-#    _controller: '\Drupal\commerce_crefopay\Controller\Callback\Failure'
+
+

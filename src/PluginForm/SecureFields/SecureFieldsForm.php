@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\commerce_crefopay\PluginForm\OffsiteRedirect;
+namespace Drupal\commerce_crefopay\PluginForm\SecureFields;
 
 use Drupal\commerce_crefopay\Client\OrderIdAlreadyExistsException;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
@@ -8,7 +8,7 @@ use Drupal\commerce_payment\PluginForm\PaymentOffsiteForm as BasePaymentOffsiteF
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Entity\User;
 
-class PaymentOffsiteForm extends BasePaymentOffsiteForm {
+class SecureFieldsForm extends BasePaymentOffsiteForm {
 
   /**
    * {@inheritdoc}
@@ -28,6 +28,8 @@ class PaymentOffsiteForm extends BasePaymentOffsiteForm {
     /** @var \Drupal\commerce_crefopay\ConfigProviderInterface $config_provider */
     $config_provider = \Drupal::service('commerce_crefopay.config_provider');
     $subscription_order_type_id = $config_provider->getSubscriptionOrderTypeId();
+    $transaction_client = \Drupal::service('commerce_crefopay.transaction_client');
+
     if ($subscription_order_type_id === $order->bundle()) {
       $items = $order->getItems();
       $plan_reference = NULL;
@@ -44,23 +46,57 @@ class PaymentOffsiteForm extends BasePaymentOffsiteForm {
       }
       /** @var \Drupal\commerce_crefopay\Client\SubscriptionClient $subscription_client */
       $subscription_client = \Drupal::service('commerce_crefopay.subscription_client');
-      $redirect_url = $subscription_client->createSubscription($order, $user, $address, $plan_reference);
+      try {
+        $subscription_client->createSubscription($order, $user, $address, $plan_reference);
+      }
+      catch (OrderIdAlreadyExistsException $oe) {
+        //throw new PaymentGatewayException('Order already exists.');
+        // Transaction already started.
+      }
+      catch (\Throwable $exception) {
+        throw new PaymentGatewayException('Unexcpected error.');
+      }
     }
     else {
       /** @var \Drupal\commerce_crefopay\Client\TransactionClient $transaction_client */
-      $transaction_client = \Drupal::service('commerce_crefopay.transaction_client');
       try {
-        $redirect_url = $transaction_client->createTransaction($order, $user, $address);
-        $form['#redirect_url'] = $redirect_url;
+        $transaction_client->createTransaction($order, $user, $address, "SecureFields");
+        /** @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder $id_builder */
       }
       catch (OrderIdAlreadyExistsException $oe) {
-        throw new PaymentGatewayException('Order already exists.');
+        //throw new PaymentGatewayException('Order already exists.');
+        // Transaction already started.
+      }
+      catch (\Throwable $exception) {
+        throw new PaymentGatewayException('Unexcpected error.');
       }
 
     }
 
-    $data = [];
-    $form = $this->buildRedirectForm($form, $form_state, $redirect_url, $data, 'GET');
+    $instruments = $transaction_client->getTransactionPaymentInstruments($order);
+    $id_builder = \Drupal::service('commerce_crefopay.id_builder');
+    /** @var \Drupal\commerce_crefopay\ConfigProvider $config_provider */
+    $config_provider = \Drupal::service('commerce_crefopay.config_provider');
+    $config_array = $config_provider->getConfigArray();
+    $secure_fields_url = $config_provider->getSecureFieldsUrl('test');
+
+    $form['crefopay_payment'] = [
+      '#theme' => 'crefopay_payment',
+      '#allowed_methods' => array_fill_keys($instruments['allowedPaymentMethods'], true),
+      '#additional_information' => $instruments['additionalInformation'],
+      '#attached' => [
+        'library' => ['commerce_crefopay/crefopay'],
+        'drupalSettings' => [
+        'crefopay' => [
+          'orderId' => $id_builder->id($order),
+          'placeholder' => [],
+          'secureFieldsUrl' => $secure_fields_url,
+          'shopPublicKey' => $config_array['shopPublicKey']
+          ]
+        ]
+      ],
+    ];
+
     return $form;
   }
 

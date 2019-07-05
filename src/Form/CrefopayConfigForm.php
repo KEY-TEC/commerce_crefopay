@@ -53,6 +53,13 @@ class CrefopayConfigForm extends ConfigFormBase {
       '#required' => TRUE,
     ];
 
+    $form['shopPublicKey'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Public key'),
+      '#default_value' => $config->get('shopPublicKey'),
+      '#required' => TRUE,
+    ];
+
     $order_types = \Drupal::entityTypeManager()->getStorage('commerce_order_type')->loadMultiple();
     $order_types_options = [];
     foreach ($order_types as $order_type) {
@@ -79,6 +86,7 @@ class CrefopayConfigForm extends ConfigFormBase {
     $config->set('baseUrl', $form_state->getValue('baseUrl'));
     $config->set('storeID', $form_state->getValue('storeID'));
     $config->set('merchantID', $form_state->getValue('merchantID'));
+    $config->set('shopPublicKey', $form_state->getValue('shopPublicKey'));
     $config->set('merchantPassword', $form_state->getValue('merchantPassword'));
     $config->set('subscriptionOrderTypeId', $form_state->getValue('subscriptionOrderTypeId'));
     $config->save();
