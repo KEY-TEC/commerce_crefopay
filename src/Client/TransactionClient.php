@@ -4,7 +4,6 @@ namespace Drupal\commerce_crefopay\Client;
 
 use Drupal\address\AddressInterface;
 use Drupal\commerce_order\Entity\Order;
-use Drupal\commerce_payment\Entity\Payment;
 use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\user\Entity\User;
 use Upg\Library\Api\CreateTransaction;
@@ -16,13 +15,11 @@ use Upg\Library\Api\Exception\ApiError;
 use Upg\Library\Request\CreateTransaction as RequestCreateTransaction;
 use Upg\Library\Request\GetTransactionPaymentInstruments as RequestGetTransactionPaymentInstruments;
 use Upg\Library\Request\GetTransactionStatus as RequestGetTransactionStatus;
-use Upg\Library\Request\Refund as RequestReserve;
-use Upg\Library\Request\Reserve as RequestRefund;
+use Upg\Library\Request\Refund as RequestRefund;
+use Upg\Library\Request\Reserve as RequestReserve;
 use Upg\Library\Response\SuccessResponse;
 
 class TransactionClient extends AbstractClient {
-
-
 
   public function reserveTransaction(Order $order, $payment_method, $payment_instrument_id) {
     $request = new RequestReserve($this->configProvider->getConfig());
