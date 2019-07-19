@@ -37,9 +37,9 @@ class SecureFieldsForm extends BasePaymentOffsiteForm {
         $purchased_product = $item->getPurchasedEntity();
         if ($purchased_product->hasField('crefopay_subscription_plan') &&
           $purchased_product->crefopay_subscription_plan->value != NULL) {
+          $plan_reference = $purchased_product->crefopay_subscription_plan->value;
+          break;
         }
-        $plan_reference = $purchased_product->crefopay_subscription_plan->value;
-        break;
       }
       if ($plan_reference == NULL) {
         throw new PaymentGatewayException('Unknown subscription plan. Please check product configuration.');
