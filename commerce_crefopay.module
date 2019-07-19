@@ -15,7 +15,8 @@ function commerce_crefopay_theme() {
     'crefopay_payment' => [
       'variables' => [
         'allowed_methods' => [],
-        'additional_information' => []
+        'additional_information' => [],
+        'allowed_intruments' => [],
       ],
     ],
   ];

@@ -23,10 +23,18 @@
                                           placeholder="John Doe"></label><br>
             <label>IBAN: <input type="text" data-crefopay="paymentInstrument.iban"
                                 placeholder="DE12 3456 7890 1112 1314"></label><br>
-            <label>BIC: <input type="text" data-crefopay="paymentInstrument.bic" placeholder="SFRTDE20000"></label><br>
-            <label><input type="radio" data-crefopay="paymentInstrument.id" value="Aqc9O5SSJuQTDHC9KXFE0Q">Registered
-                bank
-                account (IBAN: DE12 3456 7890 1112 1314)</label>
+            <label>BIC: <input type="text" data-crefopay="paymentInstrument.bic" placeholder="SFRTDE20000"></label>
+
+            <div>
+                {% for allowed_intrument in allowed_intruments %}
+                    {% if allowed_intrument.paymentInstrumentType == 'BANKACCOUNT' %}
+                        <label><input type="radio" data-crefopay="paymentInstrument.id" value="{{ allowed_intrument.paymentInstrumentID }}">
+                        {{ ":accountHolder (:iban)"|t({":accountHolder": allowed_intrument.accountHolder, ":iban": allowed_intrument.iban }) }}
+                        </label>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
         </div>
     </div>
     {% endif %}
@@ -42,8 +50,12 @@
             <div data-crefopay-placeholder="paymentInstrument.validity"></div>
             <span>CVV: </span>
             <div data-crefopay-placeholder="paymentInstrument.cvv"></div>
-            <label><input type="radio" data-crefopay="paymentInstrument.id" value="Aqc9O5SSJuQTDHC9KXFE0Q">Registered
-                creditcard (Number: 12***********3456)</label>
+            {% for allowed_intrument in allowed_intruments %}
+                {% if allowed_intrument.paymentInstrumentType == 'CREDITCARD' %}
+                <label><input type="radio" data-crefopay="paymentInstrument.id" value="{{ allowed_intrument.paymentInstrumentID }}">{{ ":accountHoder (:number)"|t({":accountHoder": allowed_intrument.accountHolder, ":number": allowed_intrument.number }) }}</label>
+                {% endif %}
+            {% endfor %}
+
         </div>
     </div>
     {% endif %}
