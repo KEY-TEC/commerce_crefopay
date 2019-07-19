@@ -33,8 +33,8 @@
               console.log(response);
               if (response.resultCode === 0) {
                 // Successful registration, continue to next page using JavaScript
-                var prefix = drupalSettings.path.pathPrefix != '' ? '/' + drupalSettings.path.pathPrefix : '';
-                var url = prefix + '/crefopay/confirm?orderID=' + response.orderNo + '&paymentMethod=' + response.paymentMethod;
+                var prefix = drupalSettings.path.pathPrefix != '' ? '/' + drupalSettings.path.pathPrefix : '/';
+                var url = prefix + 'crefopay/confirm?orderID=' + response.orderNo + '&paymentMethod=' + response.paymentMethod;
                 if (response.paymentInstrumentId != null) {
                   url += '&paymentInstrumentID=' + response.paymentInstrumentId;
                 }
