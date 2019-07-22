@@ -19,26 +19,19 @@ class SecureFieldsForm extends BasePaymentOffsiteForm {
     $payment_gateway_plugin = $payment->getPaymentGateway()->getPlugin();
 
     $order = $payment->getOrder();
-    $instruments = $payment_gateway_plugin->createTransaction($payment);
+    $payment_data = $payment_gateway_plugin->handleTransaction($payment);
 
     $config_provider = $payment_gateway_plugin->getConfigProvider();
 
     $config_array = $config_provider->getConfigArray();
     $secure_fields_url = $config_provider->getSecureFieldsUrl($payment_gateway_plugin->getMode());
 
-    $allowed_intruments_twig = [];
-    $allowed_intruments = $instruments['allowedPaymentInstruments'];
-
-    /** @var \Upg\Library\Request\Objects\PaymentInstrument $allowed_intrument */
-    foreach ($allowed_intruments as $allowed_intrument) {
-      $allowed_intruments_twig[] = $allowed_intrument->toArray();
-    }
 
     $form['crefopay_payment'] = [
       '#theme' => 'crefopay_payment',
-      '#allowed_methods' => array_fill_keys($instruments['allowedPaymentMethods'], true),
-      '#allowed_intruments' => $allowed_intruments_twig,
-      '#additional_information' => $instruments['additionalInformation'],
+      '#allowed_methods' => $payment_data['allowedPaymentMethods'],
+      '#allowed_intruments' => $payment_data['allowedPaymentInstruments'],
+      '#additional_information' => $payment_data['additionalInformation'],
       '#attached' => [
         'library' => ['commerce_crefopay/crefopay'],
         'drupalSettings' => [

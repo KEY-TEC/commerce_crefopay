@@ -25,7 +25,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-class BasePaymentGateway extends OffsitePaymentGatewayBase {
+abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
 
   /**
    * The transaction client.
@@ -99,6 +99,29 @@ class BasePaymentGateway extends OffsitePaymentGatewayBase {
     $this->logger = $logger;
   }
 
+  public function handleTransaction(PaymentInterface $payment) {
+    $order = $payment->getOrder();
+    if ($order->getData('crefopay_transaction_started') != NULL &&
+      is_array($order->getData('crefopay_transaction_data'))) {
+      return $order->getData('crefopay_transaction_data');
+    }
+    else {
+      $instruments = $this->createTransaction($payment);
+      $data = [];
+      $allowed_intruments = $instruments['allowedPaymentInstruments'];
+      /** @var \Upg\Library\Request\Objects\PaymentInstrument $allowed_intrument */
+      foreach ($allowed_intruments as $allowed_intrument) {
+        $data['allowedPaymentInstruments'][] = $allowed_intrument->toArray();
+      }
+      $data['allowedPaymentMethods'] = array_fill_keys($instruments['allowedPaymentMethods'], true);
+      $data['additionalInformation'] = $instruments['additionalInformation'];
+      $order->setData('crefopay_transaction_data', $data);
+      $order->setData('crefopay_transaction_started', TRUE);
+      $order->save();
+      return $data;
+    }
+  }
+
   /**
    * Calls a CrefoPay create transaction.
    *
@@ -108,7 +131,7 @@ class BasePaymentGateway extends OffsitePaymentGatewayBase {
    * @return \Upg\Library\Request\Objects\PaymentInstrument[]
    *   Payment instruments.
    */
-  public function createTransaction(PaymentInterface $payment) {
+  protected function createTransaction(PaymentInterface $payment) {
     $order = $payment->getOrder();
     $billing_profile = $order->getBillingProfile();
     /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $address_item */

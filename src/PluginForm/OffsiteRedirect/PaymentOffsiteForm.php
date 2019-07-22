@@ -18,46 +18,12 @@ class PaymentOffsiteForm extends BasePaymentOffsiteForm {
 
     /** @var \Drupal\commerce_payment\Entity\PaymentInterface $payment */
     $payment = $this->entity;
-    /** @var \Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\OffsitePaymentGatewayInterface $payment_gateway_plugin */
-    $order = $payment->getOrder();
-    $billing_profile = $order->getBillingProfile();
-    /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $address_item */
-    $address = $billing_profile->address[0];
+    /** @var \Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway\BasePaymentGateway $payment_gateway_plugin */
+    $payment_gateway_plugin = $payment->getPaymentGateway()->getPlugin();
 
-    $user = User::load(\Drupal::currentUser()->id());
-    /** @var \Drupal\commerce_crefopay\ConfigProviderInterface $config_provider */
-    $config_provider = \Drupal::service('commerce_crefopay.config_provider');
-    $subscription_order_type_id = $config_provider->getSubscriptionOrderTypeId();
-    if ($subscription_order_type_id === $order->bundle()) {
-      $items = $order->getItems();
-      $plan_reference = NULL;
-      foreach ($items as $item) {
-        $purchased_product = $item->getPurchasedEntity();
-        if ($purchased_product->hasField('crefopay_subscription_plan') &&
-          $purchased_product->crefopay_subscription_plan->value != NULL) {
-        }
-        $plan_reference = $purchased_product->crefopay_subscription_plan->value;
-        break;
-      }
-      if ($plan_reference == NULL) {
-        throw new PaymentGatewayException('Unknown subscription plan. Please check product configuration.');
-      }
-      /** @var \Drupal\commerce_crefopay\Client\SubscriptionClient $subscription_client */
-      $subscription_client = \Drupal::service('commerce_crefopay.subscription_client');
-      $redirect_url = $subscription_client->createSubscription($order, $user, $address, $plan_reference);
-    }
-    else {
-      /** @var \Drupal\commerce_crefopay\Client\TransactionClient $transaction_client */
-      $transaction_client = \Drupal::service('commerce_crefopay.transaction_client');
-      try {
-        $redirect_url = $transaction_client->createTransaction($order, $user, $address);
-        $form['#redirect_url'] = $redirect_url;
-      }
-      catch (OrderIdAlreadyExistsException $oe) {
-        throw new PaymentGatewayException('Order already exists.');
-      }
-
-    }
+    /** @var \Drupal\commerce_crefopay\Client\TransactionClientInterface $transaction_client */
+    $redirect_url = $payment_gateway_plugin->handleTransaction($payment);
+    $form['#redirect_url'] = $redirect_url;
 
     $data = [];
     $form = $this->buildRedirectForm($form, $form_state, $redirect_url, $data, 'GET');

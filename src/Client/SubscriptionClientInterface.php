@@ -36,8 +36,8 @@ interface SubscriptionClientInterface {
    * @param $plan_reference
    *   The CrefoPay plan reference.
    *
-   * @return bool
-   *   True if successful
+   * @return array
+   *   Payment instruments
    */
   public function createSubscription(Order $order, User $user, AddressInterface $billing_address, $plan_reference);
 

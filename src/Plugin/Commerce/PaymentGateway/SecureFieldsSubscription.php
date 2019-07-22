@@ -32,7 +32,7 @@ class SecureFieldsSubscription extends BasePaymentGateway {
    * @return \Upg\Library\Request\Objects\PaymentInstrument[]
    *   Payment instruments.
    */
-  public function createTransaction(PaymentInterface $payment) {
+  protected function createTransaction(PaymentInterface $payment) {
     $order = $payment->getOrder();
     $billing_profile = $order->getBillingProfile();
     /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $address_item */
@@ -63,11 +63,10 @@ class SecureFieldsSubscription extends BasePaymentGateway {
       throw new PaymentGatewayException($this->t('We encountered an unexpected error processing your payment method. Please try again later.'));
     }
     if ($instruments == NULL) {
-
       try {
         $instruments = $this->transactionClient->getTransactionPaymentInstruments($order);
-      } catch
-      (\Throwable $exception) {
+      }
+      catch (\Throwable $exception) {
         $this->logger->error($exception->getMessage());
         throw new PaymentGatewayException($this->t('We encountered an unexpected error processing your payment method. Please try again later.'));
       }
