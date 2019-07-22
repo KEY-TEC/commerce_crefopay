@@ -9,11 +9,25 @@ Class ConfigProvider implements ConfigProviderInterface {
 
   private $configFactory;
 
+  private $mode;
+
   /**
-   * CrefopayConfigProvider constructor.
+   * ConfigProvider constructor.
    */
   public function __construct(ConfigFactoryInterface $config_factory) {
     $this->configFactory = $config_factory;
+  }
+
+  public function setMode($mode) {
+    $this->mode = $mode;
+  }
+
+  public function getMode() {
+    if ($this->mode != NULL) {
+      return $this->mode;
+    }
+    $config = $this->configFactory->get('commerce_crefopay.settings');
+    return $config->get('mode');
   }
 
   public function getConfig() {
@@ -25,7 +39,8 @@ Class ConfigProvider implements ConfigProviderInterface {
     return $config->get('subscriptionOrderTypeId');
   }
 
-  public function getSecureFieldsUrl($mode) {
+  public function getSecureFieldsUrl() {
+    $mode = $this->getMode();
     if ($mode == 'test') {
       return "https://sandbox.crefopay.de/secureFields/";
     }
@@ -34,16 +49,25 @@ Class ConfigProvider implements ConfigProviderInterface {
     }
   }
 
+  public function getApiUrl() {
+    $mode = $this->getMode();
+    if ($mode == 'test') {
+      return "https://sandbox.crefopay.de/2.0";
+    }
+    elseif ($mode == 'live') {
+      return "https://api.crefopay.de/2.0";
+    }
+  }
 
   public function getConfigArray() {
     $config = $this->configFactory->get('commerce_crefopay.settings');
     return [
-      'baseUrl' => $config->get('baseUrl'),
+      'baseUrl' => $this->getApiUrl(),
       'storeID' => $config->get('storeID'),
       'shopPublicKey' => $config->get('shopPublicKey'),
       'merchantID' => $config->get('merchantID'),
       'merchantPassword' => $config->get('merchantPassword'),
-      'logEnabled' => FALSE
+      'logEnabled' => FALSE,
     ];
   }
 }

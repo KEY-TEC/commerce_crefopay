@@ -5,6 +5,7 @@ namespace Drupal\commerce_crefopay\Client;
 use Drupal\address\AddressInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_payment\Entity\PaymentInterface;
+use Drupal\commerce_price\Price;
 use Drupal\user\Entity\User;
 use Upg\Library\Api\CreateTransaction;
 use Upg\Library\Api\GetTransactionPaymentInstruments;
@@ -19,8 +20,11 @@ use Upg\Library\Request\Refund as RequestRefund;
 use Upg\Library\Request\Reserve as RequestReserve;
 use Upg\Library\Response\SuccessResponse;
 
-class TransactionClient extends AbstractClient {
+class TransactionClient extends AbstractClient implements TransactionClientInterface {
 
+  /**
+   * {@inheritdoc}
+   */
   public function reserveTransaction(Order $order, $payment_method, $payment_instrument_id) {
     $request = new RequestReserve($this->configProvider->getConfig());
     $request->setOrderID($this->idBuilder->id($order));
@@ -34,33 +38,9 @@ class TransactionClient extends AbstractClient {
     }
   }
 
-  public function createSecureFieldsTransaction(Order $order, User $user) {
-    $request = new RequestCreateTransaction($this->configProvider->getConfig());
-    $amount = $this->amountBuilder->buildFromOrder($order);
-    $request->setUserID($this->idBuilder->id($user));
-    $request->setOrderID($this->idBuilder->id($order));
-    $request->setIntegrationType("SecureFields");
-    $request->setAmount($amount);
-    $request->setAutoCapture(TRUE);
-    $request->setContext(RequestCreateTransaction::CONTEXT_ONLINE);
-    $request->setUserType('PRIVATE');
-    $this->basketBuilder->build($order, $request);
-
-    $request->setLocale($this->personBuilder->getLangcode($user));
-    $create_transaction = new CreateTransaction($this->configProvider->getConfig(), $request);
-    try {
-      $result = $create_transaction->sendRequest();
-      if ($result instanceof SuccessResponse) {
-        $all_data = $result->getAllData();
-        return isset($all_data['redirectUrl']) ? $all_data['redirectUrl'] : NULL;
-      }
-    }
-    catch (ApiError $api_error) {
-      $this->handleValidationExceptions($api_error, $this->idBuilder->id($order));
-    }
-    return NULL;
-  }
-
+  /**
+   * {@inheritdoc}
+   */
   public function getTransactionPaymentInstruments(Order $order) {
     $request = new RequestGetTransactionPaymentInstruments($this->configProvider->getConfig());
     $request->setOrderID($this->idBuilder->id($order));
@@ -78,11 +58,16 @@ class TransactionClient extends AbstractClient {
     return NULL;
   }
 
-  public function refund(PaymentInterface $payment) {
+  /**
+   * {@inheritdoc}
+   */
+  public function refund(PaymentInterface $payment, Price $amount, $description, $capture_id) {
     $order = $payment->getOrder();
     $request = new RequestRefund($this->configProvider->getConfig());
     $request->setOrderID($this->idBuilder->id($order));
-    $request->setAmount($this->amountBuilder->buildFromPayment($payment));
+    $request->setRefundDescription($description);
+    $request->setCaptureID($capture_id);
+    $request->setAmount($this->amountBuilder->buildFromPrice($amount));
     $refund_transaction = new Refund($this->configProvider->getConfig(), $request);
     try {
       $result = $refund_transaction->sendRequest();
@@ -97,6 +82,9 @@ class TransactionClient extends AbstractClient {
     return NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getTransactionStatus(Order $order) {
     $request = new RequestGetTransactionStatus($this->configProvider->getConfig());
     $request->setOrderID($this->idBuilder->id($order));
@@ -114,6 +102,9 @@ class TransactionClient extends AbstractClient {
     return NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function createTransaction(Order $order, User $user, AddressInterface $billing_address, $integration_type = "HostedPageBefore") {
     $request = new RequestCreateTransaction($this->configProvider->getConfig());
     $amount = $this->amountBuilder->buildFromOrder($order);

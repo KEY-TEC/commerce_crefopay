@@ -15,7 +15,7 @@ class SecureFieldsForm extends BasePaymentOffsiteForm {
 
     /** @var \Drupal\commerce_payment\Entity\PaymentInterface $payment */
     $payment = $this->entity;
-    /** @var \Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway\SecureFields $payment_gateway_plugin */
+    /** @var \Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway\BasePaymentGateway $payment_gateway_plugin */
     $payment_gateway_plugin = $payment->getPaymentGateway()->getPlugin();
 
     $order = $payment->getOrder();
@@ -24,7 +24,7 @@ class SecureFieldsForm extends BasePaymentOffsiteForm {
     $config_provider = $payment_gateway_plugin->getConfigProvider();
 
     $config_array = $config_provider->getConfigArray();
-    $secure_fields_url = $config_provider->getSecureFieldsUrl('test');
+    $secure_fields_url = $config_provider->getSecureFieldsUrl($payment_gateway_plugin->getMode());
 
     $allowed_intruments_twig = [];
     $allowed_intruments = $instruments['allowedPaymentInstruments'];

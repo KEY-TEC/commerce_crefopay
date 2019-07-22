@@ -4,6 +4,7 @@ namespace Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway;
 
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\OffsitePaymentGatewayBase;
+use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\SupportsRefundsInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -12,14 +13,14 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @CommercePaymentGateway(
  *   id = "crefopay_offsite_redirect",
- *   label = "Crefopay (Off-site redirect)",
- *   display_label = "Crefopay",
+ *   label = "CrefoPay HostedPage (Offsite redirect)",
+ *   display_label = "CrefoPay HostedPage (Offsite redirect)",
  *   forms = {
  *     "offsite-payment" = "Drupal\commerce_crefopay\PluginForm\OffsiteRedirect\PaymentOffsiteForm",
  *   },
- *   requires_billing_information = FALSE,
+ *   requires_billing_information = TRUE,
  * )
  */
-class OffsiteRedirect extends BasePaymentGateway {
+class OffsiteRedirect extends BasePaymentGateway implements SupportsRefundsInterface {
 
 }

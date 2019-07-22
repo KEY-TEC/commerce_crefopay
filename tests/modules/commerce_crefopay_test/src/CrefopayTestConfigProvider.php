@@ -2,13 +2,12 @@
 
 namespace Drupal\commerce_crefopay_test;
 
-use Drupal\commerce_crefopay\ConfigProviderInterface;
-use Upg\Library\Config;
+use Drupal\commerce_crefopay\ConfigProvider;
 
-Class CrefopayTestConfigProvider implements ConfigProviderInterface {
+Class CrefopayTestConfigProvider extends ConfigProvider {
 
-  public function getConfig() {
-    return new Config($this->getConfigArray());
+  public function getMode() {
+    return 'test';
   }
 
   public function getSubscriptionOrderTypeId() {
@@ -17,10 +16,10 @@ Class CrefopayTestConfigProvider implements ConfigProviderInterface {
 
   public function getConfigArray() {
     return [
+      'baseUrl' => $this->getApiUrl(),
       'merchantID' => '516',
       'merchantPassword' => 'YU60WTM6QBZ1CWZ0',
       'storeID' => 'KGTX4QORh2ONyok',
-      'baseUrl' => 'https://sandbox.crefopay.de/2.0',
       'sendRequestsWithSalt' => TRUE,
       'logEnabled' => TRUE
     ];

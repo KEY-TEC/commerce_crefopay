@@ -5,6 +5,7 @@ namespace Drupal\commerce_crefopay\Client\Builder;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_order\Entity\OrderItemInterface;
 use Drupal\commerce_payment\Entity\PaymentInterface;
+use Drupal\commerce_price\Price;
 use Upg\Library\Request\Objects\Amount;
 
 class AmountBuilder {
@@ -38,6 +39,17 @@ class AmountBuilder {
   public function buildFromPayment(PaymentInterface $payment) {
     $amount = new Amount();
     $amount->setAmount(round($payment->getAmount()->getNumber() * 100));
+    return $amount;
+  }
+
+  /**
+   * @param PaymentInterface $order
+   *
+   * @return Amount
+   */
+  public function buildFromPrice(Price $price) {
+    $amount = new Amount();
+    $amount->setAmount(round($price->getNumber() * 100));
     return $amount;
   }
 }

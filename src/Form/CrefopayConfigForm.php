@@ -28,12 +28,17 @@ class CrefopayConfigForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
     $config = $this->config('commerce_crefopay.settings');
-    $form['baseUrl'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Base Url'),
-      '#default_value' => $config->get('baseUrl'),
+    $form['mode'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Mode'),
+      '#default_value' => $config->get('mode'),
+      '#options' => [
+        'test' => 'Test',
+        'live' => 'Live',
+      ],
       '#required' => TRUE,
     ];
+
     $form['storeID'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Store ID'),
@@ -46,6 +51,7 @@ class CrefopayConfigForm extends ConfigFormBase {
       '#default_value' => $config->get('merchantID'),
       '#required' => TRUE,
     ];
+
     $form['merchantPassword'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Merchant Password'),
@@ -83,7 +89,7 @@ class CrefopayConfigForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
     $config = $this->config('commerce_crefopay.settings');
-    $config->set('baseUrl', $form_state->getValue('baseUrl'));
+    $config->set('mode', $form_state->getValue('mode'));
     $config->set('storeID', $form_state->getValue('storeID'));
     $config->set('merchantID', $form_state->getValue('merchantID'));
     $config->set('shopPublicKey', $form_state->getValue('shopPublicKey'));
