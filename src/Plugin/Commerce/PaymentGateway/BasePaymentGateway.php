@@ -269,7 +269,6 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
           break;
         }
     }
-    $state = "completed";
     $payment->setRemoteState($remote_state);
     $payment->setState($state);
   }
