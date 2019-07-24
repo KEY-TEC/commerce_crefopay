@@ -8,6 +8,7 @@ use Drupal\commerce_crefopay\Client\SubscriptionClient;
 use Drupal\commerce_crefopay\Client\SubscriptionClientInterface;
 use Drupal\commerce_crefopay\Client\TransactionClient;
 use Drupal\commerce_crefopay\Client\TransactionClientInterface;
+use Drupal\commerce_crefopay\Client\UserNotExistsException;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_payment\Entity\PaymentInterface;
@@ -15,7 +16,6 @@ use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\commerce_payment\PaymentMethodTypeManager;
 use Drupal\commerce_payment\PaymentTypeManager;
 use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\OffsitePaymentGatewayBase;
-use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\SupportsRefundsInterface;
 use Drupal\commerce_price\Price;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -137,7 +137,11 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     $billing_profile = $order->getBillingProfile();
     /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $address_item */
     $address = $billing_profile->address[0];
-    $user = User::load(\Drupal::currentUser()->id());
+
+    $user = User::load($order->getCustomerId());
+    if ($user == NULL && $user->id() == 0) {
+      throw new UserNotExistsException($order->getCustomerId());
+    }
 
     $instruments = NULL;
     /** @var \Drupal\commerce_crefopay\Client\TransactionClient $transaction_client */

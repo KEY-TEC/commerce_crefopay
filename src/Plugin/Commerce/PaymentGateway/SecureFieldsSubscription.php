@@ -37,7 +37,7 @@ class SecureFieldsSubscription extends BasePaymentGateway {
     $billing_profile = $order->getBillingProfile();
     /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $address_item */
     $address = $billing_profile->address[0];
-    $user = User::load(\Drupal::currentUser()->id());
+    $user = User::load($order->getCustomerId());
 
     $instruments = NULL;
     $items = $order->getItems();
