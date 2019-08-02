@@ -5,7 +5,9 @@ namespace Drupal\commerce_crefopay\Controller;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\TrustedRedirectResponse;
+use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -73,7 +75,12 @@ class Callback extends ControllerBase {
     $transaction_client = \Drupal::service('commerce_crefopay.transaction_client');
     $redirect_url = $transaction_client->reserveTransaction($commerce_order, $payment_method, $payment_instrument_id);
     if ($redirect_url != NULL) {
-      return new TrustedRedirectResponse($redirect_url);
+      // Nocache redirect workaround.
+      // @see https://www.drupal.org/node/2630808
+      $url = Url::fromUri($redirect_url);
+      $trusted_response = new TrustedRedirectResponse($url->toString(TRUE)->getGeneratedUrl());
+      $trusted_response->addCacheableDependency($url);
+      return $trusted_response;
     }
 
     return $this->redirect('commerce_payment.checkout.return', ['commerce_order' => $commerce_order->id(), 'step' => 'payment']);
