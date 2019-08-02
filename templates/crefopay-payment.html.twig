@@ -26,7 +26,7 @@
             <label>BIC: <input type="text" data-crefopay="paymentInstrument.bic" placeholder="SFRTDE20000"></label>
 
             <div>
-                {% for allowed_intrument in allowed_intruments %}
+                {% for allowed_intrument in allowed_instruments %}
                     {% if allowed_intrument.paymentInstrumentType == 'BANKACCOUNT' %}
                         <label><input type="radio" data-crefopay="paymentInstrument.id" value="{{ allowed_intrument.paymentInstrumentID }}">
                         {{ ":accountHolder (:iban)"|t({":accountHolder": allowed_intrument.accountHolder, ":iban": allowed_intrument.iban }) }}
@@ -50,7 +50,7 @@
             <div data-crefopay-placeholder="paymentInstrument.validity"></div>
             <span>CVV: </span>
             <div data-crefopay-placeholder="paymentInstrument.cvv"></div>
-            {% for allowed_intrument in allowed_intruments %}
+            {% for allowed_intrument in allowed_instruments %}
                 {% if allowed_intrument.paymentInstrumentType == 'CREDITCARD' %}
                 <label><input type="radio" data-crefopay="paymentInstrument.id" value="{{ allowed_intrument.paymentInstrumentID }}">{{ ":accountHoder (:number)"|t({":accountHoder": allowed_intrument.accountHolder, ":number": allowed_intrument.number }) }}</label>
                 {% endif %}

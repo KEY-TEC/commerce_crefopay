@@ -17,7 +17,7 @@ function commerce_crefopay_theme() {
         'order' => NULL,
         'allowed_methods' => [],
         'additional_information' => [],
-        'allowed_intruments' => [],
+        'allowed_instruments' => [],
       ],
     ],
   ];

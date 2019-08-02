@@ -126,10 +126,10 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     else {
       $instruments = $this->createTransaction($payment);
       $data = [];
-      $allowed_intruments = $instruments['allowedPaymentInstruments'];
+      $allowed_instruments = $instruments['allowedPaymentInstruments'];
       $data['allowedPaymentInstruments'] = [];
       /** @var \Upg\Library\Request\Objects\PaymentInstrument $allowed_intrument */
-      foreach ($allowed_intruments as $allowed_intrument) {
+      foreach ($allowed_instruments as $allowed_intrument) {
         $data['allowedPaymentInstruments'][] = $allowed_intrument->toArray();
       }
       $data['allowedPaymentMethods'] = array_fill_keys($instruments['allowedPaymentMethods'], TRUE);

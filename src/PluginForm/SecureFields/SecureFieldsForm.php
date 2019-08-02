@@ -32,7 +32,7 @@ class SecureFieldsForm extends BasePaymentOffsiteForm {
     $form['crefopay_payment'] = [
       '#theme' => 'crefopay_payment',
       '#allowed_methods' => $payment_data['allowedPaymentMethods'],
-      '#allowed_intruments' => $payment_data['allowedPaymentInstruments'],
+      '#allowed_instruments' => $payment_data['allowedPaymentInstruments'],
       '#additional_information' => $payment_data['additionalInformation'],
       '#order' => $order,
       '#attached' => [
