@@ -26,10 +26,10 @@
             <label>BIC: <input type="text" data-crefopay="paymentInstrument.bic" placeholder="SFRTDE20000"></label>
 
             <div>
-                {% for allowed_intrument in allowed_instruments %}
-                    {% if allowed_intrument.paymentInstrumentType == 'BANKACCOUNT' %}
-                        <label><input type="radio" data-crefopay="paymentInstrument.id" value="{{ allowed_intrument.paymentInstrumentID }}">
-                        {{ ":accountHolder (:iban)"|t({":accountHolder": allowed_intrument.accountHolder, ":iban": allowed_intrument.iban }) }}
+                {% for allowed_instrument in allowed_instruments %}
+                    {% if allowed_instrument.paymentInstrumentType == 'BANKACCOUNT' %}
+                        <label><input type="radio" data-crefopay="paymentInstrument.id" value="{{ allowed_instrument.paymentInstrumentID }}">
+                        {{ ":accountHolder (:iban)"|t({":accountHolder": allowed_instrument.accountHolder, ":iban": allowed_instrument.iban }) }}
                         </label>
                     {% endif %}
                 {% endfor %}
@@ -50,9 +50,9 @@
             <div data-crefopay-placeholder="paymentInstrument.validity"></div>
             <span>CVV: </span>
             <div data-crefopay-placeholder="paymentInstrument.cvv"></div>
-            {% for allowed_intrument in allowed_instruments %}
-                {% if allowed_intrument.paymentInstrumentType == 'CREDITCARD' %}
-                <label><input type="radio" data-crefopay="paymentInstrument.id" value="{{ allowed_intrument.paymentInstrumentID }}">{{ ":accountHoder (:number)"|t({":accountHoder": allowed_intrument.accountHolder, ":number": allowed_intrument.number }) }}</label>
+            {% for allowed_instrument in allowed_instruments %}
+                {% if allowed_instrument.paymentInstrumentType == 'CREDITCARD' %}
+                <label><input type="radio" data-crefopay="paymentInstrument.id" value="{{ allowed_instrument.paymentInstrumentID }}">{{ ":accountHoder (:number)"|t({":accountHoder": allowed_instrument.accountHolder, ":number": allowed_instrument.number }) }}</label>
                 {% endif %}
             {% endfor %}
 
