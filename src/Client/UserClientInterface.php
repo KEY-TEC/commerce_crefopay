@@ -2,25 +2,18 @@
 
 namespace Drupal\commerce_crefopay\Client;
 
-use CommerceGuys\Addressing\Address;
 use Drupal\address\AddressInterface;
-use Drupal\commerce_crefopay\Client\Builder\AddressBuilder;
-use Drupal\commerce_crefopay\Client\Builder\PersonBuilder;
-use Drupal\commerce_crefopay\Client\Builder\IdBuilder;
-use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\user\Entity\User;
-use Upg\Library\Api\Exception\ApiError;
-use Upg\Library\Request\RegisterUser as RequestRegisterUser;
-use Upg\Library\Api\RegisterUser as ApiRegisterUser;
-use Upg\Library\Api\UpdateUser as ApiUpdateUser;
-use Upg\Library\Request\GetUser as RequestGetUser;
-use Upg\Library\Api\GetUser as ApiGetUser;
-use Upg\Library\Response\SuccessResponse;
-use Upg\Library\User\Type;
 
+/**
+ * Defines the interface for user related API calls.
+ */
 interface UserClientInterface {
 
-    public function registerOrUpdateUser(User $user, AddressInterface $billing_address);
+  /**
+   * Register or update an CrefoPay User.
+   */
+  public function registerOrUpdateUser(User $user, AddressInterface $billing_address);
 
   /**
    * Returns an Crefopay Person.
@@ -30,7 +23,7 @@ interface UserClientInterface {
    * If no Crefopay Person exists for the given Drupal User null will be returned.
    *
    * @param \Drupal\user\Entity\User $user
-   *   The Drupal User
+   *   The Drupal User.
    *
    * @return \Upg\Library\Request\Objects\Person
    *   The Crefopay Person.

@@ -2,12 +2,12 @@
 
 namespace Drupal\commerce_crefopay\PluginForm\OffsiteRedirect;
 
-use Drupal\commerce_crefopay\Client\OrderIdAlreadyExistsException;
-use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\commerce_payment\PluginForm\PaymentOffsiteForm as BasePaymentOffsiteForm;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\user\Entity\User;
 
+/**
+ * Form for offsite redirect integration.
+ */
 class PaymentOffsiteForm extends BasePaymentOffsiteForm {
 
   /**

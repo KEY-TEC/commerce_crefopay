@@ -2,7 +2,6 @@
 
 namespace Drupal\commerce_crefopay\Plugin\Commerce\EntityTrait;
 
-use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\entity\BundleFieldDefinition;
 use Drupal\commerce\Plugin\Commerce\EntityTrait\EntityTraitBase;
 

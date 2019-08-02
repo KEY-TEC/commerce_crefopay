@@ -20,6 +20,9 @@ use Upg\Library\Request\Objects\Amount;
 use Upg\Library\Request\Objects\AmountRange;
 use Upg\Library\Response\SuccessResponse;
 
+/**
+ * Subscription client implementation.
+ */
 class SubscriptionClient extends AbstractClient implements SubscriptionClientInterface {
 
   /**

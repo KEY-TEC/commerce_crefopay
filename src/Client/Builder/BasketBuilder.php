@@ -8,6 +8,9 @@ use Upg\Library\Request\AbstractRequest;
 use Upg\Library\Request\Objects\BasketItem;
 use Upg\Library\Request\Objects\Amount;
 
+/**
+ *
+ */
 class BasketBuilder {
 
   /**
@@ -39,7 +42,7 @@ class BasketBuilder {
   /**
    * @param \Drupal\commerce_order\Entity\OrderItemInterface $order_item
    *
-   * @return BasketItem
+   * @return \Upg\Library\Request\Objects\BasketItem
    */
   private function buildItem(OrderItemInterface $order_item) {
     $basket_item = new BasketItem();
@@ -52,4 +55,5 @@ class BasketBuilder {
     $basket_item->setBasketItemAmount($basket_item_amount);
     return $basket_item;
   }
+
 }

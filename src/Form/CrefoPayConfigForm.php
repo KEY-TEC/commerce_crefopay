@@ -1,22 +1,19 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\commerce_crefopay\Form\CrefopayConfigForm.
- */
-
 namespace Drupal\commerce_crefopay\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 
 use Drupal\Core\Form\FormStateInterface;
 
-class CrefopayConfigForm extends ConfigFormBase {
+/**
+ * CrefoPay configuration form.
+ */
+class CrefoPayConfigForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
    */
-
   public function getFormId() {
     return 'commerce_crefopay_config_form';
   }
@@ -24,7 +21,6 @@ class CrefopayConfigForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
     $config = $this->config('commerce_crefopay.settings');
@@ -77,7 +73,7 @@ class CrefopayConfigForm extends ConfigFormBase {
       '#title' => $this->t('Subscription Order Type'),
       '#default_value' => $config->get('subscriptionOrderTypeId'),
       '#required' => FALSE,
-      '#options' => $order_types_options
+      '#options' => $order_types_options,
     ];
     return $form;
   }
@@ -85,7 +81,6 @@ class CrefopayConfigForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
     $config = $this->config('commerce_crefopay.settings');
@@ -102,7 +97,6 @@ class CrefopayConfigForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-
   protected function getEditableConfigNames() {
     return [
       'commerce_crefopay.settings',

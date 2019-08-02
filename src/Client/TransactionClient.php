@@ -20,6 +20,9 @@ use Upg\Library\Request\Refund as RequestRefund;
 use Upg\Library\Request\Reserve as RequestReserve;
 use Upg\Library\Response\SuccessResponse;
 
+/**
+ * Transaction client implementation.
+ */
 class TransactionClient extends AbstractClient implements TransactionClientInterface {
 
   /**

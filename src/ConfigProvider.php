@@ -5,7 +5,10 @@ namespace Drupal\commerce_crefopay;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Upg\Library\Config;
 
-Class ConfigProvider implements ConfigProviderInterface {
+/**
+ * ConfigProvider default implementation.
+ */
+class ConfigProvider implements ConfigProviderInterface {
 
   private $configFactory;
 
@@ -18,10 +21,16 @@ Class ConfigProvider implements ConfigProviderInterface {
     $this->configFactory = $config_factory;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function setMode($mode) {
     $this->mode = $mode;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getMode() {
     if ($this->mode != NULL) {
       return $this->mode;
@@ -30,15 +39,24 @@ Class ConfigProvider implements ConfigProviderInterface {
     return $config->get('mode');
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getConfig() {
     return new Config($this->getConfigArray());
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getSubscriptionOrderTypeId() {
     $config = $this->configFactory->get('commerce_crefopay.settings');
     return $config->get('subscriptionOrderTypeId');
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getSecureFieldsUrl() {
     $mode = $this->getMode();
     if ($mode == 'test') {
@@ -49,6 +67,9 @@ Class ConfigProvider implements ConfigProviderInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getApiUrl() {
     $mode = $this->getMode();
     if ($mode == 'test') {
@@ -59,6 +80,9 @@ Class ConfigProvider implements ConfigProviderInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getConfigArray() {
     $config = $this->configFactory->get('commerce_crefopay.settings');
     return [
@@ -70,4 +94,5 @@ Class ConfigProvider implements ConfigProviderInterface {
       'logEnabled' => FALSE,
     ];
   }
+
 }

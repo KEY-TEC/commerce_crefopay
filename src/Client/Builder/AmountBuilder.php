@@ -8,10 +8,14 @@ use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_price\Price;
 use Upg\Library\Request\Objects\Amount;
 
+/**
+ *
+ */
 class AmountBuilder {
+
   /**
-   * @param OrderItemInterface $order_item
-   * @return Amount
+   * @param \Drupal\commerce_order\Entity\OrderItemInterface $order_item
+   * @return \Upg\Library\Request\Objects\Amount
    */
   public function buildFromOrderItem(OrderItemInterface $order_item) {
     $amount = new Amount();
@@ -23,7 +27,7 @@ class AmountBuilder {
   /**
    * @param OrderAdapterInterface $order
    *
-   * @return Amount
+   * @return \Upg\Library\Request\Objects\Amount
    */
   public function buildFromOrder(OrderInterface $order) {
     $amount = new Amount();
@@ -32,9 +36,9 @@ class AmountBuilder {
   }
 
   /**
-   * @param PaymentInterface $order
+   * @param \Drupal\commerce_payment\Entity\PaymentInterface $order
    *
-   * @return Amount
+   * @return \Upg\Library\Request\Objects\Amount
    */
   public function buildFromPayment(PaymentInterface $payment) {
     $amount = new Amount();
@@ -43,13 +47,14 @@ class AmountBuilder {
   }
 
   /**
-   * @param PaymentInterface $order
+   * @param \Drupal\commerce_payment\Entity\PaymentInterface $order
    *
-   * @return Amount
+   * @return \Upg\Library\Request\Objects\Amount
    */
   public function buildFromPrice(Price $price) {
     $amount = new Amount();
     $amount->setAmount(round($price->getNumber() * 100));
     return $amount;
   }
+
 }

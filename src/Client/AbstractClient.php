@@ -9,11 +9,15 @@ use Drupal\commerce_crefopay\Client\Builder\PersonBuilder;
 use Drupal\commerce_crefopay\Client\Builder\IdBuilder;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Upg\Library\Api\Exception\ApiError;
-use Upg\Library\Api\Exception\Validation;
 
+/**
+ * Abstract CrefoPay API client class.
+ */
 abstract class AbstractClient {
 
-
+  /**
+   * Handles Api exceptions and throws more specific Exceptions.
+   */
   protected function handleValidationExceptions(ApiError $api_error, $order_id) {
     if (
       $api_error->getCode() === 2008 ||
@@ -28,34 +32,47 @@ abstract class AbstractClient {
   }
 
   /**
+   * The config provider.
+   *
    * @var \Drupal\commerce_crefopay\ConfigProviderInterface
    */
   protected $configProvider;
 
   /**
+   * The person builder.
+   *
    * @var \Drupal\commerce_crefopay\Client\Builder\PersonBuilder
    */
   protected $personBuilder;
 
   /**
+   * The address builder.
+   *
    * @var \Drupal\commerce_crefopay\Client\Builder\AddressBuilder
    */
   protected $addressBuilder;
 
   /**
+   * The basket builder.
+   *
    * @var \Drupal\commerce_crefopay\Client\Builder\BasketBuilder
    */
   protected $basketBuilder;
 
   /**
+   * The amount builder.
+   *
    * @var \Drupal\commerce_crefopay\Client\Builder\AmountBuilder
    */
   protected $amountBuilder;
 
   /**
+   * The id builder.
+   *
    * @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder
    */
   protected $idBuilder;
+
   /**
    * AbstractClient constructor.
    */

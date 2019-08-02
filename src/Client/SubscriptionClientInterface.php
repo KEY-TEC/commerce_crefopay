@@ -3,29 +3,17 @@
 namespace Drupal\commerce_crefopay\Client;
 
 use Drupal\address\AddressInterface;
-use Drupal\commerce_crefopay\Client\Builder\AddressBuilder;
-use Drupal\commerce_crefopay\Client\Builder\AmountBuilder;
-use Drupal\commerce_crefopay\Client\Builder\BasketBuilder;
-use Drupal\commerce_crefopay\Client\Builder\PersonBuilder;
-use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_price\Price;
 use Drupal\user\Entity\User;
-use Upg\Library\Api\Exception\ApiError;
-use Upg\Library\Api\Exception\Validation;
-use Upg\Library\Request\GetSubscriptionPlans as RequestGetSubscriptionPlans;
-use Upg\Library\Api\GetSubscriptionPlans as ApiGetSubscriptionPlans;
-use Upg\Library\User\Type;
-use Upg\Library\Request\CreateSubscription as RequestCreateSubscription;
-use Upg\Library\Api\CreateSubscription as ApiCreateSubscription;
 
-use Upg\Library\Request\Objects\Amount;
-use Upg\Library\Request\Objects\AmountRange;
-use Upg\Library\Response\SuccessResponse;
-
+/**
+ * Subscription client interface.
+ */
 interface SubscriptionClientInterface {
 
   /**
+   * Creates a CrefoPay subscriptions.
    *
    * @param \Drupal\commerce_order\Entity\Order $order
    *   The order.
@@ -52,7 +40,7 @@ interface SubscriptionClientInterface {
    * @param string $action
    *   Possible Values:
    *    - CHANGE_RATE
-   *    - CANCEL
+   *    - CANCEL.
    */
   public function updateSubscription(Order $order, Price $amount, $action);
 

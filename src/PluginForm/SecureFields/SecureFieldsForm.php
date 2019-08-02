@@ -5,6 +5,9 @@ namespace Drupal\commerce_crefopay\PluginForm\SecureFields;
 use Drupal\commerce_payment\PluginForm\PaymentOffsiteForm as BasePaymentOffsiteForm;
 use Drupal\Core\Form\FormStateInterface;
 
+/**
+ * Form for secure fields integration.
+ */
 class SecureFieldsForm extends BasePaymentOffsiteForm {
 
   /**
@@ -26,22 +29,25 @@ class SecureFieldsForm extends BasePaymentOffsiteForm {
     $config_array = $config_provider->getConfigArray();
     $secure_fields_url = $config_provider->getSecureFieldsUrl($payment_gateway_plugin->getMode());
 
-
     $form['crefopay_payment'] = [
       '#theme' => 'crefopay_payment',
       '#allowed_methods' => $payment_data['allowedPaymentMethods'],
       '#allowed_intruments' => $payment_data['allowedPaymentInstruments'],
       '#additional_information' => $payment_data['additionalInformation'],
+      '#order' => $order,
       '#attached' => [
         'library' => ['commerce_crefopay/crefopay'],
         'drupalSettings' => [
-        'crefopay' => [
-          'orderId' => $payment_gateway_plugin->getIdBuilder()->id($order),
-          'placeholder' => [],
-          'secureFieldsUrl' => $secure_fields_url,
-          'shopPublicKey' => $config_array['shopPublicKey'],
+          'crefopay' => [
+            'orderId' => $payment_gateway_plugin->getIdBuilder()->id($order),
+            'placeholder' => [],
+            'secureFieldsUrl' => $secure_fields_url,
+            'shopPublicKey' => $config_array['shopPublicKey'],
           ],
         ],
+      ],
+      '#cache' => [
+        'max-age' => 0,
       ],
     ];
 

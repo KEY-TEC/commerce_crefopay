@@ -55,10 +55,12 @@ class SecureFieldsSubscription extends BasePaymentGateway {
     }
     try {
       $instruments = $this->subscriptionClient->createSubscription($order, $user, $address, $plan_reference);
-    } catch (OrderIdAlreadyExistsException $oe) {
-      //throw new PaymentGatewayException('Order already exists.');
+    }
+    catch (OrderIdAlreadyExistsException $oe) {
+      // Throw new PaymentGatewayException('Order already exists.');
       // Transaction already started.
-    } catch (\Throwable $exception) {
+    }
+    catch (\Throwable $exception) {
       $this->logger->error($exception->getMessage());
       throw new PaymentGatewayException($this->t('We encountered an unexpected error processing your payment method. Please try again later.'));
     }
@@ -74,4 +76,5 @@ class SecureFieldsSubscription extends BasePaymentGateway {
     }
     return $instruments;
   }
+
 }

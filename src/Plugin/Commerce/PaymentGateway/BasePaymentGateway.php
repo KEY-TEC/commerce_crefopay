@@ -4,9 +4,7 @@ namespace Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway;
 
 use Drupal\commerce_crefopay\Client\Builder\IdBuilder;
 use Drupal\commerce_crefopay\Client\OrderIdAlreadyExistsException;
-use Drupal\commerce_crefopay\Client\SubscriptionClient;
 use Drupal\commerce_crefopay\Client\SubscriptionClientInterface;
-use Drupal\commerce_crefopay\Client\TransactionClient;
 use Drupal\commerce_crefopay\Client\TransactionClientInterface;
 use Drupal\commerce_crefopay\Client\UserNotExistsException;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
@@ -25,6 +23,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Class BasePaymentGateway.
+ *
+ * @package Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway
+ */
 abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
 
   /**
@@ -35,9 +38,9 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
   protected $transactionClient;
 
   /**
-   * The transaction client.
+   * The subscription client.
    *
-   * @var \Drupal\commerce_crefopay\Client\TransactionClientInterface
+   * @var \Drupal\commerce_crefopay\Client\SubscriptionClientInterface
    */
   protected $subscriptionClient;
 
@@ -53,7 +56,6 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
    *
    * @var \Drupal\commerce_crefopay\ConfigProviderInterface
    */
-
   protected $configProvider;
 
   /**
@@ -80,15 +82,16 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
    *   The payment method type manager.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time.
+   * @param \Drupal\commerce_crefopay\ConfigProviderInterface $config_provider
+   *   The config provider.
    * @param \Drupal\commerce_crefopay\Client\TransactionClientInterface $transaction_client
    *   The transaction client.
    * @param \Drupal\commerce_crefopay\Client\SubscriptionClientInterface $subscription_client
    *   The subscription client.
-   * @param \Drupal\commerce_crefopay\ConfigProviderInterface $config_provider
-   *   The subscription client.
    * @param \Drupal\commerce_crefopay\Client\Builder\IdBuilder $id_builder
    *   The id builder.
-   * @param Psr\Log\LoggerInterface
+   * @param \Psr\Log\LoggerInterface $logger
+   *   The logger.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, PaymentTypeManager $payment_type_manager, PaymentMethodTypeManager $payment_method_type_manager, TimeInterface $time, ConfigProviderInterface $config_provider, TransactionClientInterface $transaction_client, SubscriptionClientInterface $subscription_client, IdBuilder $id_builder, LoggerInterface $logger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $payment_type_manager, $payment_method_type_manager, $time);
@@ -99,6 +102,21 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     $this->logger = $logger;
   }
 
+  /**
+   * Checks for a running transaction otherwise create a new one.
+   *
+   * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
+   *   The payment entity.
+   *
+   * @return array
+   *   The transaction status data.
+   *   Keys:
+   *    - allowedPaymentInstruments
+   *    - additionalInformation
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \Drupal\commerce_crefopay\Client\UserNotExistsException
+   */
   public function handleTransaction(PaymentInterface $payment) {
     $order = $payment->getOrder();
     if ($order->getData('crefopay_transaction_started') != NULL &&
@@ -114,7 +132,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
       foreach ($allowed_intruments as $allowed_intrument) {
         $data['allowedPaymentInstruments'][] = $allowed_intrument->toArray();
       }
-      $data['allowedPaymentMethods'] = array_fill_keys($instruments['allowedPaymentMethods'], true);
+      $data['allowedPaymentMethods'] = array_fill_keys($instruments['allowedPaymentMethods'], TRUE);
       $data['additionalInformation'] = $instruments['additionalInformation'];
       $order->setData('crefopay_transaction_data', $data);
       $order->setData('crefopay_transaction_started', TRUE);
@@ -124,10 +142,10 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
   }
 
   /**
-   * Calls a CrefoPay create transaction.
+   * Calls a CrefoPay "create transaction".
    *
    * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
-   *   The current payment.
+   *   The payment.
    *
    * @return \Upg\Library\Request\Objects\PaymentInstrument[]
    *   Payment instruments.
@@ -148,11 +166,13 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     try {
       $instruments = $this->transactionClient->createTransaction($order, $user, $address, "SecureFields");
       /** @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder $id_builder */
-    } catch (OrderIdAlreadyExistsException $oe) {
-      //throw new PaymentGatewayException('Order already exists.');
+    }
+    catch (OrderIdAlreadyExistsException $oe) {
+      // Throw new PaymentGatewayException('Order already exists.');
       // Transaction already started.
       $this->logger->error($oe->getMessage());
-    } catch (\Throwable $exception) {
+    }
+    catch (\Throwable $exception) {
       $this->logger->error($exception->getMessage());
       throw new PaymentGatewayException($this->t('We encountered an unexpected error processing your payment method. Please try again later.'));
     }
@@ -160,7 +180,8 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     if ($instruments == NULL) {
       try {
         $instruments = $this->transactionClient->getTransactionPaymentInstruments($order);
-      } catch (\Throwable $exception) {
+      }
+      catch (\Throwable $exception) {
         $this->logger->error($exception->getMessage());
         throw new PaymentGatewayException($this->t('We encountered an unexpected error processing your payment method. Please try again later.'));
       }
@@ -232,47 +253,44 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     }
   }
 
+  /**
+   * Update payment status.
+   *
+   * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
+   */
   private function updatePayment(PaymentInterface $payment) {
     $order = $payment->getOrder();
     $transaction_status = $this->transactionClient->getTransactionStatus($order);
     $remote_state = $transaction_status['transactionStatus'];
     switch ($remote_state) {
       case "DONE":
-        {
-          $state = "completed";
-          break;
-        }
-      case "New":
-        {
-          $state = "new";
-          break;
-        }
+        $state = "completed";
+        break;
+
+      case "NEW":
+        $state = "new";
+        break;
+
       case "ACKNOWLEDGEPENDING":
       case "FRAUDPENDING":
       case "MERCHANTPENDING":
       case "CIAPENDING":
       case "INPROGRESS":
-        {
-          $state = "authorization";
-          break;
-        }
+        $state = "authorization";
+        break;
 
       case "CANCELLED":
       case "FRAUDCANCELLED":
-        {
-          $state = "refunded";
-          break;
-        }
+        $state = "refunded";
+        break;
+
       case "EXPIRED":
-        {
-          $state = 'authorization_expired';
-          break;
-        }
+        $state = 'authorization_expired';
+        break;
+
       default:
-        {
-          $state = "new";
-          break;
-        }
+        $state = "new";
+        break;
     }
     $payment->setRemoteState($remote_state);
     $payment->setState($state);
@@ -294,9 +312,20 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     $payment->save();
   }
 
+  /**
+   * Refund payment.
+   *
+   * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
+   *   The payment.
+   * @param \Drupal\commerce_price\Price|null $amount
+   *   The amount.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   */
   public function refundPayment(PaymentInterface $payment, Price $amount = NULL) {
     $this->transactionClient->refund($payment, $amount, "Refund", $payment->getOrderId());
     $this->updatePayment($payment);
     $payment->save();
   }
+
 }

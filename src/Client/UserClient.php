@@ -2,7 +2,6 @@
 
 namespace Drupal\commerce_crefopay\Client;
 
-use CommerceGuys\Addressing\Address;
 use Drupal\address\AddressInterface;
 use Drupal\commerce_crefopay\Client\Builder\AddressBuilder;
 use Drupal\commerce_crefopay\Client\Builder\PersonBuilder;
@@ -18,6 +17,9 @@ use Upg\Library\Api\GetUser as ApiGetUser;
 use Upg\Library\Response\SuccessResponse;
 use Upg\Library\User\Type;
 
+/**
+ * User client implementation.
+ */
 class UserClient implements UserClientInterface {
 
   private $configProvider;
@@ -80,7 +82,8 @@ class UserClient implements UserClientInterface {
         $user = $result->getData('userData');
         return $user;
       }
-    } catch (ApiError $api_error) {
+    }
+    catch (ApiError $api_error) {
       // Return for "User already exists Exception" (2015).
       if ($api_error->getCode() === 2015) {
         return NULL;
