@@ -66,7 +66,7 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
     try {
       $result = $subscriptions_create_api->sendRequest();
       if ($result instanceof SuccessResponse) {
-        return $result;
+        return $result->getAllData();
       }
     }
     catch (ApiError $ae) {
