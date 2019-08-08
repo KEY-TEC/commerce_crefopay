@@ -22,19 +22,19 @@
     "require": {
         "php": "^7.1",
         "crefopay/php-clientlibrary": "dev-develop",
-        "drupal/address_checkout": "^1.0@alpha",
-        "drupal/commerce": "^2",
-        "drupal/commerce_recurring": "^1.0@beta",
-        "drupal/commerce_shipping": "^2.0@beta"
+        "drupal/commerce": "^2"
     },
     "require-dev": {
         "composer/installers": "~1.5",
-        "drupal/core": "^8.7",
         "drupal-composer/drupal-scaffold": "~2.2",
+        "drupal/address_checkout": "^1.0@alpha",
+        "drupal/commerce_paypal": "^1.0@beta",
+        "drupal/commerce_product_bundle": "1.x-dev",
+        "drupal/commerce_recurring": "^1.0@beta",
+        "drupal/commerce_shipping": "^2.0@beta",
         "drupal/config_devel": "~1.2",
         "drupal/console": "~1.0",
-        "drupal/commerce": "2.x-dev",
-        "drupal/commerce_product_bundle": "1.x-dev",
+        "drupal/core": "^8.7",
         "drupal/drupal-extension": "~4.0",
         "drush/drush": "~9.0@stable",
         "openeuropa/code-review": "~1.0@beta",

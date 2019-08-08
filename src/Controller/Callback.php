@@ -57,6 +57,7 @@ class Callback extends ControllerBase {
       return;
     }
     $commerce_order = Order::load($order_id);
+
     return $commerce_order;
   }
 
@@ -75,15 +76,13 @@ class Callback extends ControllerBase {
     $transaction_client = \Drupal::service('commerce_crefopay.transaction_client');
     $redirect_url = $transaction_client->reserveTransaction($commerce_order, $payment_method, $payment_instrument_id);
     if ($redirect_url != NULL) {
-      // Nocache redirect workaround.
-      // @see https://www.drupal.org/node/2630808
-      $url = Url::fromUri($redirect_url);
-      $trusted_response = new TrustedRedirectResponse($url->toString(TRUE)->getGeneratedUrl());
-      $trusted_response->addCacheableDependency($url);
-      return $trusted_response;
+      $response  = new TrustedRedirectResponse($redirect_url);
+      $response->getCacheableMetadata()->setCacheMaxAge(0);
     }
-
-    return $this->redirect('commerce_payment.checkout.return', ['commerce_order' => $commerce_order->id(), 'step' => 'payment']);
+    else {
+      $response = $this->redirect('commerce_payment.checkout.return', ['commerce_order' => $commerce_order->id(), 'step' => 'payment']);
+    }
+    return $response;
   }
 
 }
