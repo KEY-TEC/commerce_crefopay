@@ -32,6 +32,13 @@ abstract class AbstractClient {
   }
 
   /**
+   * The cache.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
+  protected $cache;
+
+  /**
    * The config provider.
    *
    * @var \Drupal\commerce_crefopay\ConfigProviderInterface
@@ -76,13 +83,14 @@ abstract class AbstractClient {
   /**
    * AbstractClient constructor.
    */
-  public function __construct(ConfigProviderInterface $config_provider, IdBuilder $uuid_builder, PersonBuilder $person_builder, AddressBuilder $address_builder, BasketBuilder $basket_builder, AmountBuilder $amount_builder) {
+  public function __construct(ConfigProviderInterface $config_provider, IdBuilder $uuid_builder, PersonBuilder $person_builder, AddressBuilder $address_builder, BasketBuilder $basket_builder, AmountBuilder $amount_builder, Drupal\Core\Cache\CacheBackendInterface $cache) {
     $this->configProvider = $config_provider;
     $this->personBuilder = $person_builder;
     $this->addressBuilder = $address_builder;
     $this->basketBuilder = $basket_builder;
     $this->amountBuilder = $amount_builder;
     $this->idBuilder = $uuid_builder;
+    $this->cache = $cache;
   }
 
 }

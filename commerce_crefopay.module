@@ -24,6 +24,7 @@ function commerce_crefopay_theme() {
 }
 
 function commerce_crefopay_subscripton_plans_options() {
+
   /** @var \Drupal\commerce_crefopay\SubscriptionManager $subscription_manager */
   $subscription_client = \Drupal::service('commerce_crefopay.subscription_client');
   $plans = $subscription_client->getSubscriptionPlans();

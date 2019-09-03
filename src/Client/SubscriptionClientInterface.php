@@ -13,6 +13,11 @@ use Drupal\user\Entity\User;
 interface SubscriptionClientInterface {
 
   /**
+   * Reset subscription cache.
+   */
+  public function resetCache();
+
+  /**
    * Creates a CrefoPay subscriptions.
    *
    * @param \Drupal\commerce_order\Entity\Order $order

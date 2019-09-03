@@ -5,6 +5,7 @@ namespace Drupal\commerce_crefopay\Client;
 use Drupal\address\AddressInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_price\Price;
+use Drupal\Core\Cache\Cache;
 use Drupal\user\Entity\User;
 use Upg\Library\Api\Exception\ApiError;
 use Upg\Library\Request\GetSubscriptionPlans as RequestGetSubscriptionPlans;
@@ -24,6 +25,18 @@ use Upg\Library\Response\SuccessResponse;
  * Subscription client implementation.
  */
 class SubscriptionClient extends AbstractClient implements SubscriptionClientInterface {
+
+  /**
+   * The cached plans.
+   *
+   * @var array
+   */
+  private $plans = NULL;
+
+  public function resetCache() {
+    $this->cache->delete('crefopay_plans');
+  }
+
 
   /**
    * {@inheritdoc}
@@ -79,14 +92,25 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
    * {@inheritdoc}
    */
   public function getSubscriptionPlans() {
+    if ($this->plans !== NULL) {
+      return $this->plans;
+    }
+    $cache = $this->cache;
+    $this->plans = $cache->get('crefopay_plans');
+    if ($this->plans !== NULL) {
+      return $this->plans;
+    }
     $subscriptions_request = new RequestGetSubscriptionPlans($this->configProvider->getConfig());
     $subscriptions_request->setAmount(new AmountRange(new Amount(0), new Amount(4000, 4000, 4000)));
     $subscriptions_api = new ApiGetSubscriptionPlans($this->configProvider->getConfig(), $subscriptions_request);
     $result = $subscriptions_api->sendRequest();
     if ($result instanceof SuccessResponse) {
       $plans = $result->getData('subscriptionPlans');
+      $cache->set('crefopay_plans', $plans, Cache::PERMANENT, ['crefopay_plans_list']);
+      $this->plans = $plans;
       return $plans;
     }
+
     return [];
   }
 
