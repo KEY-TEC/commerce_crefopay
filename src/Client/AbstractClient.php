@@ -8,6 +8,7 @@ use Drupal\commerce_crefopay\Client\Builder\BasketBuilder;
 use Drupal\commerce_crefopay\Client\Builder\PersonBuilder;
 use Drupal\commerce_crefopay\Client\Builder\IdBuilder;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
+use Drupal\Core\Cache\CacheBackendInterface;
 use Upg\Library\Api\Exception\ApiError;
 
 /**
@@ -83,7 +84,7 @@ abstract class AbstractClient {
   /**
    * AbstractClient constructor.
    */
-  public function __construct(ConfigProviderInterface $config_provider, IdBuilder $uuid_builder, PersonBuilder $person_builder, AddressBuilder $address_builder, BasketBuilder $basket_builder, AmountBuilder $amount_builder, Drupal\Core\Cache\CacheBackendInterface $cache) {
+  public function __construct(ConfigProviderInterface $config_provider, IdBuilder $uuid_builder, PersonBuilder $person_builder, AddressBuilder $address_builder, BasketBuilder $basket_builder, AmountBuilder $amount_builder, CacheBackendInterface $cache) {
     $this->configProvider = $config_provider;
     $this->personBuilder = $person_builder;
     $this->addressBuilder = $address_builder;

@@ -97,8 +97,8 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
     }
     $cache = $this->cache;
     $this->plans = $cache->get('crefopay_plans');
-    if ($this->plans !== NULL) {
-      return $this->plans;
+    if ($this->plans !== FALSE) {
+      return $this->plans->data;
     }
     $subscriptions_request = new RequestGetSubscriptionPlans($this->configProvider->getConfig());
     $subscriptions_request->setAmount(new AmountRange(new Amount(0), new Amount(4000, 4000, 4000)));
