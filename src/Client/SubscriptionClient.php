@@ -106,8 +106,11 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
     $result = $subscriptions_api->sendRequest();
     if ($result instanceof SuccessResponse) {
       $plans = $result->getData('subscriptionPlans');
-      $cache->set('crefopay_plans', $plans, Cache::PERMANENT, ['crefopay_plans_list']);
-      $this->plans = $plans;
+      $this->plans = [];
+      foreach ($plans as $plan) {
+        $this->plans[$plan->getPlanReference()] = $plan->getName();
+      }
+      $cache->set('crefopay_plans', $this->plans, Cache::PERMANENT, ['crefopay_plans_list']);
       return $plans;
     }
 
