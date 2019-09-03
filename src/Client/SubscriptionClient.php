@@ -111,7 +111,7 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
         $this->plans[$plan->getPlanReference()] = $plan->getName();
       }
       $cache->set('crefopay_plans', $this->plans, Cache::PERMANENT, ['crefopay_plans_list']);
-      return $plans;
+      return $this->plans ;
     }
 
     return [];
