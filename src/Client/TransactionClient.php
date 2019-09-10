@@ -108,7 +108,7 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
   /**
    * {@inheritdoc}
    */
-  public function createTransaction(Order $order, User $user, AddressInterface $billing_address, $integration_type = "HostedPageBefore") {
+  public function createTransaction(Order $order, User $user, AddressInterface $billing_address, $integration_type = "HostedPageBefore", AddressInterface $shipping_address = NULL) {
     $request = new RequestCreateTransaction($this->configProvider->getConfig());
     $amount = $this->amountBuilder->buildFromOrder($order);
     $request->setUserID($this->idBuilder->id($user));
@@ -125,6 +125,12 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
 
     $request->setUserData($crefo_person);
     $request->setLocale($this->personBuilder->getLangcode($user));
+
+    if ($shipping_address != NULL) {
+      $crefo_shipping_address = $this->addressBuilder->build($shipping_address);
+      $request->setShippingAddress($crefo_shipping_address);
+    }
+
     $create_transaction = new CreateTransaction($this->configProvider->getConfig(), $request);
     try {
       $result = $create_transaction->sendRequest();

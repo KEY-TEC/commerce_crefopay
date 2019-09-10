@@ -32,7 +32,7 @@ interface SubscriptionClientInterface {
    * @return array
    *   Payment instruments
    */
-  public function createSubscription(Order $order, User $user, AddressInterface $billing_address, $plan_reference);
+  public function createSubscription(Order $order, User $user, AddressInterface $billing_address, $plan_reference, AddressInterface $shipping_address = NULL);
 
   /**
    * The updateSubscription call is used to update the charge

@@ -51,6 +51,6 @@ interface TransactionClientInterface {
    *
    * @see https://docs.crefopay.de/api/#createtransaction
    */
-  public function createTransaction(Order $order, User $user, AddressInterface $billing_address, $integration_type = "HostedPageBefore");
+  public function createTransaction(Order $order, User $user, AddressInterface $billing_address, $integration_type = "HostedPageBefore", AddressInterface $shipping_address = NULL);
 
 }
