@@ -17,7 +17,21 @@
    */
   Drupal.behaviors.crefoSecureFieldsInit = {
     attach: function () {
+
+
       $('.crefopay-form').once('crefopay-form').each(function () {
+
+        // Deselect selected bank account.
+        $("input[name='paymentMethod'], input[data-crefopay='paymentInstrument.bankAccountHolder'], input[data-crefopay='paymentInstrument.iban'], input[data-crefopay='paymentInstrument.bic']")
+          .focus(function (){
+          $('input[data-crefopay="paymentInstrument.id"]').prop('checked', false);
+        });
+
+        // Empty bank account fields when selecting stored bank account.
+        $("input[data-crefopay='paymentInstrument.id']").click(function (){
+          $("input[data-crefopay='paymentInstrument.bankAccountHolder'], input[data-crefopay='paymentInstrument.iban'], input[data-crefopay='paymentInstrument.bic']").val("")
+        });
+
         var container = $(this);
         var shopPublicKey = drupalSettings.crefopay.shopPublicKey;
         var configuration = {
@@ -25,12 +39,10 @@
             placeholders: {}
           }
         ;
-        console.log(shopPublicKey);
         var secureFieldsClientInstance =
           new SecureFieldsClient(shopPublicKey,
             drupalSettings.crefopay.orderId,
             function (response) {
-              console.log(response);
               if (response.resultCode === 0) {
                 // Successful registration, continue to next page using JavaScript
                 var prefix = drupalSettings.path.pathPrefix != '' ? '/' + drupalSettings.path.pathPrefix : '/';
@@ -54,9 +66,6 @@
             }
             ,
             function (result) {
-              console.log('initializationCompleteCallback');
-              console.log(result);
-
               //setTimeout(function(){ secureFieldsClientInstance.registerPayment(); }, 3000);
 
             },
