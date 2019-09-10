@@ -8,6 +8,7 @@ use Drupal\commerce_crefopay\Client\SubscriptionClientInterface;
 use Drupal\commerce_crefopay\Client\TransactionClientInterface;
 use Drupal\commerce_crefopay\Client\UserNotExistsException;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
+use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
@@ -142,6 +143,31 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
   }
 
   /**
+   * Returns the shipment address if one exists.
+   *
+   * @param \Drupal\commerce_order\Entity\Order $order
+   *   The order.
+   *
+   * @return \Drupal\address\Element\Address
+   *  The shipment address.
+   */
+  protected function getShipmentAddress(Order $order) {
+    $shipment_address = NULL;
+    if ($order->hasField('shipments')) {
+      $shipments = $order->shipments;
+      if (isset($shipments[0])) {
+        /** @var \Drupal\commerce_shipping\Entity\Shipment $shipment */
+        $shipment = $shipments[0]->entity;
+        if ($shipment != NULL) {
+          $shipment_profile = $shipment->getShippingProfile();
+          $shipment_address = isset($shipment_profile->address[0]) ? $shipment_profile->address[0] : NULL;
+        }
+      }
+    }
+    return $shipment_address;
+  }
+
+  /**
    * Calls a CrefoPay "create transaction".
    *
    * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
@@ -161,10 +187,10 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
       throw new UserNotExistsException($order->getCustomerId());
     }
 
-    $instruments = NULL;
+    $instrument_address = $this->getShipmentAddress($order);
     /** @var \Drupal\commerce_crefopay\Client\TransactionClient $transaction_client */
     try {
-      $instruments = $this->transactionClient->createTransaction($order, $user, $address, "SecureFields");
+      $instruments = $this->transactionClient->createTransaction($order, $user, $address, "SecureFields", $instrument_address);
       /** @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder $id_builder */
     }
     catch (OrderIdAlreadyExistsException $oe) {
