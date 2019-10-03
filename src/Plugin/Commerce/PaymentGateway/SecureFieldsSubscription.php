@@ -45,7 +45,13 @@ class SecureFieldsSubscription extends BasePaymentGateway {
     $plan_reference = NULL;
     foreach ($items as $item) {
       $purchased_product = $item->getPurchasedEntity();
-      if ($purchased_product->hasField('crefopay_subscription_plan') &&
+
+      if ($purchased_product->hasField('field_subscription_plan') &&
+        $purchased_product->field_subscription_plan->entity != NULL) {
+        $plan_reference = $purchased_product->field_subscription_plan->entity->crefopay_subscription_plan->value;
+        break;
+      }
+      else if ($purchased_product->hasField('crefopay_subscription_plan') &&
         $purchased_product->crefopay_subscription_plan->value != NULL) {
         $plan_reference = $purchased_product->crefopay_subscription_plan->value;
         break;
