@@ -42,7 +42,7 @@ class SubscriptionOrderTypeResolver implements OrderTypeResolverInterface {
    */
   public function resolve(OrderItemInterface $order_item) {
     $purchased_product = $order_item->getPurchasedEntity();
-    if ($purchased_product->hasField('field_subscription_plan' &&
+    if (($purchased_product->hasField('field_subscription_plan') &&
       $purchased_product->field_subscription_plan->entity != NULL) ||
       $purchased_product->hasField('crefopay_subscription_plan') &&
       $purchased_product->crefopay_subscription_plan->value != NULL) {
