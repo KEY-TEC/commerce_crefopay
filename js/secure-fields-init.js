@@ -16,19 +16,34 @@
    *   Attaches the behavior crefopay secure fields.
    */
   Drupal.behaviors.crefoSecureFieldsInit = {
+
+
     attach: function () {
 
 
       $('.crefopay-form').once('crefopay-form').each(function () {
-
+        /**
+         * Translated error messages.
+         */
+        var errorMessages = {
+          "The field paymentInstrument.validity has an invalid format.": Drupal.t("The field Validity has an invalid format."),
+          "The field paymentInstrument.number is invalid.": Drupal.t("The field Number is invalid."),
+          "The field paymentInstrument.cvv is not a valid CVV.": Drupal.t("The field CVV is not a valid CVV."),
+          "The field paymentInstrument.cvv is invalid.": Drupal.t("The field CVV is invalid."),
+          "The field paymentInstrument.accountHolder is invalid.": Drupal.t("The field Accountholder is invalid."),
+          "The field paymentInstrument.validity is invalid.": Drupal.t("The field CVV is invalid."),
+          "The field paymentInstrument.bic is invalid.": Drupal.t("The field BIC is invalid."),
+          "The field paymentInstrument.iban is invalid.": Drupal.t("The field IBAN is invalid."),
+          "The field paymentInstrument.bankAccountHolder is invalid.": Drupal.t("The field Account holder is invalid.")
+        };
         // Deselect selected bank account.
         $("input[name='paymentMethod'], input[data-crefopay='paymentInstrument.bankAccountHolder'], input[data-crefopay='paymentInstrument.iban'], input[data-crefopay='paymentInstrument.bic']")
-          .focus(function (){
-          $('input[data-crefopay="paymentInstrument.id"]').prop('checked', false);
-        });
+          .focus(function () {
+            $('input[data-crefopay="paymentInstrument.id"]').prop('checked', false);
+          });
 
         // Empty bank account fields when selecting stored bank account.
-        $("input[data-crefopay='paymentInstrument.id']").click(function (){
+        $("input[data-crefopay='paymentInstrument.id']").click(function () {
           $("input[data-crefopay='paymentInstrument.bankAccountHolder'], input[data-crefopay='paymentInstrument.iban'], input[data-crefopay='paymentInstrument.bic']").val("")
         });
 
@@ -44,7 +59,8 @@
             drupalSettings.crefopay.orderId,
             function (response) {
               if (response.resultCode === 0) {
-                // Successful registration, continue to next page using JavaScript
+                // Successful registration, continue to next page using
+                // JavaScript
                 var prefix = drupalSettings.path.pathPrefix != '' ? '/' + drupalSettings.path.pathPrefix : '/';
                 var url = prefix + 'crefopay/confirm?orderID=' + response.orderNo + '&paymentMethod=' + response.paymentMethod;
                 if (response.paymentInstrumentId != null) {
@@ -52,12 +68,14 @@
                 }
                 location.href = url;
                 return false;
-              } else {
+              }
+              else {
                 var errorContainer = $('.crefopay-form__error');
                 errorContainer.addClass('crefopay-form__error--show');
                 errorContainer.empty();
                 for (var i in response.errorDetails) {
-                  errorContainer.append('<div class="crefopay-form__error-item">' + Drupal.t(response.errorDetails[i].description) + '</div>');
+                  var translated_message = errorMessages[response.errorDetails[i].description] != null ? errorMessages[response.errorDetails[i].description] : response.errorDetails[i].description;
+                  errorContainer.append('<div class="crefopay-form__error-item">' + translated_message + '</div>');
                 }
                 $('html, body').animate({
                   scrollTop: 0
@@ -66,7 +84,8 @@
             }
             ,
             function (result) {
-              //setTimeout(function(){ secureFieldsClientInstance.registerPayment(); }, 3000);
+              //setTimeout(function(){
+              // secureFieldsClientInstance.registerPayment(); }, 3000);
 
             },
             configuration);
