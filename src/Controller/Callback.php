@@ -23,7 +23,11 @@ class Callback extends ControllerBase {
     $commerce_order = $this->getOrder($request);
     $options = [];
     if (!empty($commerce_order->getData('crefopay_language'))) {
-      $options['language'] = $commerce_order->getData('crefopay_language');
+      $lang_code = $commerce_order->getData('crefopay_language');
+      $language = \Drupal::languageManager()->getLanguage($lang_code);
+      if ($language != NULL) {
+        $options['language'] = $language;
+      }
     }
     return $this->redirect('commerce_payment.checkout.return', [
       'commerce_order' => $commerce_order->id(),
