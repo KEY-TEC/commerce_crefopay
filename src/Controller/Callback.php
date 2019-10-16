@@ -9,6 +9,7 @@ use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Upg\Library\Api\Exception\ApiError;
 
 /**
  *
@@ -20,7 +21,14 @@ class Callback extends ControllerBase {
    */
   public function success(Request $request) {
     $commerce_order = $this->getOrder($request);
-    return $this->redirect('commerce_payment.checkout.return', ['commerce_order' => $commerce_order->id(), 'step' => 'payment']);
+    $options = [];
+    if (!empty($commerce_order->getData('crefopay_language'))) {
+      $options['language'] = $commerce_order->getData('crefopay_language');
+    }
+    return $this->redirect('commerce_payment.checkout.return', [
+      'commerce_order' => $commerce_order->id(),
+      'step' => 'payment',
+    ], $options);
   }
 
   /**
@@ -34,7 +42,8 @@ class Callback extends ControllerBase {
       $transaction_status = $request->request->get('transactionStatus');
       $subscription_id = $request->request->get('subscriptionID');
 
-      \Drupal::logger('commerce_crefopay_notification')->notice("Notification for user: $user_id: Order: $order_status; Transaction: $transaction_status; Subscription: $subscription_id");
+      \Drupal::logger('commerce_crefopay_notification')
+        ->notice("Notification for user: $user_id: Order: $order_status; Transaction: $transaction_status; Subscription: $subscription_id");
       return new JsonResponse($response);
     }
   }
@@ -44,11 +53,17 @@ class Callback extends ControllerBase {
    */
   public function failure(Request $request) {
     $commerce_order = $this->getOrder($request);
-    return $this->redirect('commerce_payment.checkout.return', ['commerce_order' => $commerce_order->id(), 'step' => 'cancel']);
+    return $this->redirect('commerce_payment.checkout.return', [
+      'commerce_order' => $commerce_order->id(),
+      'step' => 'cancel',
+    ]);
   }
 
   /**
+   * Returns order for given request.
    *
+   * @return \Drupal\commerce_order\Entity\OrderInterface
+   *   The order.
    */
   private function getOrder(Request $request) {
     $id_service = \Drupal::service('commerce_crefopay.id_builder');
@@ -67,22 +82,35 @@ class Callback extends ControllerBase {
   public function confirm(Request $request) {
 
     /** @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder $id_service */
-
     $payment_method = $request->get('paymentMethod');
     $payment_instrument_id = $request->get('paymentInstrumentID');
     $commerce_order = $this->getOrder($request);
 
     /** @var \Drupal\commerce_crefopay\Client\TransactionClient $transaction_client */
     $transaction_client = \Drupal::service('commerce_crefopay.transaction_client');
-    $redirect_url = $transaction_client->reserveTransaction($commerce_order, $payment_method, $payment_instrument_id);
-    if ($redirect_url != NULL) {
-      $response  = new TrustedRedirectResponse($redirect_url);
-      $response->getCacheableMetadata()->setCacheMaxAge(0);
+    try {
+      $redirect_url = $transaction_client->reserveTransaction($commerce_order, $payment_method, $payment_instrument_id);
+      if ($redirect_url != NULL) {
+        $response = new TrustedRedirectResponse($redirect_url);
+        $response->getCacheableMetadata()->setCacheMaxAge(0);
+      }
+      else {
+        $response = $this->redirect('commerce_payment.checkout.return', [
+          'commerce_order' => $commerce_order->id(),
+          'step' => 'payment',
+        ]);
+      }
+      return $response;
+    } catch (ApiError $api_error) {
+      $this->getLogger('commerce_payment')
+        ->critical('Error in reserve Call: ' . $api_error->getMessage());
+      return $this->redirect('commerce_payment.checkout.return', [
+        'commerce_order' => $commerce_order->id(),
+        'step' => 'cancel',
+      ]);
     }
-    else {
-      $response = $this->redirect('commerce_payment.checkout.return', ['commerce_order' => $commerce_order->id(), 'step' => 'payment']);
-    }
-    return $response;
+
+
   }
 
 }

@@ -6,6 +6,7 @@ use Drupal\address\AddressInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_price\Price;
+use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
 use Upg\Library\Api\CreateTransaction;
 use Upg\Library\Api\GetTransactionPaymentInstruments;
@@ -108,7 +109,7 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
   /**
    * {@inheritdoc}
    */
-  public function createTransaction(Order $order, User $user, AddressInterface $billing_address, $integration_type = "HostedPageBefore", AddressInterface $shipping_address = NULL) {
+  public function createTransaction(Order $order, User $user, ProfileInterface $billing_profile, $integration_type = "HostedPageBefore", ProfileInterface $shipping_profile = NULL) {
     $request = new RequestCreateTransaction($this->configProvider->getConfig());
     $amount = $this->amountBuilder->buildFromOrder($order);
     $request->setUserID($this->idBuilder->id($user));
@@ -118,14 +119,15 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
     $request->setAutoCapture(TRUE);
     $request->setContext(RequestCreateTransaction::CONTEXT_ONLINE);
     $request->setUserType('PRIVATE');
+    $billing_address = $billing_profile->address[0];
     $crefo_billing_address = $this->addressBuilder->build($billing_address);
     $request->setBillingAddress($crefo_billing_address);
-    $crefo_person = $this->personBuilder->build($user, $billing_address);
+    $crefo_person = $this->personBuilder->build($user, $billing_profile);
     $this->basketBuilder->build($order, $request);
 
     $request->setUserData($crefo_person);
     $request->setLocale($this->personBuilder->getLangcode($user));
-
+    $shipping_address = $shipping_profile->address[0];
     if ($shipping_address != NULL) {
       $crefo_shipping_address = $this->addressBuilder->build($shipping_address);
       $request->setShippingAddress($crefo_shipping_address);

@@ -5,6 +5,7 @@ namespace Drupal\commerce_crefopay\Client;
 use Drupal\address\AddressInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_price\Price;
+use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
 
 /**
@@ -24,15 +25,17 @@ interface SubscriptionClientInterface {
    *   The order.
    * @param \Drupal\user\Entity\User $user
    *   The subscription user.
-   * @param \Drupal\address\AddressInterface $billing_address
-   *   The billing address.
+   * @param \Drupal\profile\Entity\ProfileInterface $billing_profile
+   *   The billing profile.
    * @param $plan_reference
    *   The CrefoPay plan reference.
+   * @param \Drupal\profile\Entity\ProfileInterface $shipping_profile
+   *   The shipping profile.
    *
    * @return array
    *   Payment instruments
    */
-  public function createSubscription(Order $order, User $user, AddressInterface $billing_address, $plan_reference, AddressInterface $shipping_address = NULL);
+  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL);
 
   /**
    * The updateSubscription call is used to update the charge

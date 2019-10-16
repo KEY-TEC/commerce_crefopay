@@ -6,6 +6,7 @@ use Drupal\address\AddressInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_price\Price;
 use Drupal\Core\Cache\Cache;
+use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
 use Upg\Library\Api\Exception\ApiError;
 use Upg\Library\Request\GetSubscriptionPlans as RequestGetSubscriptionPlans;
@@ -62,16 +63,18 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
   /**
    * {@inheritdoc}
    */
-  public function createSubscription(Order $order, User $user, AddressInterface $billing_address, $plan_reference, AddressInterface $shipping_address = NULL) {
+  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL) {
     $subscription_create_request = new RequestCreateSubscription($this->configProvider->getConfig());
     $subscription_create_request->setSubscriptionID($this->idBuilder->id($order));
     $subscription_create_request->setIntegrationType("HostedPageBefore");
     $subscription_create_request->setPlanReference($plan_reference);
     $subscription_create_request->setAmount($this->amountBuilder->buildFromOrder($order));
-    $subscription_create_request->setUserData($this->personBuilder->build($user, $billing_address));
+    $subscription_create_request->setUserData($this->personBuilder->build($user, $billing_profile));
     $subscription_create_request->setUserID($this->idBuilder->id($user));
+    $billing_address = $billing_profile->address[0];
     $subscription_create_request->setBillingAddress($this->addressBuilder->build($billing_address));
-    if ($shipping_address != NULL) {
+    if ($shipping_profile != NULL) {
+      $shipping_address = $shipping_profile->address[0];
       $subscription_create_request->setShippingAddress($this->addressBuilder->build($shipping_address));
     }
     $subscription_create_request->setIntegrationType("HostedPageBefore");

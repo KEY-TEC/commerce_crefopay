@@ -137,6 +137,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
       $data['additionalInformation'] = $instruments['additionalInformation'];
       $order->setData('crefopay_transaction_data', $data);
       $order->setData('crefopay_transaction_started', TRUE);
+      $order->setData('crefopay_language', \Drupal::languageManager()->getCurrentLanguage()->getId());
       $order->save();
       return $data;
     }
@@ -151,7 +152,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
    * @return \Drupal\address\Element\Address
    *  The shipment address.
    */
-  protected function getShipmentAddress(Order $order) {
+  protected function getShipmentProfile(Order $order) {
     $shipment_address = NULL;
     if ($order->hasField('shipments')) {
       $shipments = $order->shipments;
@@ -160,7 +161,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
         $shipment = $shipments[0]->entity;
         if ($shipment != NULL) {
           $shipment_profile = $shipment->getShippingProfile();
-          $shipment_address = isset($shipment_profile->address[0]) ? $shipment_profile->address[0] : NULL;
+          return $shipment_profile;
         }
       }
     }
@@ -180,17 +181,16 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     $order = $payment->getOrder();
     $billing_profile = $order->getBillingProfile();
     /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $address_item */
-    $address = $billing_profile->address[0];
 
     $user = User::load($order->getCustomerId());
     if ($user == NULL && $user->id() == 0) {
       throw new UserNotExistsException($order->getCustomerId());
     }
 
-    $instrument_address = $this->getShipmentAddress($order);
+    $instrument_profile = $this->getShipmentProfile($order);
     /** @var \Drupal\commerce_crefopay\Client\TransactionClient $transaction_client */
     try {
-      $instruments = $this->transactionClient->createTransaction($order, $user, $address, "SecureFields", $instrument_address);
+      $instruments = $this->transactionClient->createTransaction($order, $user, $billing_profile, "SecureFields", $instrument_profile);
       /** @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder $id_builder */
     }
     catch (OrderIdAlreadyExistsException $oe) {

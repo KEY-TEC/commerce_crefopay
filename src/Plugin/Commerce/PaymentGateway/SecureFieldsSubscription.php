@@ -37,7 +37,6 @@ class SecureFieldsSubscription extends BasePaymentGateway {
     $billing_profile = $order->getBillingProfile();
 
     /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $address_item */
-    $address = $billing_profile->address[0];
     $user = User::load($order->getCustomerId());
     $shipment_address = NULL;
     $instruments = NULL;
@@ -61,8 +60,8 @@ class SecureFieldsSubscription extends BasePaymentGateway {
       throw new PaymentGatewayException('Unknown subscription plan. Please check product configuration.');
     }
     try {
-      $shipment_address = $this->getShipmentAddress($order);
-      $instruments = $this->subscriptionClient->createSubscription($order, $user, $address, $plan_reference, $shipment_address);
+      $shipment_address = $this->getShipmentProfile($order);
+      $instruments = $this->subscriptionClient->createSubscription($order, $user, $billing_profile, $plan_reference, $shipment_address);
     }
     catch (OrderIdAlreadyExistsException $oe) {
       // Throw new PaymentGatewayException('Order already exists.');

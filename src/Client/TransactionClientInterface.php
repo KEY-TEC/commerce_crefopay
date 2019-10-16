@@ -6,6 +6,7 @@ use Drupal\address\AddressInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_price\Price;
+use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
 use Upg\Library\Api\CreateTransaction;
 use Upg\Library\Api\GetTransactionPaymentInstruments;
@@ -51,6 +52,6 @@ interface TransactionClientInterface {
    *
    * @see https://docs.crefopay.de/api/#createtransaction
    */
-  public function createTransaction(Order $order, User $user, AddressInterface $billing_address, $integration_type = "HostedPageBefore", AddressInterface $shipping_address = NULL);
+  public function createTransaction(Order $order, User $user, ProfileInterface $billing_profile, $integration_type = "HostedPageBefore", ProfileInterface $shipping_profile = NULL);
 
 }
