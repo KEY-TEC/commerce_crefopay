@@ -112,6 +112,9 @@ class Callback extends ControllerBase {
 Thank you for your interest in our products. 
 In the course of the automatic solvency request over our credit provider (according to our AGB\'s), we unfortunately received a negative feedback.');
       }
+      else {
+        \Drupal::messenger()->addError($this->t('Payment error: ' . $api_error->getMessage()));
+      }
       $this->getLogger('commerce_payment')
         ->critical('Error in reserve Call: ' . $api_error->getMessage());
       return $this->redirect('commerce_payment.checkout.return', [
