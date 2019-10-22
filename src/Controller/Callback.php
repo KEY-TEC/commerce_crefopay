@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Upg\Library\Api\Exception\ApiError;
+use Upg\Library\Error\Codes;
 
 /**
  *
@@ -106,6 +107,11 @@ class Callback extends ControllerBase {
       }
       return $response;
     } catch (ApiError $api_error) {
+      if ($api_error->getCode() == Codes::ERROR_PAYMENT_DECLINED_FRAUD) {
+        \Drupal::messenger()->addError('Dear Mr / Ms, 
+Thank you for your interest in our products. 
+In the course of the automatic solvency request over our credit provider (according to our AGB\'s), we unfortunately received a negative feedback.');
+      }
       $this->getLogger('commerce_payment')
         ->critical('Error in reserve Call: ' . $api_error->getMessage());
       return $this->redirect('commerce_payment.checkout.return', [
