@@ -54,6 +54,7 @@ class Callback extends ControllerBase {
     if (0 === strpos($request->headers->get('Content-Type'), 'application/x-www-form-urlencoded')) {
       $response['result'] = 'ok';
       $user_id = $request->request->get('userID');
+      $capture_id = $request->request->get('captureID');
       $order_status = $request->request->get('orderStatus');
       $order_id = $request->request->get('orderID');
       $transaction_status = $request->request->get('transactionStatus');
@@ -79,6 +80,7 @@ class Callback extends ControllerBase {
                 'orderStatus' => $order_status,
                 'transactionStatus' => $transaction_status,
                 'subscriptionID' => $subscription_id,
+                'captureID' => $capture_id,
               ],
             ]);
         }

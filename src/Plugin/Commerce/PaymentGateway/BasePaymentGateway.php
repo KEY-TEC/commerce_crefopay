@@ -261,6 +261,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
   public function onNotify(Request $request) {
     $response['result'] = 'ok';
     $user_id = $request->query->get('userID');
+    $capture_id = $request->query->get('captureID');
     $order_status = $request->query->get('orderStatus');
     $transaction_status = $request->query->get('transactionStatus');
     $order_id = empty($request->query->get('subscriptionID')) == FALSE ? $request->query->get('subscriptionID') : $request->query->get('orderID');
@@ -268,10 +269,19 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     $this->logger->debug("PN: Handler for: $order_id");
     /** @var \Drupal\commerce_payment\PaymentStorageInterface $payment_storage */
     $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
-    $payment = $payment_storage->loadByRemoteId($order_id);
+    $commerce_order = Order::load($order_id);
+    $payments = [];
+    if ($commerce_order != NULL) {
+      $payments = $payment_storage->loadMultipleByOrder($commerce_order);
+    }
+    $payment = NULL;
+    foreach ($payments as $item) {
+      $payment = $item;
+      break;
+    }
     if ($payment != NULL) {
       $this->logger->notice("PN: Payment found for: $order_id");
-      $this->updatePayment($payment);
+      $this->updatePayment($payment, $capture_id);
       $payment->save();
     }
     else {
@@ -287,7 +297,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
    *
    * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
    */
-  private function updatePayment(PaymentInterface $payment) {
+  private function updatePayment(PaymentInterface $payment, $capture_id = NULL) {
     $order = $payment->getOrder();
     $transaction_status = $this->transactionClient->getTransactionStatus($order);
     $remote_state = $transaction_status['transactionStatus'];
@@ -321,6 +331,9 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
         $state = "new";
         break;
     }
+    if ($capture_id != NULL) {
+      $payment->setRemoteId($capture_id);
+    }
     $payment->setRemoteState($remote_state);
     $payment->setState($state);
 
@@ -335,8 +348,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
       'state' => 'new',
       'amount' => $order->getBalance(),
       'payment_gateway' => $this->entityId,
-      'order_id' => $order->id(),
-      'remote_id' => $order->id(),
+      'order_id' => $order->id()
     ]);
     $this->updatePayment($payment);
     $payment->save();
