@@ -137,7 +137,9 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
       $data['additionalInformation'] = $instruments['additionalInformation'];
       $order->setData('crefopay_transaction_data', $data);
       $order->setData('crefopay_transaction_started', TRUE);
-      $order->setData('crefopay_language', \Drupal::languageManager()->getCurrentLanguage()->getId());
+      $order->setData('crefopay_language', \Drupal::languageManager()
+        ->getCurrentLanguage()
+        ->getId());
       $order->save();
       return $data;
     }
@@ -192,13 +194,11 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     try {
       $instruments = $this->transactionClient->createTransaction($order, $user, $billing_profile, "SecureFields", $instrument_profile);
       /** @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder $id_builder */
-    }
-    catch (OrderIdAlreadyExistsException $oe) {
+    } catch (OrderIdAlreadyExistsException $oe) {
       // Throw new PaymentGatewayException('Order already exists.');
       // Transaction already started.
       $this->logger->error($oe->getMessage());
-    }
-    catch (\Throwable $exception) {
+    } catch (\Throwable $exception) {
       $this->logger->error($exception->getMessage());
       throw new PaymentGatewayException($this->t('We encountered an unexpected error processing your payment method. Please try again later.'));
     }
@@ -206,8 +206,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     if ($instruments == NULL) {
       try {
         $instruments = $this->transactionClient->getTransactionPaymentInstruments($order);
-      }
-      catch (\Throwable $exception) {
+      } catch (\Throwable $exception) {
         $this->logger->error($exception->getMessage());
         throw new PaymentGatewayException($this->t('We encountered an unexpected error processing your payment method. Please try again later.'));
       }
@@ -260,23 +259,27 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
    * {@inheritdoc}
    */
   public function onNotify(Request $request) {
-    if (0 === strpos($request->headers->get('Content-Type'), 'application/x-www-form-urlencoded')) {
-      $response['result'] = 'ok';
-      $user_id = $request->request->get('userID');
-      $order_status = $request->request->get('orderStatus');
-      $transaction_status = $request->request->get('transactionStatus');
-      $order_id = empty($request->request->get('subscriptionID')) == FALSE ? $request->request->get('subscriptionID') : $request->request->get('orderID');
+    $response['result'] = 'ok';
+    $user_id = $request->query->get('userID');
+    $order_status = $request->query->get('orderStatus');
+    $transaction_status = $request->query->get('transactionStatus');
+    $order_id = empty($request->query->get('subscriptionID')) == FALSE ? $request->query->get('subscriptionID') : $request->query->get('orderID');
 
-      /** @var \Drupal\commerce_payment\PaymentStorageInterface $payment_storage */
-      $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
-      $payment = $payment_storage->loadByRemoteId($order_id);
-
+    $this->logger->debug("PN: Handler for: $order_id");
+    /** @var \Drupal\commerce_payment\PaymentStorageInterface $payment_storage */
+    $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
+    $payment = $payment_storage->loadByRemoteId($order_id);
+    if ($payment != NULL) {
+      $this->logger->notice("PN: Payment found for: $order_id");
       $this->updatePayment($payment);
       $payment->save();
-      $this->logger->notice("Notification for user: $user_id: Order: $order_status; Transaction: $transaction_status; Order/Subscription: $order_id");
-      return new JsonResponse($response);
-
     }
+    else {
+      $this->logger->critical("PN: No payment found for: $order_id | User: $user_id | Status: $order_status | Transaction: $transaction_status");
+    }
+
+
+    return new JsonResponse($response);
   }
 
   /**
@@ -320,6 +323,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     }
     $payment->setRemoteState($remote_state);
     $payment->setState($state);
+
   }
 
   /**

@@ -23,6 +23,7 @@ class Callback extends ControllerBase {
   public function success(Request $request) {
     $commerce_order = $this->getOrder($request);
     $options = [];
+
     if (!empty($commerce_order->getData('crefopay_language'))) {
       $lang_code = $commerce_order->getData('crefopay_language');
       $language = \Drupal::languageManager()->getLanguage($lang_code);
@@ -30,6 +31,16 @@ class Callback extends ControllerBase {
         $options['language'] = $language;
       }
     }
+    if ($commerce_order != NULL) {
+      \Drupal::logger('commerce_payment')
+        ->notice("Success callback handler for order $commerce_order->id()");
+    }
+    else {
+      \Drupal::logger('commerce_payment')
+        ->error("Unable to load order");
+    }
+
+
     return $this->redirect('commerce_payment.checkout.return', [
       'commerce_order' => $commerce_order->id(),
       'step' => 'payment',
@@ -44,11 +55,34 @@ class Callback extends ControllerBase {
       $response['result'] = 'ok';
       $user_id = $request->request->get('userID');
       $order_status = $request->request->get('orderStatus');
+      $order_id = $request->request->get('orderID');
       $transaction_status = $request->request->get('transactionStatus');
       $subscription_id = $request->request->get('subscriptionID');
-
-      \Drupal::logger('commerce_crefopay_notification')
-        ->notice("Notification for user: $user_id: Order: $order_status; Transaction: $transaction_status; Subscription: $subscription_id");
+      $commerce_order = $this->getOrder($request);
+      if (!$commerce_order->get('payment_gateway')->isEmpty()) {
+        \Drupal::logger('commerce_payment')
+          ->debug("PN: Redirect to payment gateway for order $order_id");
+        /** @var \Drupal\commerce_payment\Entity\PaymentMethod $payment_method */
+        $payment_gateway = $commerce_order->get('payment_gateway')->entity;
+        if ($payment_gateway != NULL) {
+          return $this->redirect('commerce_payment.notify', [
+            'commerce_payment_gateway' => $payment_gateway->id(),
+          ],
+            [
+              'query' => [
+                'userID' => $user_id,
+                'orderID' => $order_id,
+                'orderStatus' => $order_status,
+                'transactionStatus' => $transaction_status,
+                'subscriptionID' => $subscription_id,
+              ],
+            ]);
+        }
+      }
+      else {
+        \Drupal::logger('commerce_payment')
+          ->critical("Unable to find payment gateway for $order_id");
+      }
       return new JsonResponse($response);
     }
   }
@@ -74,7 +108,7 @@ class Callback extends ControllerBase {
     $id_service = \Drupal::service('commerce_crefopay.id_builder');
     $order_id = $id_service->realId($request->query->get('orderID'));
     if (empty($order_id)) {
-      return;
+      return NULL;
     }
     $commerce_order = Order::load($order_id);
 
@@ -113,7 +147,8 @@ Thank you for your interest in our products.
 In the course of the automatic solvency request over our credit provider (according to our AGB\'s), we unfortunately received a negative feedback.');
       }
       else {
-        \Drupal::messenger()->addError($this->t('Payment error: ' . $api_error->getMessage()));
+        \Drupal::messenger()
+          ->addError($this->t('Payment error: ' . $api_error->getMessage()));
       }
       $this->getLogger('commerce_payment')
         ->critical('Error in reserve Call: ' . $api_error->getMessage());

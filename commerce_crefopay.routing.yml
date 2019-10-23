@@ -38,7 +38,7 @@ commerce_crefopay.callback_notification:
   defaults:
     _controller: '\Drupal\commerce_crefopay\Controller\Callback::notification'
     _title: 'Notification'
-  methods:  [POST]
+    methods:  [POST]
   requirements:
     _access: 'TRUE'
   options:
