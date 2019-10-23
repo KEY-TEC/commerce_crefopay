@@ -58,8 +58,12 @@ class Callback extends ControllerBase {
       $order_id = $request->request->get('orderID');
       $transaction_status = $request->request->get('transactionStatus');
       $subscription_id = $request->request->get('subscriptionID');
-      $commerce_order = $this->getOrder($request);
-      if (!$commerce_order->get('payment_gateway')->isEmpty()) {
+
+      $order_id = !empty($subscription_id) ? $subscription_id : $order_id;
+      $id_service = \Drupal::service('commerce_crefopay.id_builder');
+      $order_id = $id_service->realId($order_id);
+      $commerce_order = Order::load($order_id);
+      if ($commerce_order != NULL && !$commerce_order->get('payment_gateway')->isEmpty()) {
         \Drupal::logger('commerce_payment')
           ->debug("PN: Redirect to payment gateway for order $order_id");
         /** @var \Drupal\commerce_payment\Entity\PaymentMethod $payment_method */
@@ -81,7 +85,7 @@ class Callback extends ControllerBase {
       }
       else {
         \Drupal::logger('commerce_payment')
-          ->critical("Unable to find payment gateway for $order_id");
+          ->critical("Unable to find payment gateway for $order_id | user id: $user_id | orderStatus $order_status");
       }
       return new JsonResponse($response);
     }
