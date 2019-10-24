@@ -65,24 +65,28 @@ class Callback extends ControllerBase {
       $order_id = $id_service->realId($order_id);
       $commerce_order = Order::load($order_id);
       if ($commerce_order != NULL && !$commerce_order->get('payment_gateway')->isEmpty()) {
-        \Drupal::logger('commerce_payment')
-          ->debug("PN: Redirect to payment gateway for order $order_id");
-        /** @var \Drupal\commerce_payment\Entity\PaymentMethod $payment_method */
+
+        $payment_storage = \Drupal::entityTypeManager()->getStorage('commerce_payment');
+        $commerce_order = Order::load($order_id);
+        /** @var \Drupal\commerce_payment\Entity\PaymentGateway $payment_gateway */
         $payment_gateway = $commerce_order->get('payment_gateway')->entity;
-        if ($payment_gateway != NULL) {
-          return $this->redirect('commerce_payment.notify', [
-            'commerce_payment_gateway' => $payment_gateway->id(),
-          ],
-            [
-              'query' => [
-                'userID' => $user_id,
-                'orderID' => $order_id,
-                'orderStatus' => $order_status,
-                'transactionStatus' => $transaction_status,
-                'subscriptionID' => $subscription_id,
-                'captureID' => $capture_id,
-              ],
-            ]);
+        $plugin = $payment_gateway->getPlugin();
+        $payments = [];
+        if ($commerce_order != NULL) {
+          $payments = $payment_storage->loadMultipleByOrder($commerce_order);
+        }
+        $payment = NULL;
+        foreach ($payments as $item) {
+          $payment = $item;
+          break;
+        }
+        if ($payment != NULL) {
+          \Drupal::logger('commerce_payment')->notice("PN: Payment found for: $order_id");
+          $plugin->updatePayment($payment, $capture_id);
+          $payment->save();
+        }
+        else {
+          $this->logger->critical("PN: No payment found for: $order_id | User: $user_id | Status: $order_status | Transaction: $transaction_status");
         }
       }
       else {

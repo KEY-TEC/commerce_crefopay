@@ -297,7 +297,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
    *
    * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
    */
-  private function updatePayment(PaymentInterface $payment, $capture_id = NULL) {
+  public function updatePayment(PaymentInterface $payment, $capture_id = NULL) {
     $order = $payment->getOrder();
     $transaction_status = $this->transactionClient->getTransactionStatus($order);
     $remote_state = $transaction_status['transactionStatus'];
