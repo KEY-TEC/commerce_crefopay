@@ -51,8 +51,8 @@ class Callback extends ControllerBase {
    *
    */
   public function notification(Request $request) {
+    $response['result'] = 'ok';
     if (0 === strpos($request->headers->get('Content-Type'), 'application/x-www-form-urlencoded')) {
-      $response['result'] = 'ok';
       $user_id = $request->request->get('userID');
       $capture_id = $request->request->get('captureID');
       $order_status = $request->request->get('orderStatus');
@@ -75,6 +75,10 @@ class Callback extends ControllerBase {
         if ($commerce_order != NULL) {
           $payments = $payment_storage->loadMultipleByOrder($commerce_order);
         }
+        else {
+          \Drupal::logger('commerce_payment')->critical("PN: No order found for: $order_id");
+
+        }
         $payment = NULL;
         foreach ($payments as $item) {
           $payment = $item;
@@ -86,7 +90,7 @@ class Callback extends ControllerBase {
           $payment->save();
         }
         else {
-          $this->logger->critical("PN: No payment found for: $order_id | User: $user_id | Status: $order_status | Transaction: $transaction_status");
+          \Drupal::logger('commerce_payment')->critical("PN: No payment found for: $order_id | User: $user_id | Status: $order_status | Transaction: $transaction_status");
         }
       }
       else {
