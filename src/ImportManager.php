@@ -2,7 +2,9 @@
 
 namespace Drupal\commerce_crefopay;
 
+use Drupal\commerce_crefopay\Client\OrderIdAlreadyExistsException;
 use Drupal\commerce_crefopay\Client\SubscriptionClientInterface;
+use Drupal\commerce_crefopay\Client\TransactionClient;
 use Drupal\commerce_crefopay\Client\UserClientInterface;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\user\Entity\User;
@@ -18,18 +20,20 @@ class ImportManager implements ImportManagerInterface {
 
   private $subscriptionClient;
 
+  private $transactionClient;
+
   private $userClient;
 
   /**
    * ConfigProvider constructor.
    */
-  public function __construct(UserClientInterface $user_client, SubscriptionClientInterface $subscription_client) {
+  public function __construct(UserClientInterface $user_client, SubscriptionClientInterface $subscription_client, TransactionClient $transaction_client) {
     $this->userClient = $user_client;
     $this->subscriptionClient = $subscription_client;
+    $this->transactionClient = $transaction_client;
   }
 
-
-  public function importSubscription(User $user, OrderInterface $order, $account_holder, $iban, $bic, $amount, $plan_reference) {
+  public function importSubscription(User $user, OrderInterface $order, $account_holder, $iban, $bic, $plan_reference) {
     $profile = $order->getBillingProfile();
     $this->userClient->registerOrUpdateUser($user, $profile);
 
@@ -38,8 +42,9 @@ class ImportManager implements ImportManagerInterface {
     $found_existing_instrument = FALSE;
     /** @var \Upg\Library\Request\Objects\PaymentInstrument $existing_payment_instrument */
     foreach ($existing_payment_instruments as $payment_instrument) {
-      if ($existing_payment_instruments->getUnmaskedIban() == $iban) {
+      if (strtolower($payment_instrument->getBic()) == strtolower($bic)) {
         $found_existing_instrument = TRUE;
+        $payment_instrument_id = $payment_instrument->getPaymentInstrumentID();
         break;
       }
     }
@@ -54,7 +59,13 @@ class ImportManager implements ImportManagerInterface {
 
 
     $profile = $order->getBillingProfile();
-    $this->subscriptionClient->createSubscription($order, $user, $profile, $plan_reference, NULL, Type::INTEGRATION_TYPE_API);
+    try {
+      $this->subscriptionClient->createSubscription($order, $user, $profile, $plan_reference, NULL, Type::INTEGRATION_TYPE_API);
+    }
+    catch (OrderIdAlreadyExistsException $already_exists_exception) {
+      // DO NOTHING. Transaction already started.
+    }
 
+    $this->transactionClient->reserveTransaction($order, "DD", $payment_instrument_id);
   }
 }

@@ -33,7 +33,7 @@ services:
       - { name: commerce_order.order_type_resolver, priority: 0 }
   commerce_crefopay.import_manager:
     class: Drupal\commerce_crefopay\ImportManager
-    arguments: ['@commerce_crefopay.user_client', '@commerce_crefopay.subscription_client']
+    arguments: ['@commerce_crefopay.user_client', '@commerce_crefopay.subscription_client', '@commerce_crefopay.transaction_client']
   commerce_crefopay.commands:
     class: \Drupal\commerce_crefopay\Commands\CrefoPayCommands
     arguments:
