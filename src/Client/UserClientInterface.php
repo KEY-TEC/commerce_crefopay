@@ -13,9 +13,19 @@ interface UserClientInterface {
 
   /**
    * Register or update an CrefoPay User.
+   *
+   * @return string
+   *   The payment instrument id.
    */
   public function registerUserPaymentInstrument(User $user, PaymentInstrument $payment_instrument);
 
+  /**
+   * Returns registred payment instruments.
+   *
+   * @return PaymentInstrument[]
+   *   The registred payment instruments.
+   */
+  public function getUserPaymentInstrument(User $user);
 
   /**
    * Register or update an CrefoPay User.

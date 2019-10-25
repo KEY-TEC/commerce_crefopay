@@ -10,6 +10,6 @@ use Drupal\user\Entity\User;
  */
 interface ImportManagerInterface {
 
-  public function importSubscription(User $user, OrderInterface $order, $iban, $bic, $amount);
+  public function importSubscription(User $user, OrderInterface $order, $account_holder, $iban, $bic, $amount, $plan_reference);
 
 }

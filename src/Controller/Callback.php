@@ -155,9 +155,9 @@ class Callback extends ControllerBase {
       return $response;
     } catch (ApiError $api_error) {
       if ($api_error->getCode() == Codes::ERROR_PAYMENT_DECLINED_FRAUD) {
-        \Drupal::messenger()->addError('Dear Mr / Ms, 
+        \Drupal::messenger()->addError($this->t('Dear Mr / Ms, 
 Thank you for your interest in our products. 
-In the course of the automatic solvency request over our credit provider (according to our AGB\'s), we unfortunately received a negative feedback.');
+In the course of the automatic solvency request over our credit provider (according to our AGB\'s), we unfortunately received a negative feedback.'));
       }
       else {
         \Drupal::messenger()

@@ -11,8 +11,10 @@ use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
 use Upg\Library\Api\Exception\ApiError;
 use Upg\Library\Api\RegisterUserPaymentInstrument as ApiRegisterUserPaymentInstrument;
+use Upg\Library\Api\GetUserPaymentInstrument as ApiGetUserPaymentInstrument;
 use Upg\Library\Request\Objects\PaymentInstrument;
 use Upg\Library\Request\RegisterUser as RequestRegisterUser;
+use Upg\Library\Request\GetUserPaymentInstrument as RequestGetUserPaymentInstrument;
 use Upg\Library\Request\RegisterUserPaymentInstrument as RequestRegisterUserPaymentInstrument;
 use Upg\Library\Api\RegisterUser as ApiRegisterUser;
 use Upg\Library\Api\UpdateUser as ApiUpdateUser;
@@ -42,6 +44,26 @@ class UserClient implements UserClientInterface {
     $this->personBuilder = $person_builder;
     $this->addressBuilder = $address_builder;
     $this->idBuilder = $uuid_builder;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getUserPaymentInstrument(User $user) {
+    $get_user_request = new RequestGetUserPaymentInstrument($this->configProvider->getConfig());
+    $user_id = $this->idBuilder->id($user);
+    $get_user_request->setUserID($user_id);
+    $get_user_api = new ApiGetUserPaymentInstrument($this->configProvider->getConfig(), $get_user_request);
+    try {
+      $result = $get_user_api->sendRequest();
+      if ($result instanceof SuccessResponse) {
+        $instruments = $result->getData('paymentInstruments');
+        return $instruments;
+      }
+    }
+    catch (ApiError $api_error) {
+      throw $api_error;
+    }
   }
 
   /**
@@ -86,8 +108,8 @@ class UserClient implements UserClientInterface {
     try {
       $result = $api_user_payment_instrument_request->sendRequest();
       if ($result instanceof SuccessResponse) {
-        $user = $result->getData('userData');
-        return $user;
+        $payment_instrument_id = $result->getData('paymentInstrumentID');
+        return $payment_instrument_id;
       }
     }
     catch (ApiError $api_error) {

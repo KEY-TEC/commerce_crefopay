@@ -2,7 +2,6 @@
 
 namespace Drupal\commerce_crefopay\Client;
 
-use Drupal\address\AddressInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_price\Price;
 use Drupal\Core\Cache\Cache;
@@ -63,10 +62,10 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
   /**
    * {@inheritdoc}
    */
-  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL) {
+  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL, $integration_type = Type::INTEGRATION_TYPE_SECURE_FIELDS) {
     $subscription_create_request = new RequestCreateSubscription($this->configProvider->getConfig());
     $subscription_create_request->setSubscriptionID($this->idBuilder->id($order));
-    $subscription_create_request->setIntegrationType("HostedPageBefore");
+    $subscription_create_request->setIntegrationType($integration_type);
     $subscription_create_request->setPlanReference($plan_reference);
     $subscription_create_request->setAmount($this->amountBuilder->buildFromOrder($order));
     $subscription_create_request->setUserData($this->personBuilder->build($user, $billing_profile));
@@ -77,7 +76,6 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
       $shipping_address = $shipping_profile->address[0];
       $subscription_create_request->setShippingAddress($this->addressBuilder->build($shipping_address));
     }
-    $subscription_create_request->setIntegrationType("HostedPageBefore");
     $subscription_create_request->setLocale($this->personBuilder->getLangcode($user));
     $subscription_create_request->setUserType(Type::USER_TYPE_PRIVATE);
     $this->basketBuilder->build($order, $subscription_create_request);
