@@ -2,8 +2,9 @@
 
 namespace Drupal\commerce_crefopay\Client;
 
-use Drupal\address\AddressInterface;
+use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
+use Upg\Library\Request\Objects\PaymentInstrument;
 
 /**
  * Defines the interface for user related API calls.
@@ -13,7 +14,13 @@ interface UserClientInterface {
   /**
    * Register or update an CrefoPay User.
    */
-  public function registerOrUpdateUser(User $user, AddressInterface $billing_address);
+  public function registerUserPaymentInstrument(User $user, PaymentInstrument $payment_instrument);
+
+
+  /**
+   * Register or update an CrefoPay User.
+   */
+  public function registerOrUpdateUser(User $user, ProfileInterface $profile);
 
   /**
    * Returns an Crefopay Person.

@@ -77,7 +77,6 @@ class Callback extends ControllerBase {
         }
         else {
           \Drupal::logger('commerce_payment')->critical("PN: No order found for: $order_id");
-
         }
         $payment = NULL;
         foreach ($payments as $item) {
