@@ -10,7 +10,8 @@ use Drupal\user\Entity\User;
 use Upg\Library\Api\Exception\ApiError;
 use Upg\Library\Request\GetSubscriptionPlans as RequestGetSubscriptionPlans;
 use Upg\Library\Api\GetSubscriptionPlans as ApiGetSubscriptionPlans;
-use Upg\Library\User\Type;
+use Upg\Library\User\Type as UserType;
+use Upg\Library\Integration\Type;
 use Upg\Library\Request\CreateSubscription as RequestCreateSubscription;
 use Upg\Library\Api\CreateSubscription as ApiCreateSubscription;
 
@@ -77,7 +78,7 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
       $subscription_create_request->setShippingAddress($this->addressBuilder->build($shipping_address));
     }
     $subscription_create_request->setLocale($this->personBuilder->getLangcode($user));
-    $subscription_create_request->setUserType(Type::USER_TYPE_PRIVATE);
+    $subscription_create_request->setUserType(UserType::USER_TYPE_PRIVATE);
     $this->basketBuilder->build($order, $subscription_create_request);
     $subscriptions_create_api = new ApiCreateSubscription($this->configProvider->getConfig(), $subscription_create_request);
     try {
