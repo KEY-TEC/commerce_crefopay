@@ -17,6 +17,9 @@ services:
   commerce_crefopay.config_provider:
     class: Drupal\commerce_crefopay\ConfigProvider
     arguments: ['@config.factory']
+  commerce_crefopay.user_client:
+    class: Drupal\commerce_crefopay\Client\UserClient
+    arguments: ['@commerce_crefopay.config_provider', '@commerce_crefopay.id_builder', '@commerce_crefopay.person_builder', '@commerce_crefopay.address_builder', '@commerce_crefopay.basket_builder', '@commerce_crefopay.amount_builder', '@cache.default']
   commerce_crefopay.subscription_client:
     class: Drupal\commerce_crefopay\Client\SubscriptionClient
     arguments: ['@commerce_crefopay.config_provider', '@commerce_crefopay.id_builder', '@commerce_crefopay.person_builder', '@commerce_crefopay.address_builder', '@commerce_crefopay.basket_builder', '@commerce_crefopay.amount_builder', '@cache.default']
@@ -28,3 +31,13 @@ services:
     arguments: ['@entity_type.manager', '@commerce_crefopay.config_provider']
     tags:
       - { name: commerce_order.order_type_resolver, priority: 0 }
+  commerce_crefopay.import_manager:
+    class: Drupal\commerce_crefopay\ImportManager
+    arguments: ['@commerce_crefopay.user_client', '@commerce_crefopay.subscription_client', '@commerce_crefopay.transaction_client']
+  commerce_crefopay.commands:
+    class: \Drupal\commerce_crefopay\Commands\CrefoPayCommands
+    arguments:
+      - '@entity_type.manager'
+      - '@commerce_crefopay.import_manager'
+    tags:
+      - { name: drush.command }
