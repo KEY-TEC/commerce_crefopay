@@ -56,6 +56,13 @@ class SecureFieldsSubscription extends BasePaymentGateway {
         break;
       }
     }
+    // This is for debug purpose. For development it should be possible to use a static
+    // plan reference.
+    $debug_plan_reference = Settings::get('crefopay_id_debug_plan_reference');
+    if (empty($debug_plan_reference) == FALSE) {
+      $plan_reference = $debug_plan_reference;
+    }
+
     if ($plan_reference == NULL) {
       throw new PaymentGatewayException('Unknown subscription plan. Please check product configuration.');
     }
