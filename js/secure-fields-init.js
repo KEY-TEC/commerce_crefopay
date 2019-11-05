@@ -44,9 +44,19 @@
 
         // Empty bank account fields when selecting stored bank account.
         $("input[data-crefopay='paymentInstrument.id']").click(function () {
-          $("input[data-crefopay='paymentInstrument.bankAccountHolder'], input[data-crefopay='paymentInstrument.iban'], input[data-crefopay='paymentInstrument.bic']").val("")
+          $("input[data-crefopay='paymentInstrument.bankAccountHolder'], input[data-crefopay='paymentInstrument.iban'], input[data-crefopay='paymentInstrument.bic']").val("");
         });
 
+        // Deselect existing credit cards
+        $("input[id='new-cc']")
+          .focus(function () {
+            $('input[data-crefopay-type="existing-cc"]').prop('checked', false);
+          });
+        // Deselect "new credit card"
+        $('input[data-crefopay-type="existing-cc"]')
+          .focus(function () {
+            $('input[id="new-cc"]').prop('checked', false);
+          });
         var container = $(this);
         var shopPublicKey = drupalSettings.crefopay.shopPublicKey;
         var configuration = {

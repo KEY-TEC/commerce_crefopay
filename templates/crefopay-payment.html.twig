@@ -28,7 +28,7 @@
             <div>
                 {% for allowed_instrument in allowed_instruments %}
                     {% if allowed_instrument.paymentInstrumentType == 'BANKACCOUNT' %}
-                        <label><input type="radio" data-crefopay="paymentInstrument.id" value="{{ allowed_instrument.paymentInstrumentID }}">
+                        <label for="cc-{{ allowed_instrument.paymentInstrumentID }}"><input type="radio" data-crefopay-type="existing-cc" id="cc-{{ allowed_instrument.paymentInstrumentID }}" data-crefopay="paymentInstrument.id" value="{{ allowed_instrument.paymentInstrumentID }}">
                         {{ ":accountHolder (:iban)"|t({":accountHolder": allowed_instrument.accountHolder, ":iban": allowed_instrument.iban }) }}
                         </label>
                     {% endif %}

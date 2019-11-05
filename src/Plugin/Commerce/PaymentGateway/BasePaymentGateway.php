@@ -271,36 +271,77 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
   public function onNotify(Request $request) {
   }
 
-  /**
-   * Update payment status.
-   *
-   * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
-   */
-  public function updatePayment(OrderInterface $order, $capture_id = NULL) {
+  public function getPaymentByOrder(OrderInterface $order, $capture_id = NULL) {
     $payment = NULL;
     /** @var PaymentStorageInterface $payment_storage */
     $payment_storage = \Drupal::entityTypeManager()->getStorage('commerce_payment');
-    if ($capture_id == NULL) {
+    if ($capture_id != NULL) {
+      $payment = $payment_storage->loadByRemoteId($capture_id);
+    }
+    if ($payment == NULL) {
       $payments = $payment_storage->loadMultipleByOrder($order);
       /** @var PaymentInterface $payment */
       foreach ($payments as $item) {
         $payment = $item;
         break;
       }
-      if ($payment == NULL) {
-        $order_id = $order->id();
-        \Drupal::logger('commerce_payment')->critical("PN: No payment found for Order: $order_id ");
-      }
     }
-    else {
-      $payment = $payment_storage->loadByRemoteId($capture_id);
-      if ($payment == NULL) {
-        \Drupal::logger('commerce_payment')->critical("PN: No payment found for Remote: $capture_id");
-      }
+    if ($payment == NULL) {
+      $order_id = $order->id();
+      \Drupal::logger('commerce_payment')->critical("PN: No payment found for Order: $order_id ");
+      return NULL;
     }
+    return $payment;
+  }
 
+  /**
+   * Returns the mapped payment method.
+   */
+  private function getMappedPaymentMethod($remote_id) {
+    switch ($remote_id) {
+      case "CC":
+      case "CC3D":
+        $type = "crefopay_credit_card";
+        break;
+      case "PAYPAL":
+        $type = "crefopay_paypal";
+        break;
+      case "SU":
+        $type = "crefopay_sofort";
+        break;
+      case "DD":
+        $type = "crefopay_debit";
+        break;
+      default:
+        $type = "crefopay_unknown";
+        break;
+    }
+    return $type;
+  }
+
+  /**
+   * Update payment status.
+   *
+   * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
+   */
+  public function updatePayment(PaymentInterface $payment, $capture_id = NULL) {
+    $order = $payment->getOrder();
     $transaction_status = $this->transactionClient->getTransactionStatus($order);
     $remote_state = $transaction_status['transactionStatus'];
+    $remote_payment_method = $transaction_status['additionalData']['paymentMethod'];
+    $payment_method = $payment->getPaymentMethod();
+    if ($payment_method == NULL) {
+      $payment_method_type = $this->getMappedPaymentMethod($remote_payment_method);
+      $payment_method_storage = $this->entityTypeManager->getStorage('commerce_payment_method');
+      $payment_method = $payment_method_storage->create([
+        'type' => $payment_method_type,
+        'payment_gateway' => $this->entityId,
+        'remote_id' => $remote_payment_method,
+        'uid' => $order->getCustomerId()
+      ]);
+      $payment_method->save();
+    }
+
     switch ($remote_state) {
       case "DONE":
         $state = "completed";
@@ -334,16 +375,25 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     if ($capture_id != NULL) {
       $payment->setRemoteId($capture_id);
     }
+    if ($payment->getPaymentMethod() == NULL && $payment_method != NULL) {
+      $payment->payment_method->appendItem($payment_method);
+    }
     $payment->setRemoteState($remote_state);
     $payment->setState($state);
     $payment->save();
+
   }
 
   /**
    * {@inheritdoc}
    */
   public function onReturn(OrderInterface $order, Request $request) {
-    $this->updatePayment($order);
+    $payment = $this->getPaymentByOrder($order);
+    $this->updatePayment($payment);
+    if ($order->payment_method->entity == NULL && $payment->getPaymentMethod() != NULL)  {
+      $order->payment_method->appendItem($payment->getPaymentMethod());
+      $order->save();
+    }
   }
 
   /**
@@ -358,6 +408,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
    */
   public function refundPayment(PaymentInterface $payment, Price $amount = NULL) {
     $this->transactionClient->refund($payment, $amount, "Refund", $payment->getOrderId());
+
     $this->updatePayment($payment);
     $payment->save();
   }
