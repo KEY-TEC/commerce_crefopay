@@ -10,9 +10,11 @@ use Drupal\commerce_crefopay\Client\UserNotExistsException;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_order\Entity\OrderInterface;
+use Drupal\commerce_payment\Entity\Payment;
 use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\commerce_payment\PaymentMethodTypeManager;
+use Drupal\commerce_payment\PaymentStorageInterface;
 use Drupal\commerce_payment\PaymentTypeManager;
 use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\OffsitePaymentGatewayBase;
 use Drupal\commerce_price\Price;
@@ -141,6 +143,14 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
         ->getCurrentLanguage()
         ->getId());
       $order->save();
+      $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
+      $payment = $payment_storage->create([
+        'state' => 'new',
+        'amount' => $order->getBalance(),
+        'payment_gateway' => $this->entityId,
+        'order_id' => $order->id()
+      ]);
+      $payment->save();
       return $data;
     }
   }
@@ -259,37 +269,6 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
    * {@inheritdoc}
    */
   public function onNotify(Request $request) {
-    $response['result'] = 'ok';
-    $user_id = $request->query->get('userID');
-    $capture_id = $request->query->get('captureID');
-    $order_status = $request->query->get('orderStatus');
-    $transaction_status = $request->query->get('transactionStatus');
-    $order_id = empty($request->query->get('subscriptionID')) == FALSE ? $request->query->get('subscriptionID') : $request->query->get('orderID');
-
-    $this->logger->debug("PN: Handler for: $order_id");
-    /** @var \Drupal\commerce_payment\PaymentStorageInterface $payment_storage */
-    $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
-    $commerce_order = Order::load($order_id);
-    $payments = [];
-    if ($commerce_order != NULL) {
-      $payments = $payment_storage->loadMultipleByOrder($commerce_order);
-    }
-    $payment = NULL;
-    foreach ($payments as $item) {
-      $payment = $item;
-      break;
-    }
-    if ($payment != NULL) {
-      $this->logger->notice("PN: Payment found for: $order_id");
-      $this->updatePayment($payment, $capture_id);
-      $payment->save();
-    }
-    else {
-      $this->logger->critical("PN: No payment found for: $order_id | User: $user_id | Status: $order_status | Transaction: $transaction_status");
-    }
-
-
-    return new JsonResponse($response);
   }
 
   /**
@@ -297,8 +276,29 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
    *
    * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
    */
-  public function updatePayment(PaymentInterface $payment, $capture_id = NULL) {
-    $order = $payment->getOrder();
+  public function updatePayment(OrderInterface $order, $capture_id = NULL) {
+    $payment = NULL;
+    /** @var PaymentStorageInterface $payment_storage */
+    $payment_storage = \Drupal::entityTypeManager()->getStorage('commerce_payment');
+    if ($capture_id == NULL) {
+      $payments = $payment_storage->loadMultipleByOrder($order);
+      /** @var PaymentInterface $payment */
+      foreach ($payments as $item) {
+        $payment = $item;
+        break;
+      }
+      if ($payment == NULL) {
+        $order_id = $order->id();
+        \Drupal::logger('commerce_payment')->critical("PN: No payment found for Order: $order_id ");
+      }
+    }
+    else {
+      $payment = $payment_storage->loadByRemoteId($capture_id);
+      if ($payment == NULL) {
+        \Drupal::logger('commerce_payment')->critical("PN: No payment found for Remote: $capture_id");
+      }
+    }
+
     $transaction_status = $this->transactionClient->getTransactionStatus($order);
     $remote_state = $transaction_status['transactionStatus'];
     switch ($remote_state) {
@@ -336,22 +336,14 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     }
     $payment->setRemoteState($remote_state);
     $payment->setState($state);
-
+    $payment->save();
   }
 
   /**
    * {@inheritdoc}
    */
   public function onReturn(OrderInterface $order, Request $request) {
-    $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
-    $payment = $payment_storage->create([
-      'state' => 'new',
-      'amount' => $order->getBalance(),
-      'payment_gateway' => $this->entityId,
-      'order_id' => $order->id()
-    ]);
-    $this->updatePayment($payment);
-    $payment->save();
+    $this->updatePayment($order);
   }
 
   /**

@@ -57,7 +57,6 @@ class Callback extends ControllerBase {
       $capture_id = $request->request->get('captureID');
       $order_status = $request->request->get('orderStatus');
       $order_id = $request->request->get('orderID');
-      $transaction_status = $request->request->get('transactionStatus');
       $subscription_id = $request->request->get('subscriptionID');
 
       $order_id = !empty($subscription_id) ? $subscription_id : $order_id;
@@ -65,32 +64,11 @@ class Callback extends ControllerBase {
       $order_id = $id_service->realId($order_id);
       $commerce_order = Order::load($order_id);
       if ($commerce_order != NULL && !$commerce_order->get('payment_gateway')->isEmpty()) {
-
-        $payment_storage = \Drupal::entityTypeManager()->getStorage('commerce_payment');
         $commerce_order = Order::load($order_id);
         /** @var \Drupal\commerce_payment\Entity\PaymentGateway $payment_gateway */
         $payment_gateway = $commerce_order->get('payment_gateway')->entity;
         $plugin = $payment_gateway->getPlugin();
-        $payments = [];
-        if ($commerce_order != NULL) {
-          $payments = $payment_storage->loadMultipleByOrder($commerce_order);
-        }
-        else {
-          \Drupal::logger('commerce_payment')->critical("PN: No order found for: $order_id");
-        }
-        $payment = NULL;
-        foreach ($payments as $item) {
-          $payment = $item;
-          break;
-        }
-        if ($payment != NULL) {
-          \Drupal::logger('commerce_payment')->notice("PN: Payment found for: $order_id");
-          $plugin->updatePayment($payment, $capture_id);
-          $payment->save();
-        }
-        else {
-          \Drupal::logger('commerce_payment')->critical("PN: No payment found for: $order_id | User: $user_id | Status: $order_status | Transaction: $transaction_status");
-        }
+        $plugin->updatePayment($commerce_order, $capture_id);
       }
       else {
         \Drupal::logger('commerce_payment')
@@ -158,20 +136,18 @@ class Callback extends ControllerBase {
         \Drupal::messenger()->addError($this->t('Dear Mr / Ms, 
 Thank you for your interest in our products. 
 In the course of the automatic solvency request over our credit provider (according to our AGB\'s), we unfortunately received a negative feedback.'));
+        $this->getLogger('commerce_payment')
+          ->critical('Error in reserve Call: ' . $api_error->getMessage());
       }
       else {
         \Drupal::messenger()
           ->addError($this->t('Payment error: ' . $api_error->getMessage()));
       }
-      $this->getLogger('commerce_payment')
-        ->critical('Error in reserve Call: ' . $api_error->getMessage());
       return $this->redirect('commerce_payment.checkout.return', [
         'commerce_order' => $commerce_order->id(),
         'step' => 'cancel',
       ]);
     }
-
-
   }
 
 }
