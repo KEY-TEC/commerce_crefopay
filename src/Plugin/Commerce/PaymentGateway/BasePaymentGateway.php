@@ -148,7 +148,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
         'state' => 'new',
         'amount' => $order->getBalance(),
         'payment_gateway' => $this->entityId,
-        'order_id' => $order->id()
+        'order_id' => $order->id(),
       ]);
       $payment->save();
       return $data;
@@ -274,7 +274,8 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
   public function getPaymentByOrder(OrderInterface $order, $capture_id = NULL) {
     $payment = NULL;
     /** @var PaymentStorageInterface $payment_storage */
-    $payment_storage = \Drupal::entityTypeManager()->getStorage('commerce_payment');
+    $payment_storage = \Drupal::entityTypeManager()
+      ->getStorage('commerce_payment');
     if ($capture_id != NULL) {
       $payment = $payment_storage->loadByRemoteId($capture_id);
     }
@@ -288,7 +289,8 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     }
     if ($payment == NULL) {
       $order_id = $order->id();
-      \Drupal::logger('commerce_payment')->critical("PN: No payment found for Order: $order_id ");
+      \Drupal::logger('commerce_payment')
+        ->critical("PN: No payment found for Order: $order_id ");
       return NULL;
     }
     return $payment;
@@ -337,7 +339,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
         'type' => $payment_method_type,
         'payment_gateway' => $this->entityId,
         'remote_id' => $remote_payment_method,
-        'uid' => $order->getCustomerId()
+        'uid' => $order->getCustomerId(),
       ]);
       $payment_method->save();
     }
@@ -389,10 +391,12 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
    */
   public function onReturn(OrderInterface $order, Request $request) {
     $payment = $this->getPaymentByOrder($order);
-    $this->updatePayment($payment);
-    if ($order->payment_method->entity == NULL && $payment->getPaymentMethod() != NULL)  {
-      $order->payment_method->appendItem($payment->getPaymentMethod());
-      $order->save();
+    if ($payment != NULL) {
+      $this->updatePayment($payment);
+      if ($order->payment_method->entity == NULL && $payment->getPaymentMethod() != NULL) {
+        $order->payment_method->appendItem($payment->getPaymentMethod());
+        $order->save();
+      }
     }
   }
 

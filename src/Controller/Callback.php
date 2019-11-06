@@ -69,7 +69,9 @@ class Callback extends ControllerBase {
         $payment_gateway = $commerce_order->get('payment_gateway')->entity;
         $plugin = $payment_gateway->getPlugin();
         $payment = $plugin->getPaymentByOrder($commerce_order, $capture_id);
-        $plugin->updatePayment($payment, $capture_id);
+        if ($payment != NULL) {
+          $plugin->updatePayment($payment, $capture_id);
+        }
       }
       else {
         \Drupal::logger('commerce_payment')
