@@ -22,6 +22,8 @@ use Upg\Library\Request\Objects\Amount;
 use Upg\Library\Request\Objects\AmountRange;
 use Upg\Library\Response\SuccessResponse;
 
+
+
 /**
  * Subscription client implementation.
  */
@@ -63,7 +65,7 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
   /**
    * {@inheritdoc}
    */
-  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL, $integration_type = Type::INTEGRATION_TYPE_SECURE_FIELDS) {
+  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL, $integration_type = Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type = UserType::USER_TYPE_PRIVATE) {
     $subscription_create_request = new RequestCreateSubscription($this->configProvider->getConfig());
     $subscription_create_request->setSubscriptionID($this->idBuilder->id($order));
     $subscription_create_request->setIntegrationType($integration_type);
@@ -71,6 +73,11 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
     $subscription_create_request->setAmount($this->amountBuilder->buildFromOrder($order));
     $subscription_create_request->setUserData($this->personBuilder->build($user, $billing_profile));
     $subscription_create_request->setUserID($this->idBuilder->id($user));
+    if ($user_type == UserType::USER_TYPE_BUSINESS) {
+      $company = $this->companyBuilder->build($user, $billing_profile);
+      $subscription_create_request->setCompanyData($company);
+    }
+
     $billing_address = $billing_profile->address[0];
     $subscription_create_request->setBillingAddress($this->addressBuilder->build($billing_address));
     if ($shipping_profile != NULL) {
@@ -78,7 +85,7 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
       $subscription_create_request->setShippingAddress($this->addressBuilder->build($shipping_address));
     }
     $subscription_create_request->setLocale($this->personBuilder->getLangcode($user));
-    $subscription_create_request->setUserType(UserType::USER_TYPE_PRIVATE);
+    $subscription_create_request->setUserType($user_type);
     $this->basketBuilder->build($order, $subscription_create_request);
     $subscriptions_create_api = new ApiCreateSubscription($this->configProvider->getConfig(), $subscription_create_request);
     try {

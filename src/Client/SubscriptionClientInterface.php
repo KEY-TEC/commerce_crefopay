@@ -2,11 +2,11 @@
 
 namespace Drupal\commerce_crefopay\Client;
 
-use Drupal\address\AddressInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_price\Price;
 use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
+use Upg\Library\User\Type as UserType;
 
 /**
  * Subscription client interface.
@@ -35,7 +35,7 @@ interface SubscriptionClientInterface {
    * @return array
    *   Payment instruments
    */
-  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL, $integration_type = NULL);
+  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL, $integration_type = NULL, $user_type = UserType::USER_TYPE_PRIVATE);
 
   /**
    * The updateSubscription call is used to update the charge

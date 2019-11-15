@@ -7,6 +7,7 @@ use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\Core\Site\Settings;
 use Drupal\user\Entity\User;
+use Upg\Library\User\Type;
 
 /**
  * Provides the Secure fields payment gateway for subscriptions.
@@ -69,7 +70,15 @@ class SecureFieldsSubscription extends BasePaymentGateway {
     }
     try {
       $shipment_address = $this->getShipmentProfile($order);
-      $instruments = $this->subscriptionClient->createSubscription($order, $user, $billing_profile, $plan_reference, $shipment_address);
+      $user_type = Type::USER_TYPE_PRIVATE;
+      $data = [
+        'user_type' => $user_type,
+      ];
+      $context = ['order' => $order];
+      \Drupal::moduleHandler()
+        ->alter('commerce_crefopay_transaction_data', $data, $context);
+      $user_type = $data['user_type'];
+      $instruments = $this->subscriptionClient->createSubscription($order, $user, $billing_profile, $plan_reference, $shipment_address, $user_type);
     }
     catch (OrderIdAlreadyExistsException $oe) {
       // Throw new PaymentGatewayException('Order already exists.');

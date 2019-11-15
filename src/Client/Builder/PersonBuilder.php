@@ -23,7 +23,6 @@ class PersonBuilder {
 
     $address = $profile->address[0];
     $person = new Person();
-
     $person->setName($address->getGivenName());
     $person->setSurname($address->getFamilyName());
     $person->setEmail($user->getEmail());

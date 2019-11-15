@@ -25,6 +25,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Upg\Library\User\Type;
 
 /**
  * Class BasePaymentGateway.
@@ -180,15 +181,15 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     return $shipment_address;
   }
 
-  /**
-   * Calls a CrefoPay "create transaction".
-   *
-   * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
-   *   The payment.
-   *
-   * @return \Upg\Library\Request\Objects\PaymentInstrument[]
-   *   Payment instruments.
-   */
+    /**
+     * Calls a CrefoPay "create transaction".
+     *
+     * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
+     *   The payment.
+     *
+     * @return \Upg\Library\Request\Objects\PaymentInstrument[]
+     *   Payment instruments.
+     */
   protected function createTransaction(PaymentInterface $payment) {
     $order = $payment->getOrder();
     $billing_profile = $order->getBillingProfile();
@@ -202,8 +203,15 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     $instrument_profile = $this->getShipmentProfile($order);
     /** @var \Drupal\commerce_crefopay\Client\TransactionClient $transaction_client */
     try {
-      $instruments = $this->transactionClient->createTransaction($order, $user, $billing_profile, "SecureFields", $instrument_profile);
-      /** @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder $id_builder */
+      $user_type = Type::USER_TYPE_PRIVATE;
+      $data = [
+        'user_type' => $user_type,
+      ];
+      $context = ['order' => $order];
+      \Drupal::moduleHandler()
+        ->alter('commerce_crefopay_transaction_data', $data, $context);
+      $user_type = $data['user_type'];
+      $instruments = $this->transactionClient->createTransaction($order, $user, $billing_profile, "SecureFields", $instrument_profile, $user_type);
     } catch (OrderIdAlreadyExistsException $oe) {
       // Throw new PaymentGatewayException('Order already exists.');
       // Transaction already started.

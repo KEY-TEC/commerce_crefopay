@@ -2,16 +2,12 @@
 
 namespace Drupal\commerce_crefopay\Client;
 
-use Drupal\address\AddressInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_price\Price;
 use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
-use Upg\Library\Api\CreateTransaction;
-use Upg\Library\Api\GetTransactionPaymentInstruments;
-use Upg\Library\Api\GetTransactionStatus;
-use Upg\Library\Api\Refund;
+use Upg\Library\User\Type as UserType;
 
 /**
  * Defines the interface for transaction related API calls.
@@ -52,6 +48,6 @@ interface TransactionClientInterface {
    *
    * @see https://docs.crefopay.de/api/#createtransaction
    */
-  public function createTransaction(Order $order, User $user, ProfileInterface $billing_profile, $integration_type = "HostedPageBefore", ProfileInterface $shipping_profile = NULL);
+  public function createTransaction(Order $order, User $user, ProfileInterface $billing_profile, $integration_type = "HostedPageBefore", ProfileInterface $shipping_profile = NULL, $user_type = UserType::USER_TYPE_PRIVATE);
 
 }

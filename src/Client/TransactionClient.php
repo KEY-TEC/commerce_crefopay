@@ -20,6 +20,7 @@ use Upg\Library\Request\GetTransactionStatus as RequestGetTransactionStatus;
 use Upg\Library\Request\Refund as RequestRefund;
 use Upg\Library\Request\Reserve as RequestReserve;
 use Upg\Library\Response\SuccessResponse;
+use Upg\Library\User\Type as UserType;
 
 /**
  * Transaction client implementation.
@@ -109,7 +110,7 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
   /**
    * {@inheritdoc}
    */
-  public function createTransaction(Order $order, User $user, ProfileInterface $billing_profile, $integration_type = "HostedPageBefore", ProfileInterface $shipping_profile = NULL) {
+  public function createTransaction(Order $order, User $user, ProfileInterface $billing_profile, $integration_type = "HostedPageBefore", ProfileInterface $shipping_profile = NULL, $user_type = UserType::USER_TYPE_PRIVATE) {
     $request = new RequestCreateTransaction($this->configProvider->getConfig());
     $amount = $this->amountBuilder->buildFromOrder($order);
     $request->setUserID($this->idBuilder->id($user));
@@ -118,7 +119,11 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
     $request->setAmount($amount);
     $request->setAutoCapture(TRUE);
     $request->setContext(RequestCreateTransaction::CONTEXT_ONLINE);
-    $request->setUserType('PRIVATE');
+    $request->setUserType(UserType::USER_TYPE_PRIVATE);
+    if ($user_type == UserType::USER_TYPE_BUSINESS) {
+      $company = $this->companyBuilder->build($user, $billing_profile);
+      $request->setCompanyData($company);
+    }
     $billing_address = $billing_profile->address[0];
     $crefo_billing_address = $this->addressBuilder->build($billing_address);
     $request->setBillingAddress($crefo_billing_address);
