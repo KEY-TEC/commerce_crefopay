@@ -10,7 +10,6 @@ use Drupal\commerce_crefopay\Client\UserNotExistsException;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_order\Entity\OrderInterface;
-use Drupal\commerce_payment\Entity\Payment;
 use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\commerce_payment\PaymentMethodTypeManager;
@@ -23,9 +22,9 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\user\Entity\User;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Upg\Library\User\Type;
+use Upg\Library\Integration\Type;
+use Upg\Library\User\Type as UserType;
 
 /**
  * Class BasePaymentGateway.
@@ -211,7 +210,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
       \Drupal::moduleHandler()
         ->alter('commerce_crefopay_transaction_data', $data, $context);
       $user_type = $data['user_type'];
-      $instruments = $this->transactionClient->createTransaction($order, $user, $billing_profile, "SecureFields", $instrument_profile, $user_type);
+      $instruments = $this->transactionClient->createTransaction($order, $user, $billing_profile, Type::INTEGRATION_TYPE_SECURE_FIELDS, $instrument_profile, $user_type);
     } catch (OrderIdAlreadyExistsException $oe) {
       // Throw new PaymentGatewayException('Order already exists.');
       // Transaction already started.

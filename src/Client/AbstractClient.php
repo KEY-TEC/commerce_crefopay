@@ -5,6 +5,7 @@ namespace Drupal\commerce_crefopay\Client;
 use Drupal\commerce_crefopay\Client\Builder\AddressBuilder;
 use Drupal\commerce_crefopay\Client\Builder\AmountBuilder;
 use Drupal\commerce_crefopay\Client\Builder\BasketBuilder;
+use Drupal\commerce_crefopay\Client\Builder\CompanyBuilder;
 use Drupal\commerce_crefopay\Client\Builder\PersonBuilder;
 use Drupal\commerce_crefopay\Client\Builder\IdBuilder;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
@@ -60,7 +61,6 @@ abstract class AbstractClient {
    */
   protected $companyBuilder;
 
-
   /**
    * The address builder.
    *
@@ -92,14 +92,15 @@ abstract class AbstractClient {
   /**
    * AbstractClient constructor.
    */
-  public function __construct(ConfigProviderInterface $config_provider, IdBuilder $uuid_builder, PersonBuilder $person_builder, PersonBuilder $company_builder, AddressBuilder $address_builder, BasketBuilder $basket_builder, AmountBuilder $amount_builder, CacheBackendInterface $cache) {
+  public function __construct(ConfigProviderInterface $config_provider, IdBuilder $id_builder, PersonBuilder $person_builder, CompanyBuilder $company_builder, AddressBuilder $address_builder, BasketBuilder $basket_builder, AmountBuilder $amount_builder, CacheBackendInterface $cache) {
     $this->configProvider = $config_provider;
+    $this->idBuilder = $id_builder;
     $this->personBuilder = $person_builder;
     $this->companyBuilder = $company_builder;
     $this->addressBuilder = $address_builder;
     $this->basketBuilder = $basket_builder;
     $this->amountBuilder = $amount_builder;
-    $this->idBuilder = $uuid_builder;
+
     $this->cache = $cache;
   }
 
