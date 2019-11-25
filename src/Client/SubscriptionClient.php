@@ -71,12 +71,18 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
     $subscription_create_request->setIntegrationType($integration_type);
     $subscription_create_request->setPlanReference($plan_reference);
     $subscription_create_request->setAmount($this->amountBuilder->buildFromOrder($order));
-    $subscription_create_request->setUserData($this->personBuilder->build($user, $billing_profile));
-    $subscription_create_request->setUserID($this->idBuilder->id($user));
+
+    $user_id = $this->idBuilder->id($user);
     if ($user_type == UserType::USER_TYPE_BUSINESS) {
+      $user_id = 'B' . $user_id;
       $company = $this->companyBuilder->build($user, $billing_profile);
       $subscription_create_request->setCompanyData($company);
     }
+    $subscription_create_request->setUserID($user_id);
+    $subscription_create_request->setUserType($user_type);
+    $user_data = $this->personBuilder->build($user, $billing_profile);
+    $subscription_create_request->setUserData($user_data);
+
 
     $billing_address = $billing_profile->address[0];
     $subscription_create_request->setBillingAddress($this->addressBuilder->build($billing_address));
@@ -85,7 +91,6 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
       $subscription_create_request->setShippingAddress($this->addressBuilder->build($shipping_address));
     }
     $subscription_create_request->setLocale($this->personBuilder->getLangcode($user));
-    $subscription_create_request->setUserType($user_type);
     $this->basketBuilder->build($order, $subscription_create_request);
     $subscriptions_create_api = new ApiCreateSubscription($this->configProvider->getConfig(), $subscription_create_request);
     try {

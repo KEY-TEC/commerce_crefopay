@@ -113,17 +113,22 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
   public function createTransaction(Order $order, User $user, ProfileInterface $billing_profile, $integration_type = "HostedPageBefore", ProfileInterface $shipping_profile = NULL, $user_type = UserType::USER_TYPE_PRIVATE) {
     $request = new RequestCreateTransaction($this->configProvider->getConfig());
     $amount = $this->amountBuilder->buildFromOrder($order);
-    $request->setUserID($this->idBuilder->id($user));
+
+
     $request->setOrderID($this->idBuilder->id($order));
     $request->setIntegrationType($integration_type);
     $request->setAmount($amount);
     $request->setAutoCapture(TRUE);
     $request->setContext(RequestCreateTransaction::CONTEXT_ONLINE);
-    $request->setUserType(UserType::USER_TYPE_PRIVATE);
+    $request->setUserType($user_type);
+    $user_id = $this->idBuilder->id($user);
     if ($user_type == UserType::USER_TYPE_BUSINESS) {
       $company = $this->companyBuilder->build($user, $billing_profile);
       $request->setCompanyData($company);
+      $user_id = 'B' . $user_id;
     }
+    $request->setUserID($user_id);
+
     $billing_address = $billing_profile->address[0];
     $crefo_billing_address = $this->addressBuilder->build($billing_address);
     $request->setBillingAddress($crefo_billing_address);

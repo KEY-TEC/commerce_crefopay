@@ -79,6 +79,13 @@ class SecureFieldsSubscription extends BasePaymentGateway {
       \Drupal::moduleHandler()
         ->alter('commerce_crefopay_transaction_data', $data, $context);
       $user_type = $data['user_type'];
+      if ($user_type == UserType::USER_TYPE_BUSINESS) {
+        /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $billing_address */
+        $billing_address = $billing_profile->address[0];
+        if (empty($billing_address->getOrganization())) {
+          throw new PaymentGatewayException($this->t('Company name is required.'));
+        }
+      }
       $instruments = $this->subscriptionClient->createSubscription($order, $user, $billing_profile, $plan_reference, $shipment_address, Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type);
     }
     catch (OrderIdAlreadyExistsException $oe) {
