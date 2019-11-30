@@ -202,7 +202,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     $instrument_profile = $this->getShipmentProfile($order);
     /** @var \Drupal\commerce_crefopay\Client\TransactionClient $transaction_client */
     try {
-      $user_type = Type::USER_TYPE_PRIVATE;
+      $user_type = UserType::USER_TYPE_PRIVATE;
       $data = [
         'user_type' => $user_type,
       ];
