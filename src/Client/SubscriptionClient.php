@@ -65,7 +65,7 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
   /**
    * {@inheritdoc}
    */
-  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL, $integration_type = Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type = UserType::USER_TYPE_PRIVATE) {
+  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL, $integration_type = Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type = UserType::USER_TYPE_PRIVATE, int $trial_days = NULL) {
     $subscription_create_request = new RequestCreateSubscription($this->configProvider->getConfig());
     $subscription_create_request->setSubscriptionID($this->idBuilder->id($order));
     $subscription_create_request->setIntegrationType($integration_type);
@@ -83,6 +83,9 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
     $user_data = $this->personBuilder->build($user, $billing_profile);
     $subscription_create_request->setUserData($user_data);
 
+    if ($trial_days !== NULL) {
+      $subscription_create_request->setTrialPeriod($trial_days);
+    }
 
     $billing_address = $billing_profile->address[0];
     $subscription_create_request->setBillingAddress($this->addressBuilder->build($billing_address));

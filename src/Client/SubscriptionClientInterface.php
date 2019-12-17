@@ -35,7 +35,7 @@ interface SubscriptionClientInterface {
    * @return array
    *   Payment instruments
    */
-  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL, $integration_type = NULL, $user_type = UserType::USER_TYPE_PRIVATE);
+  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL, $integration_type = NULL, $user_type = UserType::USER_TYPE_PRIVATE, int $trial_days = NULL);
 
   /**
    * The updateSubscription call is used to update the charge

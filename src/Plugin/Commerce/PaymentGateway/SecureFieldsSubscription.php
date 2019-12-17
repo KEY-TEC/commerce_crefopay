@@ -86,7 +86,13 @@ class SecureFieldsSubscription extends BasePaymentGateway {
           throw new PaymentGatewayException($this->t('Company name is required.'));
         }
       }
-      $instruments = $this->subscriptionClient->createSubscription($order, $user, $billing_profile, $plan_reference, $shipment_address, Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type);
+
+      $trial_days = NULL;
+      if ($order->hasField('field_trial_days')) {
+        $trial_days = $order->field_trial_days->value;
+      }
+
+      $instruments = $this->subscriptionClient->createSubscription($order, $user, $billing_profile, $plan_reference, $shipment_address, Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type, $trial_days);
     }
     catch (OrderIdAlreadyExistsException $oe) {
       // Throw new PaymentGatewayException('Order already exists.');
