@@ -74,6 +74,7 @@ class SecureFieldsSubscription extends BasePaymentGateway {
       $user_type = UserType::USER_TYPE_PRIVATE;
       $data = [
         'user_type' => $user_type,
+        'trial_days' => NULL
       ];
       $context = ['order' => $order];
       \Drupal::moduleHandler()
@@ -88,8 +89,8 @@ class SecureFieldsSubscription extends BasePaymentGateway {
       }
 
       $trial_days = NULL;
-      if ($order->hasField('field_trial_days')) {
-        $trial_days = $order->field_trial_days->value;
+      if (!empty($data['trial_days'])) {
+        $trial_days = $data['trial_days'];
       }
 
       $instruments = $this->subscriptionClient->createSubscription($order, $user, $billing_profile, $plan_reference, $shipment_address, Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type, $trial_days);
