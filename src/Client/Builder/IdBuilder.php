@@ -20,21 +20,36 @@ class IdBuilder {
   }
 
   /**
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * Generates Crefopay ID based on an static prefix and
+   * an prefix filed inside the entity.
    *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
    * @return string
+   *   The order.
    */
   public function id(EntityInterface $entity) {
+    if ($entity->hasField('field_prefix') && !empty($entity->field_prefix->value)) {
+      $this->prefix .= $entity->field_prefix->value;
+    }
+    if (!empty($this->prefix)) {
+      $this->prefix .= '--';
+    }
     return $this->prefix . $entity->id();
   }
 
   /**
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * Returns the drupal entity id based on
+   * @param string $id
    *
    * @return string
+   *   The entity id.
    */
   public function realId($id) {
-    return str_replace($this->prefix, "", $id);
+    $ids = explode('--', $id);
+    $id = $ids[count($ids) -1];
+    $id = str_replace($this->prefix, "", $id);
+    return $id;
   }
 
 }
