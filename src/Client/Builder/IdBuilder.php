@@ -33,9 +33,6 @@ class IdBuilder {
     if ($entity->hasField('field_prefix') && !empty($entity->field_prefix->value)) {
       $prefix .= $entity->field_prefix->value;
     }
-    if (!empty($this->prefix)) {
-      $prefix .= '--';
-    }
     return $prefix . $entity->id();
   }
 
@@ -47,9 +44,8 @@ class IdBuilder {
    *   The entity id.
    */
   public function realId($id) {
-    $ids = explode('--', $id);
-    $id = $ids[count($ids) -1];
     $id = str_replace($this->prefix, "", $id);
+    $id = str_replace('VERL', "", $id);
     return $id;
   }
 
