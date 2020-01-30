@@ -29,13 +29,14 @@ class IdBuilder {
    *   The order.
    */
   public function id(EntityInterface $entity) {
+    $prefix = $this->prefix;
     if ($entity->hasField('field_prefix') && !empty($entity->field_prefix->value)) {
-      $this->prefix .= $entity->field_prefix->value;
+      $prefix .= $entity->field_prefix->value;
     }
     if (!empty($this->prefix)) {
-      $this->prefix .= '--';
+      $prefix .= '--';
     }
-    return $this->prefix . $entity->id();
+    return $prefix . $entity->id();
   }
 
   /**
