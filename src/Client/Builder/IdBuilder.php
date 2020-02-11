@@ -45,6 +45,7 @@ class IdBuilder {
    */
   public function realId($id) {
     $id = str_replace($this->prefix, "", $id);
+    $id = str_replace('VERL2', "", $id);
     $id = str_replace('VERL', "", $id);
     return $id;
   }
