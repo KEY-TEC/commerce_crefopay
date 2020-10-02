@@ -16,12 +16,12 @@ Class CrefopayTestConfigProvider extends ConfigProvider {
 
   public function getConfigArray() {
     return [
-      'baseUrl' => $this->getApiUrl(),
+      'baseUrl' => 'http://commerce_crefopay.docksal/',
       'merchantID' => '516',
       'merchantPassword' => 'YU60WTM6QBZ1CWZ0',
       'storeID' => 'KGTX4QORh2ONyok',
       'sendRequestsWithSalt' => TRUE,
-      'logEnabled' => TRUE
+      'logEnabled' => FALSE
     ];
   }
 }

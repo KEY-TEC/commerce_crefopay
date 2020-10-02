@@ -1,0 +1,12 @@
+commerce_crefopay_test.api_get_transaction_status:
+  path: '/getTransactionStatus'
+  defaults:
+    _controller: '\Drupal\commerce_crefopay_test\Controller\TestApiController::getTransactionStatus'
+    _title: 'Notification'
+    methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+
+
