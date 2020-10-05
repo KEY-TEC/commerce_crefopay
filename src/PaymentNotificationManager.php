@@ -18,15 +18,19 @@ class PaymentNotificationManager {
       /** @var \Drupal\commerce_payment\Entity\PaymentGateway $payment_gateway */
       $payment_gateway = $commerce_order->get('payment_gateway')->entity;
 
+      /** @var \Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway\BasePaymentGateway $plugin */
       $plugin = $payment_gateway->getPlugin();
       $payment = $plugin->getPaymentByOrder($commerce_order, $notification->getCaptureId());
       if ($payment != NULL) {
         $plugin->updatePayment($payment, $notification->getCaptureId());
+      }else{
+        $plugin->validateMac($commerce_order);
+        $plugin->createPayment($commerce_order, $notification->getCaptureId(), $plugin->mapCrefopayStateToPayment($notification->getStatus()));
       }
     }
     else {
       \Drupal::logger('commerce_payment')
-        ->critical("Unable to find payment gateway for $order_id | user id: {$notification->getUserId()} | orderStatus {$notification->getOrderStatus()}");
+        ->critical("Unable to find payment gateway for $order_id | user id: {$notification->getUserId()} | orderStatus {$notification->getStatus()}");
     }
   }
 }

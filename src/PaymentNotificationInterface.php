@@ -9,8 +9,8 @@ interface PaymentNotificationInterface {
   public function getUserId();
   public function setCaptureId($capture_id);
   public function getCaptureId();
-  public function setOrderStatus($order_status);
-  public function getOrderStatus();
+  public function setStatus($order_status);
+  public function getStatus();
   public function setOrderId($order_id);
   public function getOrderId();
   public function setSubscriptionId($subscription_id);

@@ -62,7 +62,7 @@ class Callback extends ControllerBase {
       $notification = new PaymentNotification();
       $notification->setUserId($request->request->get('userID'));
       $notification->setCaptureId($request->request->get('captureID'));
-      $notification->setOrderStatus($request->request->get('orderStatus'));
+      $notification->setStatus($request->request->get('orderStatus'));
       $notification->setOrderId($request->request->get('orderID'));
       $notification->setSubscriptionId($request->request->get('subscriptionID'));
       $this->paymentNotificationManager->handlePaymentNotification($notification);

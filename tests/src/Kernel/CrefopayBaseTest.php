@@ -11,14 +11,17 @@ use Drupal\commerce_order\Entity\OrderItem;
 use Drupal\commerce_payment\Entity\Payment;
 use Drupal\commerce_payment\Entity\PaymentGateway;
 use Drupal\commerce_price\Price;
+use Drupal\Tests\commerce_crefopay\modules\commerce_crefopay_test\TransactionClientMock;
 use Drupal\Tests\commerce_order\Kernel\OrderKernelTestBase;
 use Drupal\Tests\ConfigTestTrait;
 
 
 class CrefopayBaseTest extends OrderKernelTestBase {
+
   use ConfigTestTrait;
 
   protected $user;
+
   protected $order;
 
   /**
@@ -35,15 +38,17 @@ class CrefopayBaseTest extends OrderKernelTestBase {
     'commerce',
     'profile',
     'state_machine',
-    'address'
+    'address',
   ];
 
   public function setUp() {
     parent::setUp();
     $this->installEntitySchema('commerce_payment');
+    $this->installEntitySchema('commerce_payment_method');
     $this->installConfig('commerce_payment');
 
     $this->container->set('commerce_crefopay.config_provider', new CrefopayTestConfigProvider($this->container->get('config.factory')));
+    $this->container->set('commerce_crefopay.transaction_client', new TransactionClientMock($this->container->get('commerce_crefopay.config_provider'), $this->container->get('commerce_crefopay.id_builder'), $this->container->get('commerce_crefopay.person_builder'), $this->container->get('commerce_crefopay.company_builder'), $this->container->get('commerce_crefopay.address_builder'), $this->container->get('commerce_crefopay.basket_builder'), $this->container->get('commerce_crefopay.amount_builder'), $this->container->get('cache.default')));
 
     $gateway = PaymentGateway::create([
       'id' => 'crefopay',
@@ -82,27 +87,51 @@ class CrefopayBaseTest extends OrderKernelTestBase {
       'payment_gateway' => 'crefopay',
       'order_id' => $this->order->id(),
       'amount' => new Price('30', 'EUR'),
-      'state' => 'completed'
+      'state' => 'new',
+      'remote_id' => '123'
     ]);
     $payment->save();
 
   }
 
-  public function testPaymentNotificationManager(){
+  public function testPaymentNotificationManager() {
 
 
     $notification = new PaymentNotification();
     $notification->setOrderId($this->order->id());
     $notification->setUserId($this->user->id());
-    $notification->getOrderStatus(1);
+    $notification->setStatus('DONE');
     $notification->setCaptureId('123');
 
 
-    $payments = \Drupal::entityTypeManager()->getStorage('commerce_payment')->loadMultipleByOrder($this->order);
+    $payments = \Drupal::entityTypeManager()
+      ->getStorage('commerce_payment')
+      ->loadMultipleByOrder($this->order);
     $this->assertCount(1, $payments);
 
     $this->paymentNotificationManager->handlePaymentNotification($notification);
 
+    $payments = \Drupal::entityTypeManager()
+      ->getStorage('commerce_payment')
+      ->loadMultipleByOrder($this->order);
+    $this->assertCount(1, $payments);
+
+    $notification2 = new PaymentNotification();
+    $notification2->setOrderId($this->order->id());
+    $notification2->setUserId($this->user->id());
+    $notification2->setStatus('EXPIRED');
+    $notification2->setCaptureId('456');
+
+    $this->paymentNotificationManager->handlePaymentNotification($notification2);
+
+    $payments = \Drupal::entityTypeManager()
+      ->getStorage('commerce_payment')
+      ->loadMultipleByOrder($this->order);
+    $this->assertCount(2, $payments);
+
+    /** @var \Drupal\commerce_payment\Entity\PaymentInterface $last_payment */
+    $last_payment = end($payments);
+    $this->assertEqual($last_payment->getState()->getString(), 'authorization_expired');
   }
 
 }

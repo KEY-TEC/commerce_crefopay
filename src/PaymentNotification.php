@@ -51,14 +51,14 @@ class PaymentNotification implements PaymentNotificationInterface {
   /**
    * @return mixed
    */
-  public function getOrderStatus() {
+  public function getStatus() {
     return $this->orderStatus;
   }
 
   /**
    * @param mixed $orderStatus
    */
-  public function setOrderStatus($orderStatus): void {
+  public function setStatus($orderStatus): void {
     $this->orderStatus = $orderStatus;
   }
 
