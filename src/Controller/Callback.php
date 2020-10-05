@@ -7,9 +7,8 @@ use Drupal\commerce_crefopay\PaymentNotificationManager;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\TrustedRedirectResponse;
-use Drupal\Core\Url;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Upg\Library\Api\Exception\ApiError;
 use Upg\Library\Error\Codes;
@@ -18,6 +17,10 @@ use Upg\Library\Error\Codes;
  *
  */
 class Callback extends ControllerBase {
+
+  public static function create(ContainerInterface $container) {
+    return new static($container->get('commerce_crefopay.payment_notification_manager'));
+  }
 
   public function __construct(PaymentNotificationManager $paymentNotificationManager){
     $this->paymentNotificationManager = $paymentNotificationManager;
