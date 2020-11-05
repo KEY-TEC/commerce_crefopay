@@ -11,13 +11,15 @@ class PaymentNotification implements PaymentNotificationInterface {
   private $orderStatus;
   private $orderId;
   private $subscriptionId;
+  private $transactionStatus;
 
-  public function __construct($userId = NULL, $captureId = NULL, $orderStatus = NULL, $orderId = NULL, $subscriptionId = NULL){
+  public function __construct($userId = NULL, $captureId = NULL, $orderStatus = NULL, $orderId = NULL, $subscriptionId = NULL, $transaction_status = NULL){
     $this->userId = $userId;
     $this->captureId = $captureId;
     $this->orderStatus = $orderStatus;
     $this->orderId = $orderId;
     $this->subscriptionId = $subscriptionId;
+    $this->transactionStatus = $transaction_status;
   }
 
   /**
@@ -88,6 +90,14 @@ class PaymentNotification implements PaymentNotificationInterface {
    */
   public function setSubscriptionId($subscriptionId): void {
     $this->subscriptionId = $subscriptionId;
+  }
+
+  public function getTransactionStatus() {
+    return $this->transactionStatus;
+  }
+
+  public function setTransactionStatus($transaction_status) {
+    $this->transactionStatus = $transaction_status;
   }
 
 }
