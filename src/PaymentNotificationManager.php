@@ -39,7 +39,7 @@ class PaymentNotificationManager {
         $plugin->validateMac($commerce_order);
         $remote_id = $capture_id;
         if(empty($id)){
-          $remote_id = $notification->setSubscriptionId();
+          $remote_id = $notification->getSubscriptionId();
         }
         $plugin->createPayment($commerce_order, $remote_id, $plugin->mapCrefopayStateToPayment($status));
       }
