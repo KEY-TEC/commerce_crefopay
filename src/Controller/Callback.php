@@ -67,7 +67,9 @@ class Callback extends ControllerBase {
       $notification->setCaptureId($request->request->get('captureID'));
       $notification->setStatus($request->request->get('orderStatus'));
       $notification->setOrderId($request->request->get('orderID'));
-      $notification->setSubscriptionId($request->request->get('subscriptionId'));
+      if (!empty($request->request->get('subscriptionId'))) {
+        $notification->setSubscriptionId($request->request->get('subscriptionId'));
+      }
       $this->paymentNotificationManager->handlePaymentNotification($notification);
       return new JsonResponse($response);
     }
