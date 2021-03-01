@@ -150,9 +150,15 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
 
   public function createPayment($order, $remote_id = NULL, $state = 'new'){
     $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
+
+    $amount = $order->getBalance();
+    if (empty($amount)) {
+      $amount = new Price('0', 'EUR');
+    }
+
     $payment = $payment_storage->create([
       'state' => $state,
-      'amount' => $order->getBalance(),
+      'amount' => $amount,
       'payment_gateway' => $this->entityId,
       'order_id' => $order->id(),
       'remote_id' => $remote_id
