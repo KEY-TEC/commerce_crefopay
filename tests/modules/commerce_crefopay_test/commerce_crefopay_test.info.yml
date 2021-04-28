@@ -3,4 +3,4 @@ description: Commerce Crefopay test module.
 package: commerce_crefopay
 
 type: module
-core: 8.x
+core_version_requirement: ^8 || ^9
