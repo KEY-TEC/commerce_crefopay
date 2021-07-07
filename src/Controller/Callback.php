@@ -2,12 +2,13 @@
 
 namespace Drupal\commerce_crefopay\Controller;
 
+use Drupal\commerce_crefopay\PaymentNotification;
+use Drupal\commerce_crefopay\PaymentNotificationManager;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\TrustedRedirectResponse;
-use Drupal\Core\Url;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Upg\Library\Api\Exception\ApiError;
 use Upg\Library\Error\Codes;
@@ -16,6 +17,14 @@ use Upg\Library\Error\Codes;
  *
  */
 class Callback extends ControllerBase {
+
+  public static function create(ContainerInterface $container) {
+    return new static($container->get('commerce_crefopay.payment_notification_manager'));
+  }
+
+  public function __construct(PaymentNotificationManager $paymentNotificationManager){
+    $this->paymentNotificationManager = $paymentNotificationManager;
+  }
 
   /**
    *
@@ -53,30 +62,14 @@ class Callback extends ControllerBase {
   public function notification(Request $request) {
     $response['result'] = 'ok';
     if (0 === strpos($request->headers->get('Content-Type'), 'application/x-www-form-urlencoded')) {
-      $user_id = $request->request->get('userID');
-      $capture_id = $request->request->get('captureID');
-      $order_status = $request->request->get('orderStatus');
-      $order_id = $request->request->get('orderID');
-      $subscription_id = $request->request->get('subscriptionID');
-
-      $order_id = !empty($subscription_id) ? $subscription_id : $order_id;
-      $id_service = \Drupal::service('commerce_crefopay.id_builder');
-      $order_id = $id_service->realId($order_id);
-      $commerce_order = Order::load($order_id);
-      if ($commerce_order != NULL && !$commerce_order->get('payment_gateway')->isEmpty()) {
-        $commerce_order = Order::load($order_id);
-        /** @var \Drupal\commerce_payment\Entity\PaymentGateway $payment_gateway */
-        $payment_gateway = $commerce_order->get('payment_gateway')->entity;
-        $plugin = $payment_gateway->getPlugin();
-        $payment = $plugin->getPaymentByOrder($commerce_order, $capture_id);
-        if ($payment != NULL) {
-          $plugin->updatePayment($payment, $capture_id);
-        }
-      }
-      else {
-        \Drupal::logger('commerce_payment')
-          ->critical("Unable to find payment gateway for $order_id | user id: $user_id | orderStatus $order_status");
-      }
+      $notification = new PaymentNotification();
+      $notification->setUserId($request->request->get('userID'));
+      $notification->setCaptureId($request->request->get('captureID'));
+      $notification->setStatus($request->request->get('orderStatus'));
+      $notification->setOrderId($request->request->get('orderID'));
+      $notification->setSubscriptionId($request->request->get('subscriptionId'));
+      $notification->setTransactionStatus($request->request->get('transactionStatus'));
+      $this->paymentNotificationManager->handlePaymentNotification($notification);
       return new JsonResponse($response);
     }
   }
@@ -136,8 +129,8 @@ class Callback extends ControllerBase {
       return $response;
     } catch (ApiError $api_error) {
       if ($api_error->getCode() == Codes::ERROR_PAYMENT_DECLINED_FRAUD) {
-        \Drupal::messenger()->addError($this->t('Dear Mr / Ms, 
-Thank you for your interest in our products. 
+        \Drupal::messenger()->addError($this->t('Dear Mr / Ms,
+Thank you for your interest in our products.
 In the course of the automatic solvency request over our credit provider (according to our AGB\'s), we unfortunately received a negative feedback.'));
         $this->getLogger('commerce_payment')
           ->critical('Error in reserve Call: ' . $api_error->getMessage());

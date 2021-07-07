@@ -49,4 +49,4 @@ is_windows ()
 
 
 cd $DOCROOT_PATH
-fin exec "php core/scripts/run-tests.sh --sqlite ../sqllite/sqlite.sql --color --verbose --url http://commerce-crefopay.docksal $* "
+fin exec "php core/scripts/run-tests.sh --sqlite ../sqllite/sqlite.sql --color --verbose --class \\Drupal\\\Tests\\\commerce_crefopay\\\Unit\\\Client\\\TransactionClientTest --url http://commerce-crefopay.docksal $*"

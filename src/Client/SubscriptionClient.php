@@ -10,6 +10,7 @@ use Drupal\user\Entity\User;
 use Upg\Library\Api\Exception\ApiError;
 use Upg\Library\Request\GetSubscriptionPlans as RequestGetSubscriptionPlans;
 use Upg\Library\Api\GetSubscriptionPlans as ApiGetSubscriptionPlans;
+use Upg\Library\Risk\RiskClass;
 use Upg\Library\User\Type as UserType;
 use Upg\Library\Integration\Type;
 use Upg\Library\Request\CreateSubscription as RequestCreateSubscription;
@@ -65,7 +66,7 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
   /**
    * {@inheritdoc}
    */
-  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL, $integration_type = Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type = UserType::USER_TYPE_PRIVATE, int $trial_days = NULL) {
+  public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL, $integration_type = Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type = UserType::USER_TYPE_PRIVATE, int $trial_days = NULL, $risk_class = RiskClass::RISK_CLASS_DEFAULT) {
     $subscription_create_request = new RequestCreateSubscription($this->configProvider->getConfig());
     $subscription_create_request->setSubscriptionID($this->idBuilder->id($order));
     $subscription_create_request->setIntegrationType($integration_type);
@@ -82,7 +83,7 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
     $subscription_create_request->setUserType($user_type);
     $user_data = $this->personBuilder->build($user, $billing_profile);
     $subscription_create_request->setUserData($user_data);
-
+    $subscription_create_request->setUserRiskClass($risk_class);
     if ($trial_days !== NULL) {
       $subscription_create_request->setTrialPeriod($trial_days);
     }

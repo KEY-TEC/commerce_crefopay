@@ -143,16 +143,28 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
         ->getCurrentLanguage()
         ->getId());
       $order->save();
-      $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
-      $payment = $payment_storage->create([
-        'state' => 'new',
-        'amount' => $order->getBalance(),
-        'payment_gateway' => $this->entityId,
-        'order_id' => $order->id(),
-      ]);
-      $payment->save();
+      $this->createPayment($order);
       return $data;
     }
+  }
+
+  public function createPayment($order, $remote_id = NULL, $state = 'new'){
+    $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
+
+    $amount = $order->getBalance();
+    if (empty($amount)) {
+      $amount = new Price('0', 'EUR');
+    }
+
+    $payment = $payment_storage->create([
+      'state' => $state,
+      'amount' => $amount,
+      'payment_gateway' => $this->parentEntity->id(),
+      'order_id' => $order->id(),
+      'remote_id' => $remote_id
+    ]);
+    $payment->save();
+    return $payment;
   }
 
   /**
@@ -285,6 +297,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
       ->getStorage('commerce_payment');
     if ($capture_id != NULL) {
       $payment = $payment_storage->loadByRemoteId($capture_id);
+      return $payment;
     }
     if ($payment == NULL) {
       $payments = $payment_storage->loadMultipleByOrder($order);
@@ -344,14 +357,30 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
       $payment_method_storage = $this->entityTypeManager->getStorage('commerce_payment_method');
       $payment_method = $payment_method_storage->create([
         'type' => $payment_method_type,
-        'payment_gateway' => $this->entityId,
+        'payment_gateway' => $this->parentEntity->id(),
         'remote_id' => $remote_payment_method,
         'uid' => $order->getCustomerId(),
       ]);
       $payment_method->save();
     }
+    $state = $this->mapCrefopayStateToPayment($remote_state);
 
-    switch ($remote_state) {
+
+    if ($capture_id != NULL) {
+      $payment->setRemoteId($capture_id);
+    }
+    if ($payment->getPaymentMethod() == NULL && $payment_method != NULL) {
+      $payment->payment_method->appendItem($payment_method);
+    }
+    $payment->setRemoteState($remote_state);
+    $payment->setState($state);
+    $payment->save();
+
+  }
+
+
+  public function mapCrefopayStateToPayment($crefopay_state){
+    switch ($crefopay_state) {
       case "DONE":
         $state = "completed";
         break;
@@ -381,18 +410,8 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
         $state = "new";
         break;
     }
-    if ($capture_id != NULL) {
-      $payment->setRemoteId($capture_id);
-    }
-    if ($payment->getPaymentMethod() == NULL && $payment_method != NULL) {
-      $payment->payment_method->appendItem($payment_method);
-    }
-    $payment->setRemoteState($remote_state);
-    $payment->setState($state);
-    $payment->save();
-
+    return $state;
   }
-
   /**
    * {@inheritdoc}
    */
@@ -405,6 +424,9 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
         $order->save();
       }
     }
+  }
+
+  public function validateMac($order){
   }
 
   /**

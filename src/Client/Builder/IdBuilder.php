@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_crefopay\Client\Builder;
 
+use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Site\Settings;
 
@@ -25,6 +26,7 @@ class IdBuilder {
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity.
+   *
    * @return string
    *   The order.
    */
@@ -33,11 +35,19 @@ class IdBuilder {
     if ($entity->hasField('field_prefix') && !empty($entity->field_prefix->value)) {
       $prefix .= $entity->field_prefix->value;
     }
-    return $prefix . $entity->id();
+
+    $id = $entity->id();
+
+    if ($entity instanceof OrderInterface) {
+      $id = $entity->getOrderNumber();
+    }
+
+    return $prefix . $id;
   }
 
   /**
    * Returns the drupal entity id based on
+   *
    * @param string $id
    *
    * @return string
@@ -47,6 +57,10 @@ class IdBuilder {
     $id = str_replace($this->prefix, "", $id);
     $id = str_replace('VERL2', "", $id);
     $id = str_replace('VERL', "", $id);
+
+    $parts = explode('-', $id);
+    $id = end($parts);
+
     return $id;
   }
 

@@ -10,6 +10,8 @@ use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\user\Entity\User;
 use Upg\Library\Request\Objects\PaymentInstrument;
 use Upg\Library\Integration\Type;
+use Upg\Library\Risk\RiskClass;
+use Upg\Library\User\Type as UserType;
 
 
 /**
@@ -33,7 +35,7 @@ class ImportManager implements ImportManagerInterface {
     $this->transactionClient = $transaction_client;
   }
 
-  public function importSubscription(User $user, OrderInterface $order, $account_holder, $iban, $bic, $plan_reference) {
+  public function importSubscription(User $user, OrderInterface $order, $account_holder, $iban, $bic, $plan_reference, $trial_days) {
     $profile = $order->getBillingProfile();
     $this->userClient->registerOrUpdateUser($user, $profile);
 
@@ -60,7 +62,7 @@ class ImportManager implements ImportManagerInterface {
 
     $profile = $order->getBillingProfile();
     try {
-      $this->subscriptionClient->createSubscription($order, $user, $profile, $plan_reference, NULL, Type::INTEGRATION_TYPE_API);
+      $this->subscriptionClient->createSubscription($order, $user, $profile, $plan_reference, NULL, Type::INTEGRATION_TYPE_API ,UserType::USER_TYPE_PRIVATE, $trial_days, RiskClass::RISK_CLASS_TRUSTED);
     }
     catch (OrderIdAlreadyExistsException $already_exists_exception) {
       // DO NOTHING. Transaction already started.

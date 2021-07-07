@@ -4,6 +4,7 @@ namespace Drupal\commerce_crefopay\Client;
 
 use Drupal\address\AddressInterface;
 use Drupal\commerce_order\Entity\Order;
+use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_price\Price;
 use Drupal\profile\Entity\ProfileInterface;
@@ -17,6 +18,7 @@ use Upg\Library\Api\Exception\ApiError;
 use Upg\Library\Request\CreateTransaction as RequestCreateTransaction;
 use Upg\Library\Request\GetTransactionPaymentInstruments as RequestGetTransactionPaymentInstruments;
 use Upg\Library\Request\GetTransactionStatus as RequestGetTransactionStatus;
+use Upg\Library\Request\MacCalculator;
 use Upg\Library\Request\Refund as RequestRefund;
 use Upg\Library\Request\Reserve as RequestReserve;
 use Upg\Library\Response\SuccessResponse;
@@ -105,6 +107,10 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
       $this->handleValidationExceptions($api_error, $this->idBuilder->id($order));
     }
     return NULL;
+  }
+
+  public function validateMac(OrderInterface $order) {
+    $this->getTransactionStatus($order);
   }
 
   /**
