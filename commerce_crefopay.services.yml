@@ -10,7 +10,7 @@ services:
     arguments: []
   commerce_crefopay.payment_notification_manager:
     class: Drupal\commerce_crefopay\PaymentNotificationManager
-    arguments: []
+    arguments: ['@module_handler']
   commerce_crefopay.basket_builder:
     class: Drupal\commerce_crefopay\Client\Builder\BasketBuilder
     arguments: ['@commerce_crefopay.id_builder']
