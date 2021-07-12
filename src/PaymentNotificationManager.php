@@ -5,22 +5,8 @@ namespace Drupal\commerce_crefopay;
 
 
 use Drupal\commerce_order\Entity\Order;
-use Drupal\Core\Extension\ModuleHandlerInterface;
 
 class PaymentNotificationManager {
-
-  /**
-   * The module handler
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface
-   */
-  protected $moduleHandler;
-
-  /**
-   * PaymentNotificationManager constructor.
-   */
-  public function __construct(ModuleHandlerInterface $module_handler) {
-    $this->moduleHandler = $module_handler;
-  }
 
   public function handlePaymentNotification(PaymentNotificationInterface $notification) {
     $subscription_id = $notification->getSubscriptionId();
@@ -54,12 +40,13 @@ class PaymentNotificationManager {
       else {
         $plugin->validateMac($commerce_order);
         $remote_id = $capture_id;
-        if(empty($id)){
-          $remote_id = $notification->getSubscriptionId();
+        if (empty($remote_id)) {
+          $remote_id = $notification->getOrderId();
         }
+
         $payment = $plugin->createPayment($commerce_order, $remote_id, $plugin->mapCrefopayStateToPayment($status));
-        // Envoke alter hook to allow other module operations on the payment.
-        $this->moduleHandler->alter('payment_created', $payment, $notification);
+        // Trigger update hooks.
+        $payment->save();
       }
     }
     else {
