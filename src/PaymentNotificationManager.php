@@ -28,22 +28,20 @@ class PaymentNotificationManager {
 
       /** @var \Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway\BasePaymentGateway $plugin */
       $plugin = $payment_gateway->getPlugin();
-      $capture_id = $notification->getCaptureId();
+      $remote_id = $notification->getCaptureId();
+      if (empty($remote_id)) {
+        $remote_id = $notification->getOrderId();
+      }
 
-      if (!empty($capture_id)) {
-        $payment = $plugin->getPaymentByOrder($commerce_order, $notification->getCaptureId());
+      if (!empty($remote_id)) {
+        $payment = $plugin->getPaymentByOrder($commerce_order, $remote_id);
       }
 
       if (!empty($payment)) {
-        $plugin->updatePayment($payment, $notification->getCaptureId());
+        $plugin->updatePayment($payment, $remote_id, $plugin->mapCrefopayStateToPayment($status));
       }
       else {
         $plugin->validateMac($commerce_order);
-        $remote_id = $capture_id;
-        if (empty($remote_id)) {
-          $remote_id = $notification->getOrderId();
-        }
-
         $payment = $plugin->createPayment($commerce_order, $remote_id, $plugin->mapCrefopayStateToPayment($status));
         // Trigger update hooks.
         $payment->save();
