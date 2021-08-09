@@ -75,7 +75,8 @@ class Callback extends ControllerBase {
         return new JsonResponse($response);
       }
       catch (\Exception $e) {
-        $message = 'Payment notification handle exception: ' . $e->getMessage() . ' NOTIFICATION: ' . print_r($request->request->all());
+        $params = $request->request->all();
+        $message = 'Payment notification handle exception: ' . $e->getMessage() . ' PARAMS: ' . json_encode($params);
         $this->getLogger('commerce_payment')->critical($message);
         throw new NotificationHandleException($message, 500);
       }
