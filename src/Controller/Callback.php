@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_crefopay\Controller;
 
+use Drupal\commerce_crefopay\Exception\NotificationHandleException;
 use Drupal\commerce_crefopay\PaymentNotification;
 use Drupal\commerce_crefopay\PaymentNotificationManager;
 use Drupal\commerce_order\Entity\Order;
@@ -69,8 +70,15 @@ class Callback extends ControllerBase {
       $notification->setOrderId($request->request->get('orderID'));
       $notification->setSubscriptionId($request->request->get('subscriptionId'));
       $notification->setTransactionStatus($request->request->get('transactionStatus'));
-      $this->paymentNotificationManager->handlePaymentNotification($notification);
-      return new JsonResponse($response);
+      try {
+        $this->paymentNotificationManager->handlePaymentNotification($notification);
+        return new JsonResponse($response);
+      }
+      catch (\Exception $e) {
+        $message = 'Payment notification handle exception: ' . print_r($notification);
+        $this->getLogger('commerce_payment')->critical($message);
+        throw new NotificationHandleException($message, 500);
+      }
     }
   }
 
