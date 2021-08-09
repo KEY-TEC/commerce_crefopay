@@ -22,7 +22,6 @@ class PaymentNotificationManager {
 
     if ($commerce_order != NULL && !$commerce_order->get('payment_gateway')
         ->isEmpty()) {
-      $commerce_order = Order::load($order_id);
       /** @var \Drupal\commerce_payment\Entity\PaymentGateway $payment_gateway */
       $payment_gateway = $commerce_order->get('payment_gateway')->entity;
 
