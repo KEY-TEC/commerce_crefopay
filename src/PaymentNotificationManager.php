@@ -48,7 +48,7 @@ class PaymentNotificationManager {
     }
     else {
       \Drupal::logger('commerce_payment')
-        ->critical("Unable to find payment gateway for $order_id | user id: {$notification->getUserId()} | orderStatus {$notification->getStatus()}");
+        ->critical("Unable to find payment gateway for order $order_id | user id: {$notification->getUserId()} | orderStatus {$notification->getStatus()}");
     }
   }
 

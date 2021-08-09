@@ -42,8 +42,9 @@ class Callback extends ControllerBase {
       }
     }
     if ($commerce_order != NULL) {
+      $order_id = $commerce_order->id();
       \Drupal::logger('commerce_payment')
-        ->notice("Success callback handler for order $commerce_order->id()");
+        ->notice("Success callback handler for order $order_id.");
     }
     else {
       \Drupal::logger('commerce_payment')
@@ -62,6 +63,9 @@ class Callback extends ControllerBase {
    */
   public function notification(Request $request) {
     $response['result'] = 'ok';
+    $params = $request->request->all();
+    $this->getLogger('commerce_payment')->info('Incoming notification: ' . json_encode($params));
+
     if (0 === strpos($request->headers->get('Content-Type'), 'application/x-www-form-urlencoded')) {
       $notification = new PaymentNotification();
       $notification->setUserId($request->request->get('userID'));
@@ -75,7 +79,6 @@ class Callback extends ControllerBase {
         return new JsonResponse($response);
       }
       catch (\Exception $e) {
-        $params = $request->request->all();
         $message = 'Payment notification handle exception: ' . $e->getMessage() . ' PARAMS: ' . json_encode($params);
         $this->getLogger('commerce_payment')->critical($message);
         throw new NotificationHandleException($message, 500);

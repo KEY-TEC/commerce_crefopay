@@ -349,10 +349,9 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
   public function updatePayment(PaymentInterface $payment, $capture_id = NULL, $state = NULL) {
     $order = $payment->getOrder();
     $transaction_status = $this->transactionClient->getTransactionStatus($order);
-
-    $remote_payment_method = $transaction_status['additionalData']['paymentMethod'];
     $payment_method = $payment->getPaymentMethod();
     if ($payment_method == NULL) {
+      $remote_payment_method = $transaction_status['additionalData']['paymentMethod'];
       $payment_method_type = $this->getMappedPaymentMethod($remote_payment_method);
       $payment_method_storage = $this->entityTypeManager->getStorage('commerce_payment_method');
       $payment_method = $payment_method_storage->create([
