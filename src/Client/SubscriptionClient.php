@@ -112,27 +112,41 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
   /**
    * {@inheritdoc}
    */
-  public function getSubscriptionPlans() {
-    if ($this->plans !== NULL) {
-      return $this->plans;
+  public function getSubscriptionPlans($page = 1, $recursive = FALSE) {
+    if (!$recursive) {
+      if ($this->plans !== NULL) {
+        return $this->plans;
+      }
+      $cache = $this->cache;
+      $this->plans = $cache->get('crefopay_plans');
+      if ($this->plans !== FALSE) {
+        return $this->plans->data;
+      }
+      $this->plans = [];
     }
-    $cache = $this->cache;
-    $this->plans = $cache->get('crefopay_plans');
-    if ($this->plans !== FALSE) {
-      return $this->plans->data;
-    }
+
+    // Send request.
     $subscriptions_request = new RequestGetSubscriptionPlans($this->configProvider->getConfig());
     $subscriptions_request->setAmount(new AmountRange(new Amount(0), new Amount(4000, 4000, 4000)));
+    $subscriptions_request->setPageNumber($page);
     $subscriptions_api = new ApiGetSubscriptionPlans($this->configProvider->getConfig(), $subscriptions_request);
     $result = $subscriptions_api->sendRequest();
     if ($result instanceof SuccessResponse) {
       $plans = $result->getData('subscriptionPlans');
-      $this->plans = [];
       foreach ($plans as $plan) {
         $this->plans[$plan->getPlanReference()] = $plan->getName();
       }
-      $cache->set('crefopay_plans', $this->plans, Cache::PERMANENT, ['crefopay_plans_list']);
-      return $this->plans ;
+
+      $page_size = $result->getData('pageSize');
+      $total = $result->getData('totalEntries');
+      if ($page * $page_size < $total) {
+        $this->getSubscriptionPlans(++$page, TRUE);
+      }
+
+      if (!$recursive) {
+        $cache->set('crefopay_plans', $this->plans, Cache::PERMANENT, ['crefopay_plans_list']);
+      }
+      return $this->plans;
     }
 
     return [];
