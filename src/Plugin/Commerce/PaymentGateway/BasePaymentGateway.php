@@ -2,25 +2,16 @@
 
 namespace Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway;
 
-use Drupal\commerce_crefopay\Client\Builder\IdBuilder;
 use Drupal\commerce_crefopay\Client\OrderIdAlreadyExistsException;
-use Drupal\commerce_crefopay\Client\SubscriptionClientInterface;
-use Drupal\commerce_crefopay\Client\TransactionClientInterface;
 use Drupal\commerce_crefopay\Client\UserNotExistsException;
-use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
-use Drupal\commerce_payment\PaymentMethodTypeManager;
 use Drupal\commerce_payment\PaymentStorageInterface;
-use Drupal\commerce_payment\PaymentTypeManager;
 use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\OffsitePaymentGatewayBase;
 use Drupal\commerce_price\Price;
-use Drupal\Component\Datetime\TimeInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\user\Entity\User;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Upg\Library\Integration\Type;
@@ -69,40 +60,51 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
   protected $logger;
 
   /**
-   * Constructs a new PaymentGatewayBase object.
-   *
-   * @param array $configuration
-   *   A configuration array containing information about the plugin instance.
-   * @param string $plugin_id
-   *   The plugin_id for the plugin instance.
-   * @param mixed $plugin_definition
-   *   The plugin implementation definition.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity type manager.
-   * @param \Drupal\commerce_payment\PaymentTypeManager $payment_type_manager
-   *   The payment type manager.
-   * @param \Drupal\commerce_payment\PaymentMethodTypeManager $payment_method_type_manager
-   *   The payment method type manager.
-   * @param \Drupal\Component\Datetime\TimeInterface $time
-   *   The time.
-   * @param \Drupal\commerce_crefopay\ConfigProviderInterface $config_provider
-   *   The config provider.
-   * @param \Drupal\commerce_crefopay\Client\TransactionClientInterface $transaction_client
-   *   The transaction client.
-   * @param \Drupal\commerce_crefopay\Client\SubscriptionClientInterface $subscription_client
-   *   The subscription client.
-   * @param \Drupal\commerce_crefopay\Client\Builder\IdBuilder $id_builder
-   *   The id builder.
-   * @param \Psr\Log\LoggerInterface $logger
-   *   The logger.
+   * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, PaymentTypeManager $payment_type_manager, PaymentMethodTypeManager $payment_method_type_manager, TimeInterface $time, ConfigProviderInterface $config_provider, TransactionClientInterface $transaction_client, SubscriptionClientInterface $subscription_client, IdBuilder $id_builder, LoggerInterface $logger) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $payment_type_manager, $payment_method_type_manager, $time);
-    $this->transactionClient = $transaction_client;
-    $this->subscriptionClient = $subscription_client;
-    $this->configProvider = $config_provider;
-    $this->idBuilder = $id_builder;
-    $this->logger = $logger;
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('entity_type.manager'),
+      $container->get('plugin.manager.commerce_payment_type'),
+      $container->get('plugin.manager.commerce_payment_method_type'),
+      $container->get('datetime.time')
+    );
+
+    $instance->transactionClient = $container->get('commerce_crefopay.transaction_client');
+    $instance->subscriptionClient = $container->get('commerce_crefopay.subscription_client');
+    $instance->configProvider = $container->get('commerce_crefopay.config_provider');
+    $instance->idBuilder = $container->get('commerce_crefopay.id_builder');
+    $instance->logger = $container->get('logger.channel.commerce_payment');
+    return $instance;
+  }
+
+  /**
+   * Returns the config provider.
+   *
+   * @return \Drupal\commerce_crefopay\ConfigProviderInterface
+   *   The config provider.
+   */
+  public function getConfigProvider() {
+    return $this->configProvider;
+  }
+
+  /**
+   * Returns the idBuilder.
+   *
+   * @return \Drupal\commerce_crefopay\Client\Builder\IdBuilder
+   *   The idBuilder
+   */
+  public function getIdBuilder() {
+    return $this->idBuilder;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onNotify(Request $request) {
   }
 
   /**
@@ -148,13 +150,14 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     }
   }
 
-  public function createPayment($order, $remote_id = NULL, $state = 'new') {
+  public function createPayment($order, $amount = 0, $remote_id = NULL, $state = 'new') {
     $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
 
-    $amount = $order->getBalance();
-    if (empty($amount)) {
-      $amount = new Price('0', 'EUR');
+    if ($amount > 0) {
+      // Amount is in cent: 6900.
+      $amount = $amount/100;
     }
+    $amount = new Price($amount, 'EUR');
 
     $payment = $payment_storage->create([
       'state' => $state,
@@ -165,6 +168,55 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     ]);
     $payment->save();
     return $payment;
+  }
+
+  /**
+   * Update payment status.
+   *
+   * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
+   */
+  public function updatePayment(PaymentInterface $payment, $amount = 0, $capture_id = NULL, $state = NULL) {
+    $order = $payment->getOrder();
+
+    $transaction_status = $this->transactionClient->getTransactionStatus($order);
+    if (!$state) {
+      $remote_state = $transaction_status['transactionStatus'];
+      $state = $this->mapCrefopayStateToPayment($remote_state);
+      $payment->setRemoteState($remote_state);
+    }
+    $payment->setState($state);
+
+    $payment_method = $payment->getPaymentMethod();
+    if ($payment_method == NULL) {
+      $remote_payment_method = $transaction_status['additionalData']['paymentMethod'];
+      $payment_method_type = $this->getMappedPaymentMethod($remote_payment_method);
+      $payment_method_storage = $this->entityTypeManager->getStorage('commerce_payment_method');
+      $payment_method = $payment_method_storage->create([
+        'type' => $payment_method_type,
+        'payment_gateway' => $this->parentEntity->id(),
+        'remote_id' => $remote_payment_method,
+        'uid' => $order->getCustomerId(),
+      ]);
+      $payment_method->save();
+      $payment->payment_method->appendItem($payment_method);
+    }
+
+    if ($capture_id != NULL) {
+      $payment->setRemoteId($capture_id);
+    }
+
+    if ($amount > 0) {
+      // Amount is in cent: 6900.
+      $amount = $amount/100;
+    }
+    $amount = new Price($amount, 'EUR');
+
+    if ($amount->isPositive()) {
+      // Update payment amount, if not zero.
+      $payment->setAmount($amount);
+    }
+
+    $payment->save();
   }
 
   /**
@@ -192,15 +244,15 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     return $shipment_address;
   }
 
-    /**
-     * Calls a CrefoPay "create transaction".
-     *
-     * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
-     *   The payment.
-     *
-     * @return \Upg\Library\Request\Objects\PaymentInstrument[]
-     *   Payment instruments.
-     */
+  /**
+   * Calls a CrefoPay "create transaction".
+   *
+   * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
+   *   The payment.
+   *
+   * @return \Upg\Library\Request\Objects\PaymentInstrument[]
+   *   Payment instruments.
+   */
   protected function createTransaction(PaymentInterface $payment) {
     $order = $payment->getOrder();
     $billing_profile = $order->getBillingProfile();
@@ -242,52 +294,6 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
 
     }
     return $instruments;
-  }
-
-  /**
-   * Returns the config provider.
-   *
-   * @return \Drupal\commerce_crefopay\ConfigProviderInterface
-   *   The config provider.
-   */
-  public function getConfigProvider() {
-    return $this->configProvider;
-  }
-
-  /**
-   * Returns the idBuilder.
-   *
-   * @return \Drupal\commerce_crefopay\Client\Builder\IdBuilder
-   *   The idBuilder
-   */
-  public function getIdBuilder() {
-    return $this->idBuilder;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('entity_type.manager'),
-      $container->get('plugin.manager.commerce_payment_type'),
-      $container->get('plugin.manager.commerce_payment_method_type'),
-      $container->get('datetime.time'),
-      $container->get('commerce_crefopay.config_provider'),
-      $container->get('commerce_crefopay.transaction_client'),
-      $container->get('commerce_crefopay.subscription_client'),
-      $container->get('commerce_crefopay.id_builder'),
-      $container->get('logger.channel.commerce_payment')
-    );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onNotify(Request $request) {
   }
 
   public function getPaymentByOrder(OrderInterface $order, $remote_id = NULL) {
@@ -339,45 +345,6 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
         break;
     }
     return $type;
-  }
-
-  /**
-   * Update payment status.
-   *
-   * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
-   */
-  public function updatePayment(PaymentInterface $payment, $capture_id = NULL, $state = NULL) {
-    $order = $payment->getOrder();
-    $transaction_status = $this->transactionClient->getTransactionStatus($order);
-    $payment_method = $payment->getPaymentMethod();
-    if ($payment_method == NULL) {
-      $remote_payment_method = $transaction_status['additionalData']['paymentMethod'];
-      $payment_method_type = $this->getMappedPaymentMethod($remote_payment_method);
-      $payment_method_storage = $this->entityTypeManager->getStorage('commerce_payment_method');
-      $payment_method = $payment_method_storage->create([
-        'type' => $payment_method_type,
-        'payment_gateway' => $this->parentEntity->id(),
-        'remote_id' => $remote_payment_method,
-        'uid' => $order->getCustomerId(),
-      ]);
-      $payment_method->save();
-    }
-
-    if ($capture_id != NULL) {
-      $payment->setRemoteId($capture_id);
-    }
-    if ($payment->getPaymentMethod() == NULL && $payment_method != NULL) {
-      $payment->payment_method->appendItem($payment_method);
-    }
-
-    if (!$state) {
-      $remote_state = $transaction_status['transactionStatus'];
-      $state = $this->mapCrefopayStateToPayment($remote_state);
-      $payment->setRemoteState($remote_state);
-    }
-    $payment->setState($state);
-
-    $payment->save();
   }
 
   public function mapCrefopayStateToPayment($crefopay_state){

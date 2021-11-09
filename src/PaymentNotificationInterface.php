@@ -17,4 +17,6 @@ interface PaymentNotificationInterface {
   public function getSubscriptionId();
   public function getTransactionStatus();
   public function setTransactionStatus($transaction_status);
+  public function getAmount();
+  public function setAmount($amount);
 }

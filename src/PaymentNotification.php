@@ -12,6 +12,7 @@ class PaymentNotification implements PaymentNotificationInterface {
   private $orderId;
   private $subscriptionId;
   private $transactionStatus;
+  private $amount;
 
   public function __construct($userId = NULL, $captureId = NULL, $orderStatus = NULL, $orderId = NULL, $subscriptionId = NULL, $transaction_status = NULL){
     $this->userId = $userId;
@@ -98,6 +99,14 @@ class PaymentNotification implements PaymentNotificationInterface {
 
   public function setTransactionStatus($transaction_status) {
     $this->transactionStatus = $transaction_status;
+  }
+
+  public function getAmount() {
+    return $this->amount;
+  }
+
+  public function setAmount($amount) {
+    $this->amount = $amount;
   }
 
 }

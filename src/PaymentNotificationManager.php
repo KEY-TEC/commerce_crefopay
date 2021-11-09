@@ -37,11 +37,11 @@ class PaymentNotificationManager {
       }
 
       if (!empty($payment)) {
-        $plugin->updatePayment($payment, $remote_id, $plugin->mapCrefopayStateToPayment($status));
+        $plugin->updatePayment($payment, $notification->getAmount(), $remote_id, $plugin->mapCrefopayStateToPayment($status));
       }
       else {
         $plugin->validateMac($commerce_order);
-        $payment = $plugin->createPayment($commerce_order, $remote_id, $plugin->mapCrefopayStateToPayment($status));
+        $payment = $plugin->createPayment($commerce_order, $notification->getAmount(), $remote_id, $plugin->mapCrefopayStateToPayment($status));
         // Trigger update hooks.
         $payment->save();
       }
