@@ -3,7 +3,7 @@
 namespace Drupal\commerce_crefopay\Client\Builder;
 
 use Drupal\address\AddressInterface;
-use Upg\Library\Request\Objects\Address;
+use CrefoPay\Library\Request\Objects\Address;
 
 /**
  * AdressBuilder implementation.
@@ -16,7 +16,7 @@ class AddressBuilder {
    * @param Drupal\address\AddressInterface $address
    *   The Drupal address.
    *
-   * @return \Upg\Library\Request\Objects\Address
+   * @return \CrefoPay\Library\Request\Objects\Address
    *   The Crefopay address.
    */
   public function build(AddressInterface $address) {

@@ -9,19 +9,19 @@ use Drupal\commerce_crefopay\Client\Builder\IdBuilder;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
-use Upg\Library\Api\Exception\ApiError;
-use Upg\Library\Api\RegisterUserPaymentInstrument as ApiRegisterUserPaymentInstrument;
-use Upg\Library\Api\GetUserPaymentInstrument as ApiGetUserPaymentInstrument;
-use Upg\Library\Request\Objects\PaymentInstrument;
-use Upg\Library\Request\RegisterUser as RequestRegisterUser;
-use Upg\Library\Request\GetUserPaymentInstrument as RequestGetUserPaymentInstrument;
-use Upg\Library\Request\RegisterUserPaymentInstrument as RequestRegisterUserPaymentInstrument;
-use Upg\Library\Api\RegisterUser as ApiRegisterUser;
-use Upg\Library\Api\UpdateUser as ApiUpdateUser;
-use Upg\Library\Request\GetUser as RequestGetUser;
-use Upg\Library\Api\GetUser as ApiGetUser;
-use Upg\Library\Response\SuccessResponse;
-use Upg\Library\User\Type;
+use CrefoPay\Library\Api\Exception\ApiError;
+use CrefoPay\Library\Api\RegisterUserPaymentInstrument as ApiRegisterUserPaymentInstrument;
+use CrefoPay\Library\Api\GetUserPaymentInstrument as ApiGetUserPaymentInstrument;
+use CrefoPay\Library\Request\Objects\PaymentInstrument;
+use CrefoPay\Library\Request\RegisterUser as RequestRegisterUser;
+use CrefoPay\Library\Request\GetUserPaymentInstrument as RequestGetUserPaymentInstrument;
+use CrefoPay\Library\Request\RegisterUserPaymentInstrument as RequestRegisterUserPaymentInstrument;
+use CrefoPay\Library\Api\RegisterUser as ApiRegisterUser;
+use CrefoPay\Library\Api\UpdateUser as ApiUpdateUser;
+use CrefoPay\Library\Request\GetUser as RequestGetUser;
+use CrefoPay\Library\Api\GetUser as ApiGetUser;
+use CrefoPay\Library\Response\SuccessResponse;
+use CrefoPay\Library\User\Type;
 
 /**
  * User client implementation.

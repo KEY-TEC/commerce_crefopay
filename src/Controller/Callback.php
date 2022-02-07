@@ -11,8 +11,8 @@ use Drupal\Core\Routing\TrustedRedirectResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Upg\Library\Api\Exception\ApiError;
-use Upg\Library\Error\Codes;
+use CrefoPay\Library\Api\Exception\ApiError;
+use CrefoPay\Library\Error\Codes;
 
 /**
  *

@@ -10,7 +10,7 @@ use Drupal\commerce_crefopay\Client\Builder\PersonBuilder;
 use Drupal\commerce_crefopay\Client\Builder\IdBuilder;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\Core\Cache\CacheBackendInterface;
-use Upg\Library\Api\Exception\ApiError;
+use CrefoPay\Library\Api\Exception\ApiError;
 
 /**
  * Abstract CrefoPay API client class.

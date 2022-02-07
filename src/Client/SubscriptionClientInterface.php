@@ -6,8 +6,8 @@ use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_price\Price;
 use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
-use Upg\Library\Risk\RiskClass;
-use Upg\Library\User\Type as UserType;
+use CrefoPay\Library\Risk\RiskClass;
+use CrefoPay\Library\User\Type as UserType;
 
 /**
  * Subscription client interface.
@@ -57,7 +57,7 @@ interface SubscriptionClientInterface {
    * The getPlans call provides details of all
    * subscription plans created in the CrefoPay system.
    *
-   * @return \Upg\Library\Request\Objects\SubscriptionPlan[]
+   * @return \CrefoPay\Library\Request\Objects\SubscriptionPlan[]
    *   The plans.
    */
   public function getSubscriptionPlans();

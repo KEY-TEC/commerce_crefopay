@@ -4,9 +4,9 @@ namespace Drupal\commerce_crefopay\Client\Builder;
 
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_order\Entity\OrderItemInterface;
-use Upg\Library\Request\AbstractRequest;
-use Upg\Library\Request\Objects\BasketItem;
-use Upg\Library\Request\Objects\Amount;
+use CrefoPay\Library\Request\AbstractRequest;
+use CrefoPay\Library\Request\Objects\BasketItem;
+use CrefoPay\Library\Request\Objects\Amount;
 
 /**
  *
@@ -42,7 +42,7 @@ class BasketBuilder {
   /**
    * @param \Drupal\commerce_order\Entity\OrderItemInterface $order_item
    *
-   * @return \Upg\Library\Request\Objects\BasketItem
+   * @return \CrefoPay\Library\Request\Objects\BasketItem
    */
   private function buildItem(OrderItemInterface $order_item) {
     $basket_item = new BasketItem();

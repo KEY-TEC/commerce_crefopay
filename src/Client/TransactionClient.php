@@ -9,20 +9,20 @@ use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_price\Price;
 use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
-use Upg\Library\Api\CreateTransaction;
-use Upg\Library\Api\GetTransactionPaymentInstruments;
-use Upg\Library\Api\GetTransactionStatus;
-use Upg\Library\Api\Refund;
-use Upg\Library\Api\Reserve;
-use Upg\Library\Api\Exception\ApiError;
-use Upg\Library\Request\CreateTransaction as RequestCreateTransaction;
-use Upg\Library\Request\GetTransactionPaymentInstruments as RequestGetTransactionPaymentInstruments;
-use Upg\Library\Request\GetTransactionStatus as RequestGetTransactionStatus;
-use Upg\Library\Request\MacCalculator;
-use Upg\Library\Request\Refund as RequestRefund;
-use Upg\Library\Request\Reserve as RequestReserve;
-use Upg\Library\Response\SuccessResponse;
-use Upg\Library\User\Type as UserType;
+use CrefoPay\Library\Api\CreateTransaction;
+use CrefoPay\Library\Api\GetTransactionPaymentInstruments;
+use CrefoPay\Library\Api\GetTransactionStatus;
+use CrefoPay\Library\Api\Refund;
+use CrefoPay\Library\Api\Reserve;
+use CrefoPay\Library\Api\Exception\ApiError;
+use CrefoPay\Library\Request\CreateTransaction as RequestCreateTransaction;
+use CrefoPay\Library\Request\GetTransactionPaymentInstruments as RequestGetTransactionPaymentInstruments;
+use CrefoPay\Library\Request\GetTransactionStatus as RequestGetTransactionStatus;
+use CrefoPay\Library\Request\MacCalculator;
+use CrefoPay\Library\Request\Refund as RequestRefund;
+use CrefoPay\Library\Request\Reserve as RequestReserve;
+use CrefoPay\Library\Response\SuccessResponse;
+use CrefoPay\Library\User\Type as UserType;
 
 /**
  * Transaction client implementation.

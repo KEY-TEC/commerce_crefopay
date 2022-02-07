@@ -3,7 +3,7 @@
 namespace Drupal\commerce_crefopay;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Upg\Library\Config;
+use CrefoPay\Library\Config;
 
 /**
  * ConfigProvider default implementation.

@@ -4,7 +4,7 @@ namespace Drupal\commerce_crefopay\Client;
 
 use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
-use Upg\Library\Request\Objects\PaymentInstrument;
+use CrefoPay\Library\Request\Objects\PaymentInstrument;
 
 /**
  * Defines the interface for user related API calls.
@@ -42,19 +42,19 @@ interface UserClientInterface {
    * @param \Drupal\user\Entity\User $user
    *   The Drupal User.
    *
-   * @return \Upg\Library\Request\Objects\Person
+   * @return \CrefoPay\Library\Request\Objects\Person
    *   The Crefopay Person.
    *
-   * @throws \Upg\Library\Api\Exception\ApiError
-   * @throws \Upg\Library\Api\Exception\CurlError
-   * @throws \Upg\Library\Api\Exception\InvalidHttpResponseCode
-   * @throws \Upg\Library\Api\Exception\InvalidUrl
-   * @throws \Upg\Library\Api\Exception\JsonDecode
-   * @throws \Upg\Library\Api\Exception\MacValidation
-   * @throws \Upg\Library\Api\Exception\RequestNotSet
-   * @throws \Upg\Library\Api\Exception\Validation
-   * @throws \Upg\Library\Mac\Exception\MacInvalid
-   * @throws \Upg\Library\Serializer\Exception\VisitorCouldNotBeFound
+   * @throws \CrefoPay\Library\Api\Exception\ApiError
+   * @throws \CrefoPay\Library\Api\Exception\CurlError
+   * @throws \CrefoPay\Library\Api\Exception\InvalidHttpResponseCode
+   * @throws \CrefoPay\Library\Api\Exception\InvalidUrl
+   * @throws \CrefoPay\Library\Api\Exception\JsonDecode
+   * @throws \CrefoPay\Library\Api\Exception\MacValidation
+   * @throws \CrefoPay\Library\Api\Exception\RequestNotSet
+   * @throws \CrefoPay\Library\Api\Exception\Validation
+   * @throws \CrefoPay\Library\Mac\Exception\MacInvalid
+   * @throws \CrefoPay\Library\Serializer\Exception\VisitorCouldNotBeFound
    */
   public function getUser(User $user);
 

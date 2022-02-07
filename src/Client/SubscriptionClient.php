@@ -7,21 +7,21 @@ use Drupal\commerce_price\Price;
 use Drupal\Core\Cache\Cache;
 use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
-use Upg\Library\Api\Exception\ApiError;
-use Upg\Library\Request\GetSubscriptionPlans as RequestGetSubscriptionPlans;
-use Upg\Library\Api\GetSubscriptionPlans as ApiGetSubscriptionPlans;
-use Upg\Library\Risk\RiskClass;
-use Upg\Library\User\Type as UserType;
-use Upg\Library\Integration\Type;
-use Upg\Library\Request\CreateSubscription as RequestCreateSubscription;
-use Upg\Library\Api\CreateSubscription as ApiCreateSubscription;
+use CrefoPay\Library\Api\Exception\ApiError;
+use CrefoPay\Library\Request\GetSubscriptionPlans as RequestGetSubscriptionPlans;
+use CrefoPay\Library\Api\GetSubscriptionPlans as ApiGetSubscriptionPlans;
+use CrefoPay\Library\Risk\RiskClass;
+use CrefoPay\Library\User\Type as UserType;
+use CrefoPay\Library\Integration\Type;
+use CrefoPay\Library\Request\CreateSubscription as RequestCreateSubscription;
+use CrefoPay\Library\Api\CreateSubscription as ApiCreateSubscription;
 
-use Upg\Library\Request\UpdateSubscription as RequestUpdateSubscription;
-use Upg\Library\Api\UpdateSubscription as ApiUpdateSubscription;
+use CrefoPay\Library\Request\UpdateSubscription as RequestUpdateSubscription;
+use CrefoPay\Library\Api\UpdateSubscription as ApiUpdateSubscription;
 
-use Upg\Library\Request\Objects\Amount;
-use Upg\Library\Request\Objects\AmountRange;
-use Upg\Library\Response\SuccessResponse;
+use CrefoPay\Library\Request\Objects\Amount;
+use CrefoPay\Library\Request\Objects\AmountRange;
+use CrefoPay\Library\Response\SuccessResponse;
 
 
 

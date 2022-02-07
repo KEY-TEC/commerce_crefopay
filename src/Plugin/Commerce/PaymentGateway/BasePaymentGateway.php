@@ -14,8 +14,8 @@ use Drupal\commerce_price\Price;
 use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Upg\Library\Integration\Type;
-use Upg\Library\User\Type as UserType;
+use CrefoPay\Library\Integration\Type;
+use CrefoPay\Library\User\Type as UserType;
 
 /**
  * Class BasePaymentGateway.
@@ -133,7 +133,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
       $data = [];
       $allowed_instruments = $instruments['allowedPaymentInstruments'];
       $data['allowedPaymentInstruments'] = [];
-      /** @var \Upg\Library\Request\Objects\PaymentInstrument $allowed_intrument */
+      /** @var \CrefoPay\Library\Request\Objects\PaymentInstrument $allowed_intrument */
       foreach ($allowed_instruments as $allowed_instrument) {
         $data['allowedPaymentInstruments'][] = $allowed_instrument->toArray();
       }
@@ -250,7 +250,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
    * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
    *   The payment.
    *
-   * @return \Upg\Library\Request\Objects\PaymentInstrument[]
+   * @return \CrefoPay\Library\Request\Objects\PaymentInstrument[]
    *   Payment instruments.
    */
   protected function createTransaction(PaymentInterface $payment) {

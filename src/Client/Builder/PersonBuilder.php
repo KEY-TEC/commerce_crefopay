@@ -5,7 +5,7 @@ namespace Drupal\commerce_crefopay\Client\Builder;
 use Drupal\address\AddressInterface;
 use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
-use Upg\Library\Request\Objects\Person;
+use CrefoPay\Library\Request\Objects\Person;
 
 /**
  *
@@ -16,7 +16,7 @@ class PersonBuilder {
    * @param \CommerceGuys\Addressing\Address $address
    * @param         $email
    *
-   * @return \Upg\Library\Request\Objects\Person
+   * @return \CrefoPay\Library\Request\Objects\Person
    * @throws LocalizedException
    */
   public function build(User $user, ProfileInterface $profile) {

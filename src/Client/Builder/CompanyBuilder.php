@@ -4,7 +4,7 @@ namespace Drupal\commerce_crefopay\Client\Builder;
 
 use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
-use Upg\Library\Request\Objects\Company;
+use CrefoPay\Library\Request\Objects\Company;
 
 /**
  *
@@ -13,7 +13,7 @@ class CompanyBuilder {
 
   /**
    * @param string $companyName
-   * @return \Upg\Library\Request\Objects\Company
+   * @return \CrefoPay\Library\Request\Objects\Company
    */
   public function build(User $user, ProfileInterface $profile): Company {
     $company = new Company();

@@ -6,7 +6,7 @@ use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_order\Entity\OrderItemInterface;
 use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_price\Price;
-use Upg\Library\Request\Objects\Amount;
+use CrefoPay\Library\Request\Objects\Amount;
 
 /**
  *
@@ -15,7 +15,7 @@ class AmountBuilder {
 
   /**
    * @param \Drupal\commerce_order\Entity\OrderItemInterface $order_item
-   * @return \Upg\Library\Request\Objects\Amount
+   * @return \CrefoPay\Library\Request\Objects\Amount
    */
   public function buildFromOrderItem(OrderItemInterface $order_item) {
     $amount = new Amount();
@@ -27,7 +27,7 @@ class AmountBuilder {
   /**
    * @param OrderAdapterInterface $order
    *
-   * @return \Upg\Library\Request\Objects\Amount
+   * @return \CrefoPay\Library\Request\Objects\Amount
    */
   public function buildFromOrder(OrderInterface $order) {
     $amount = new Amount();
@@ -38,7 +38,7 @@ class AmountBuilder {
   /**
    * @param \Drupal\commerce_payment\Entity\PaymentInterface $order
    *
-   * @return \Upg\Library\Request\Objects\Amount
+   * @return \CrefoPay\Library\Request\Objects\Amount
    */
   public function buildFromPayment(PaymentInterface $payment) {
     $amount = new Amount();
@@ -49,7 +49,7 @@ class AmountBuilder {
   /**
    * @param \Drupal\commerce_payment\Entity\PaymentInterface $order
    *
-   * @return \Upg\Library\Request\Objects\Amount
+   * @return \CrefoPay\Library\Request\Objects\Amount
    */
   public function buildFromPrice(Price $price) {
     $amount = new Amount();

@@ -41,7 +41,7 @@ interface ConfigProviderInterface {
   /**
    * Returns the CrefoPay library Config.
    *
-   * @return \Upg\Library\Config
+   * @return \CrefoPay\Library\Config
    *   The Config.
    */
   public function getConfig();

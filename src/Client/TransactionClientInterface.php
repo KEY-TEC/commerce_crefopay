@@ -8,7 +8,7 @@ use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_price\Price;
 use Drupal\profile\Entity\ProfileInterface;
 use Drupal\user\Entity\User;
-use Upg\Library\User\Type as UserType;
+use CrefoPay\Library\User\Type as UserType;
 
 /**
  * Defines the interface for transaction related API calls.

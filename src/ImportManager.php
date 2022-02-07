@@ -8,10 +8,10 @@ use Drupal\commerce_crefopay\Client\TransactionClient;
 use Drupal\commerce_crefopay\Client\UserClientInterface;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\user\Entity\User;
-use Upg\Library\Request\Objects\PaymentInstrument;
-use Upg\Library\Integration\Type;
-use Upg\Library\Risk\RiskClass;
-use Upg\Library\User\Type as UserType;
+use CrefoPay\Library\Request\Objects\PaymentInstrument;
+use CrefoPay\Library\Integration\Type;
+use CrefoPay\Library\Risk\RiskClass;
+use CrefoPay\Library\User\Type as UserType;
 
 
 /**
@@ -42,7 +42,7 @@ class ImportManager implements ImportManagerInterface {
     $existing_payment_instruments = $this->userClient->getUserPaymentInstrument($user);
 
     $found_existing_instrument = FALSE;
-    /** @var \Upg\Library\Request\Objects\PaymentInstrument $existing_payment_instrument */
+    /** @var \CrefoPay\Library\Request\Objects\PaymentInstrument $existing_payment_instrument */
     foreach ($existing_payment_instruments as $payment_instrument) {
       if (strtolower($payment_instrument->getBic()) == strtolower($bic)) {
         $found_existing_instrument = TRUE;

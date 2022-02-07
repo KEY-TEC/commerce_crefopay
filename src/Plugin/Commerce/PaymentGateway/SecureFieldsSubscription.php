@@ -7,8 +7,8 @@ use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\Core\Site\Settings;
 use Drupal\user\Entity\User;
-use Upg\Library\Integration\Type;
-use Upg\Library\User\Type as UserType;
+use CrefoPay\Library\Integration\Type;
+use CrefoPay\Library\User\Type as UserType;
 
 /**
  * Provides the Secure fields payment gateway for subscriptions.
@@ -32,7 +32,7 @@ class SecureFieldsSubscription extends BasePaymentGateway {
    * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
    *   The current payment.
    *
-   * @return \Upg\Library\Request\Objects\PaymentInstrument[]
+   * @return \CrefoPay\Library\Request\Objects\PaymentInstrument[]
    *   Payment instruments.
    */
   protected function createTransaction(PaymentInterface $payment) {
