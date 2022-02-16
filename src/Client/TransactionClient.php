@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_crefopay\Client;
 
+use CrefoPay\Library\Risk\RiskClass;
 use Drupal\address\AddressInterface;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_order\Entity\OrderInterface;
@@ -116,10 +117,9 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
   /**
    * {@inheritdoc}
    */
-  public function createTransaction(Order $order, User $user, ProfileInterface $billing_profile, $integration_type = "HostedPageBefore", ProfileInterface $shipping_profile = NULL, $user_type = UserType::USER_TYPE_PRIVATE) {
+  public function createTransaction(Order $order, User $user, ProfileInterface $billing_profile, $integration_type = "HostedPageBefore", ProfileInterface $shipping_profile = NULL, $user_type = UserType::USER_TYPE_PRIVATE, $risk_class = RiskClass::RISK_CLASS_DEFAULT) {
     $request = new RequestCreateTransaction($this->configProvider->getConfig());
     $amount = $this->amountBuilder->buildFromOrder($order);
-
 
     $request->setOrderID($this->idBuilder->id($order));
     $request->setIntegrationType($integration_type);
@@ -127,6 +127,8 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
     $request->setAutoCapture(TRUE);
     $request->setContext(RequestCreateTransaction::CONTEXT_ONLINE);
     $request->setUserType($user_type);
+    $request->setUserRiskClass($risk_class);
+
     $user_id = $this->idBuilder->id($user);
     if ($user_type == UserType::USER_TYPE_BUSINESS) {
       $company = $this->companyBuilder->build($user, $billing_profile);

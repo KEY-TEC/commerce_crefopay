@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway;
 
+use CrefoPay\Library\Risk\RiskClass;
 use Drupal\commerce_crefopay\Client\OrderIdAlreadyExistsException;
 use Drupal\commerce_crefopay\Client\UserNotExistsException;
 use Drupal\commerce_order\Entity\Order;
@@ -274,7 +275,11 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
       \Drupal::moduleHandler()
         ->alter('commerce_crefopay_transaction_data', $data, $context);
       $user_type = $data['user_type'];
-      $instruments = $this->transactionClient->createTransaction($order, $user, $billing_profile, Type::INTEGRATION_TYPE_SECURE_FIELDS, $instrument_profile, $user_type);
+      $risk_class = RiskClass::RISK_CLASS_DEFAULT;
+      if ($user_type == UserType::USER_TYPE_BUSINESS) {
+        $risk_class = RiskClass::RISK_CLASS_TRUSTED;
+      }
+      $instruments = $this->transactionClient->createTransaction($order, $user, $billing_profile, Type::INTEGRATION_TYPE_SECURE_FIELDS, $instrument_profile, $user_type, $risk_class);
     } catch (OrderIdAlreadyExistsException $oe) {
       // Throw new PaymentGatewayException('Order already exists.');
       // Transaction already started.

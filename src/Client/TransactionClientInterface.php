@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_crefopay\Client;
 
+use CrefoPay\Library\Risk\RiskClass;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_payment\Entity\PaymentInterface;
@@ -49,7 +50,7 @@ interface TransactionClientInterface {
    *
    * @see https://docs.crefopay.de/api/#createtransaction
    */
-  public function createTransaction(Order $order, User $user, ProfileInterface $billing_profile, $integration_type = "HostedPageBefore", ProfileInterface $shipping_profile = NULL, $user_type = UserType::USER_TYPE_PRIVATE);
+  public function createTransaction(Order $order, User $user, ProfileInterface $billing_profile, $integration_type = "HostedPageBefore", ProfileInterface $shipping_profile = NULL, $user_type = UserType::USER_TYPE_PRIVATE, $risk_class = RiskClass::RISK_CLASS_DEFAULT);
 
   public function validateMac(OrderInterface $order);
 

@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway;
 
+use CrefoPay\Library\Risk\RiskClass;
 use Drupal\commerce_crefopay\Client\OrderIdAlreadyExistsException;
 use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
@@ -80,7 +81,9 @@ class SecureFieldsSubscription extends BasePaymentGateway {
       \Drupal::moduleHandler()
         ->alter('commerce_crefopay_transaction_data', $data, $context);
       $user_type = $data['user_type'];
+      $risk_class = RiskClass::RISK_CLASS_DEFAULT;
       if ($user_type == UserType::USER_TYPE_BUSINESS) {
+        $risk_class = RiskClass::RISK_CLASS_TRUSTED;
         /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $billing_address */
         $billing_address = $billing_profile->address[0];
         if (empty($billing_address->getOrganization())) {
@@ -92,8 +95,7 @@ class SecureFieldsSubscription extends BasePaymentGateway {
       if (!empty($data['trial_days'])) {
         $trial_days = $data['trial_days'];
       }
-
-      $instruments = $this->subscriptionClient->createSubscription($order, $user, $billing_profile, $plan_reference, $shipment_address, Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type, $trial_days);
+      $instruments = $this->subscriptionClient->createSubscription($order, $user, $billing_profile, $plan_reference, $shipment_address, Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type, $trial_days, $risk_class);
     }
     catch (OrderIdAlreadyExistsException $oe) {
       // Throw new PaymentGatewayException('Order already exists.');
