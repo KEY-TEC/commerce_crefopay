@@ -4,6 +4,7 @@
 namespace Drupal\commerce_crefopay;
 
 
+use Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway\BasePaymentGateway;
 use Drupal\commerce_order\Entity\Order;
 
 class PaymentNotificationManager {
@@ -27,6 +28,11 @@ class PaymentNotificationManager {
 
       /** @var \Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway\BasePaymentGateway $plugin */
       $plugin = $payment_gateway->getPlugin();
+      if (!$plugin instanceof BasePaymentGateway) {
+        // Do nothing for other payments like "Manual".
+        return;
+      }
+
       $remote_id = $notification->getCaptureId();
       if (empty($remote_id)) {
         $remote_id = $notification->getOrderId();
