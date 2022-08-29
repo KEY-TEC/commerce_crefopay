@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_crefopay\Plugin\Commerce\PaymentGateway;
 
+use CrefoPay\Library\Api\Exception\Validation;
 use CrefoPay\Library\Risk\RiskClass;
 use Drupal\commerce_crefopay\Client\OrderIdAlreadyExistsException;
 use Drupal\commerce_payment\Entity\PaymentInterface;
@@ -100,6 +101,20 @@ class SecureFieldsSubscription extends BasePaymentGateway {
     catch (OrderIdAlreadyExistsException $oe) {
       // Throw new PaymentGatewayException('Order already exists.');
       // Transaction already started.
+    }
+    catch (Validation $validation_exception) {
+      // Validation exception from api returned.
+      $validations = [];
+      foreach ($validation_exception->getValidationResults() as $validation_object) {
+        foreach ($validation_object as $validation_messages) {
+          foreach ($validation_messages as $validation_message) {
+            // Make validation messages translatable.
+            $validations[] = $this->t($validation_message)->render();
+          }
+        }
+      }
+      $this->logger->error($validation_exception->getMessage() . ': ' . implode(', ', $validations));
+      throw new PaymentGatewayException($this->t($validation_exception->getMessage() . ': :validations', [':validations' => implode(', ', $validations)]));
     }
     catch (\Throwable $exception) {
       $this->logger->error($exception->getMessage());
