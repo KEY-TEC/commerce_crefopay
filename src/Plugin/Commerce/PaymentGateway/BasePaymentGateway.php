@@ -268,17 +268,17 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     /** @var \Drupal\commerce_crefopay\Client\TransactionClient $transaction_client */
     try {
       $user_type = UserType::USER_TYPE_PRIVATE;
+      $risk_class = RiskClass::RISK_CLASS_DEFAULT;
       $data = [
         'user_type' => $user_type,
+        'risk_class' => $risk_class,
       ];
       $context = ['order' => $order];
       \Drupal::moduleHandler()
         ->alter('commerce_crefopay_transaction_data', $data, $context);
       $user_type = $data['user_type'];
-      $risk_class = RiskClass::RISK_CLASS_DEFAULT;
-      if ($user_type == UserType::USER_TYPE_BUSINESS) {
-        $risk_class = RiskClass::RISK_CLASS_TRUSTED;
-      }
+      $risk_class = $data['risk_class'];
+
       $instruments = $this->transactionClient->createTransaction($order, $user, $billing_profile, Type::INTEGRATION_TYPE_SECURE_FIELDS, $instrument_profile, $user_type, $risk_class);
     } catch (OrderIdAlreadyExistsException $oe) {
       // Throw new PaymentGatewayException('Order already exists.');
