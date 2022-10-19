@@ -74,17 +74,20 @@ class SecureFieldsSubscription extends BasePaymentGateway {
     try {
       $shipment_address = $this->getShipmentProfile($order);
       $user_type = UserType::USER_TYPE_PRIVATE;
+      $risk_class = RiskClass::RISK_CLASS_DEFAULT;
       $data = [
         'user_type' => $user_type,
+        'risk_class' => $risk_class,
         'trial_days' => NULL
       ];
       $context = ['order' => $order];
       \Drupal::moduleHandler()
         ->alter('commerce_crefopay_transaction_data', $data, $context);
       $user_type = $data['user_type'];
-      $risk_class = RiskClass::RISK_CLASS_DEFAULT;
+      $risk_class = $data['risk_class'];
+
       if ($user_type == UserType::USER_TYPE_BUSINESS) {
-        $risk_class = RiskClass::RISK_CLASS_TRUSTED;
+
         /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $billing_address */
         $billing_address = $billing_profile->address[0];
         if (empty($billing_address->getOrganization())) {
