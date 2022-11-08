@@ -84,8 +84,14 @@
                 errorContainer.addClass('crefopay-form__error--show');
                 errorContainer.empty();
                 for (var i in response.errorDetails) {
-                  var translated_message = errorMessages[response.errorDetails[i].description] != null ? errorMessages[response.errorDetails[i].description] : response.errorDetails[i].description;
-                  errorContainer.append('<div class="crefopay-form__error-item">' + translated_message + '</div>');
+                  var translatedMessage = response.errorDetails[i].description;
+                  if (errorMessages[translatedMessage] != null) {
+                    translatedMessage = errorMessages[translatedMessage];
+                  }
+                  else {
+                    translatedMessage = Drupal.t(translatedMessage);
+                  }
+                  errorContainer.append('<div class="crefopay-form__error-item">' + translatedMessage + '</div>');
                 }
                 $('html, body').animate({
                   scrollTop: 0
