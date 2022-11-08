@@ -34,7 +34,13 @@
           "The field paymentInstrument.validity is invalid.": Drupal.t("The field CVV is invalid."),
           "The field paymentInstrument.bic is invalid.": Drupal.t("The field BIC is invalid."),
           "The field paymentInstrument.iban is invalid.": Drupal.t("The field IBAN is invalid."),
-          "The field paymentInstrument.bankAccountHolder is invalid.": Drupal.t("The field Account holder is invalid.")
+          "The field paymentInstrument.bic is not a valid BIC.": Drupal.t("The field BIC is invalid."),
+          "The field paymentInstrument.iban is not a valid IBAN.": Drupal.t("The field IBAN is invalid."),
+          "The field paymentInstrument.bankAccountHolder is invalid.": Drupal.t("The field Account holder is invalid."),
+          "The credit card is expired.": Drupal.t("The credit card is expired."),
+          "Invalid card number.": Drupal.t("Invalid card number."),
+          "The field paymentMethod is missing.": Drupal.t("The field paymentMethod is missing."),
+          "Payment error: The payment has been rejected. Please use another payment method.": Drupal.t("Payment error: The payment has been rejected. Please use another payment method.")
         };
         // Deselect selected bank account.
         $("input[name='paymentMethod'], input[data-crefopay='paymentInstrument.bankAccountHolder'], input[data-crefopay='paymentInstrument.iban'], input[data-crefopay='paymentInstrument.bic']")
@@ -87,9 +93,6 @@
                   var translatedMessage = response.errorDetails[i].description;
                   if (errorMessages[translatedMessage] != null) {
                     translatedMessage = errorMessages[translatedMessage];
-                  }
-                  else {
-                    translatedMessage = Drupal.t(translatedMessage);
                   }
                   errorContainer.append('<div class="crefopay-form__error-item">' + translatedMessage + '</div>');
                 }
