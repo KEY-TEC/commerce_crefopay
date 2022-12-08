@@ -46,11 +46,14 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
    * {@inheritdoc}
    */
   public function updateSubscription(Order $order, Price $amount, $action) {
-    $subscription_create_request = new RequestUpdateSubscription($this->configProvider->getConfig());
+    $config = $this->configProvider->getConfig();
+    $context = ['order' => $order];
+    $this->moduleHandler->alter('crefopay_config', $config, $context);
+    $subscription_create_request = new RequestUpdateSubscription($config);
     $subscription_create_request->setSubscriptionID($this->idBuilder->id($order));
     $subscription_create_request->setAction($action);
     $subscription_create_request->setRate($this->amountBuilder->buildFromPrice($amount)->getAmount());
-    $subscriptions_create_api = new ApiUpdateSubscription($this->configProvider->getConfig(), $subscription_create_request);
+    $subscriptions_create_api = new ApiUpdateSubscription($config, $subscription_create_request);
     try {
       $result = $subscriptions_create_api->sendRequest();
       if ($result instanceof SuccessResponse) {
@@ -67,7 +70,10 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
    * {@inheritdoc}
    */
   public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL, $integration_type = Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type = UserType::USER_TYPE_PRIVATE, int $trial_days = NULL, $risk_class = RiskClass::RISK_CLASS_DEFAULT) {
-    $subscription_create_request = new RequestCreateSubscription($this->configProvider->getConfig());
+    $config = $this->configProvider->getConfig();
+    $context = ['order' => $order];
+    $this->moduleHandler->alter('crefopay_config', $config, $context);
+    $subscription_create_request = new RequestCreateSubscription($config);
     $subscription_create_request->setSubscriptionID($this->idBuilder->id($order));
     $subscription_create_request->setIntegrationType($integration_type);
     $subscription_create_request->setPlanReference($plan_reference);
@@ -96,7 +102,7 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
     }
     $subscription_create_request->setLocale($this->personBuilder->getLangcode($user));
     $this->basketBuilder->build($order, $subscription_create_request);
-    $subscriptions_create_api = new ApiCreateSubscription($this->configProvider->getConfig(), $subscription_create_request);
+    $subscriptions_create_api = new ApiCreateSubscription($config, $subscription_create_request);
     try {
       $result = $subscriptions_create_api->sendRequest();
       if ($result instanceof SuccessResponse) {

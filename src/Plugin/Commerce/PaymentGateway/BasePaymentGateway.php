@@ -12,6 +12,8 @@ use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\commerce_payment\PaymentStorageInterface;
 use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\OffsitePaymentGatewayBase;
 use Drupal\commerce_price\Price;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -106,6 +108,45 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
    * {@inheritdoc}
    */
   public function onNotify(Request $request) {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    $default_configuration = [
+      'store_id' => '',
+    ];
+    return $default_configuration + parent::defaultConfiguration();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    $form = parent::buildConfigurationForm($form, $form_state);
+
+    $form['store_id'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Crefopay Store ID'),
+      '#description' => $this->t('Will override the default store ID from <a href=":url" target="_blank">configuration</a> when this payment method is used. Leave empty to use the default store.', [
+        ':url' => Url::fromRoute('commerce_crefopay.config')->toString(),
+      ]),
+      '#default_value' => $this->configuration['store_id'] ?? '',
+    ];
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+    parent::submitConfigurationForm($form, $form_state);
+
+    if (!$form_state->getErrors()) {
+      $values = $form_state->getValue($form['#parents']);
+      $this->configuration['store_id'] = $values['store_id'];
+    }
   }
 
   /**

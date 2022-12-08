@@ -11,6 +11,7 @@ use Drupal\commerce_crefopay\Client\Builder\IdBuilder;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\Core\Cache\CacheBackendInterface;
 use CrefoPay\Library\Api\Exception\ApiError;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
  * Abstract CrefoPay API client class.
@@ -18,27 +19,11 @@ use CrefoPay\Library\Api\Exception\ApiError;
 abstract class AbstractClient {
 
   /**
-   * Handles Api exceptions and throws more specific Exceptions.
-   */
-  protected function handleValidationExceptions(ApiError $api_error, $order_id) {
-    if (
-      $api_error->getCode() === 2008 ||
-      $api_error->getCode() === 2050
-
-    ) {
-      throw new OrderIdAlreadyExistsException($order_id);
-    }
-    else {
-      throw $api_error;
-    }
-  }
-
-  /**
-   * The cache.
+   * The module handler.
    *
-   * @var \Drupal\Core\Cache\CacheBackendInterface
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
-  protected $cache;
+  protected $moduleHandler;
 
   /**
    * The config provider.
@@ -46,6 +31,13 @@ abstract class AbstractClient {
    * @var \Drupal\commerce_crefopay\ConfigProviderInterface
    */
   protected $configProvider;
+
+  /**
+   * The id builder.
+   *
+   * @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder
+   */
+  protected $idBuilder;
 
   /**
    * The person builder.
@@ -83,16 +75,17 @@ abstract class AbstractClient {
   protected $amountBuilder;
 
   /**
-   * The id builder.
+   * The cache.
    *
-   * @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder
+   * @var \Drupal\Core\Cache\CacheBackendInterface
    */
-  protected $idBuilder;
+  protected $cache;
 
   /**
    * AbstractClient constructor.
    */
-  public function __construct(ConfigProviderInterface $config_provider, IdBuilder $id_builder, PersonBuilder $person_builder, CompanyBuilder $company_builder, AddressBuilder $address_builder, BasketBuilder $basket_builder, AmountBuilder $amount_builder, CacheBackendInterface $cache) {
+  public function __construct(ModuleHandlerInterface $module_handler, ConfigProviderInterface $config_provider, IdBuilder $id_builder, PersonBuilder $person_builder, CompanyBuilder $company_builder, AddressBuilder $address_builder, BasketBuilder $basket_builder, AmountBuilder $amount_builder, CacheBackendInterface $cache) {
+    $this->moduleHandler = $module_handler;
     $this->configProvider = $config_provider;
     $this->idBuilder = $id_builder;
     $this->personBuilder = $person_builder;
@@ -100,8 +93,23 @@ abstract class AbstractClient {
     $this->addressBuilder = $address_builder;
     $this->basketBuilder = $basket_builder;
     $this->amountBuilder = $amount_builder;
-
     $this->cache = $cache;
+  }
+
+  /**
+   * Handles Api exceptions and throws more specific Exceptions.
+   */
+  protected function handleValidationExceptions(ApiError $api_error, $order_id) {
+    if (
+      $api_error->getCode() === 2008 ||
+      $api_error->getCode() === 2050
+
+    ) {
+      throw new OrderIdAlreadyExistsException($order_id);
+    }
+    else {
+      throw $api_error;
+    }
   }
 
 }
