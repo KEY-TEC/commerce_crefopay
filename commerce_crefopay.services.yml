@@ -22,10 +22,10 @@ services:
     arguments: []
   commerce_crefopay.config_provider:
     class: Drupal\commerce_crefopay\ConfigProvider
-    arguments: ['@config.factory']
+    arguments: ['@config.factory', '@module_handler']
   commerce_crefopay.user_client:
     class: Drupal\commerce_crefopay\Client\UserClient
-    arguments: ['@commerce_crefopay.config_provider', '@commerce_crefopay.id_builder', '@commerce_crefopay.person_builder', '@commerce_crefopay.address_builder', '@commerce_crefopay.basket_builder', '@commerce_crefopay.amount_builder', '@cache.default']
+    arguments: ['@commerce_crefopay.config_provider', '@commerce_crefopay.id_builder', '@commerce_crefopay.person_builder', '@commerce_crefopay.address_builder']
   commerce_crefopay.subscription_client:
     class: Drupal\commerce_crefopay\Client\SubscriptionClient
     arguments: ['@commerce_crefopay.config_provider', '@commerce_crefopay.id_builder', '@commerce_crefopay.person_builder', '@commerce_crefopay.company_builder', '@commerce_crefopay.address_builder', '@commerce_crefopay.basket_builder', '@commerce_crefopay.amount_builder', '@cache.default']

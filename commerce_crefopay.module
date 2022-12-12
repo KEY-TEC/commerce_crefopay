@@ -2,10 +2,13 @@
 
 /**
  * @file
- * OpenEuropa module.
+ * Commerce crefopay module.
  */
 
 declare(strict_types = 1);
+
+use CrefoPay\Library\Config;
+use Drupal\commerce_order\Entity\OrderInterface;
 
 /**
  * Implements hook_theme().
@@ -28,4 +31,22 @@ function commerce_crefopay_subscripton_plans_options() {
   $subscription_client = \Drupal::service('commerce_crefopay.subscription_client');
   $plans = $subscription_client->getSubscriptionPlans();
   return $plans;
+}
+
+/**
+ * Implements hook_crefopay_config_alter().
+ */
+function commerce_crefopay_crefopay_config_alter(array &$config, array $context) {
+  $order = $context['order'] ?? NULL;
+  /** @var \Drupal\commerce_payment\Entity\PaymentGatewayInterface $payment_gateway */
+  if (!empty($order) && $order->hasField('payment_gateway') && $payment_gateway = $order->payment_gateway->entity) {
+    if (strpos($payment_gateway->getPluginId(), 'crefopay') !== FALSE) {
+      if (!empty($payment_gateway->getPluginConfiguration()['store_id'])) {
+        $config['storeID'] = $payment_gateway->getPluginConfiguration()['store_id'];
+      }
+      if (!empty($payment_gateway->getPluginConfiguration()['public_key'])) {
+        $config['shopPublicKey'] = $payment_gateway->getPluginConfiguration()['public_key'];
+      }
+    }
+  }
 }

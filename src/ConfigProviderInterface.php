@@ -26,6 +26,9 @@ interface ConfigProviderInterface {
   /**
    * Returns the config array.
    *
+   * @param array $context
+   *   Optional context array to allow config data alter.
+   *
    * @return array
    *   The config array.
    *   Keys:
@@ -36,15 +39,18 @@ interface ConfigProviderInterface {
    *    - merchantPassword
    *    - logEnabled.
    */
-  public function getConfigArray();
+  public function getConfigArray(array $context = []);
 
   /**
    * Returns the CrefoPay library Config.
    *
+   * @param array $context
+   *   Optional context array to allow config data alter.
+   *
    * @return \CrefoPay\Library\Config
    *   The Config.
    */
-  public function getConfig();
+  public function getConfig(array $context = []);
 
   /**
    * Returns the default subscription order type id.

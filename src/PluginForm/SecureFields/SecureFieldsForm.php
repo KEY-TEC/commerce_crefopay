@@ -26,7 +26,7 @@ class SecureFieldsForm extends BasePaymentOffsiteForm {
 
     $config_provider = $payment_gateway_plugin->getConfigProvider();
 
-    $config_array = $config_provider->getConfigArray();
+    $config_array = $config_provider->getConfigArray(['order' => $order]);
     $secure_fields_url = $config_provider->getSecureFieldsUrl($payment_gateway_plugin->getMode());
 
     $form['crefopay_payment'] = [

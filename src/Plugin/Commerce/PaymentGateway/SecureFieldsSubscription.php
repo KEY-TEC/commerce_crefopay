@@ -20,8 +20,7 @@ use CrefoPay\Library\User\Type as UserType;
  *   label = "CrefoPay SecureFields for subscriptions",
  *   display_label = "CrefoPay SecureFields for subscriptions",
  *   forms = {
- *     "offsite-payment" =
- *   "Drupal\commerce_crefopay\PluginForm\SecureFields\SecureFieldsForm",
+ *     "offsite-payment" = "Drupal\commerce_crefopay\PluginForm\SecureFields\SecureFieldsForm",
  *   },
  *   requires_billing_information = TRUE,
  * )

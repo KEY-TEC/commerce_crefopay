@@ -18,34 +18,18 @@ use CrefoPay\Library\Api\Exception\ApiError;
 abstract class AbstractClient {
 
   /**
-   * Handles Api exceptions and throws more specific Exceptions.
-   */
-  protected function handleValidationExceptions(ApiError $api_error, $order_id) {
-    if (
-      $api_error->getCode() === 2008 ||
-      $api_error->getCode() === 2050
-
-    ) {
-      throw new OrderIdAlreadyExistsException($order_id);
-    }
-    else {
-      throw $api_error;
-    }
-  }
-
-  /**
-   * The cache.
-   *
-   * @var \Drupal\Core\Cache\CacheBackendInterface
-   */
-  protected $cache;
-
-  /**
    * The config provider.
    *
    * @var \Drupal\commerce_crefopay\ConfigProviderInterface
    */
   protected $configProvider;
+
+  /**
+   * The id builder.
+   *
+   * @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder
+   */
+  protected $idBuilder;
 
   /**
    * The person builder.
@@ -83,11 +67,11 @@ abstract class AbstractClient {
   protected $amountBuilder;
 
   /**
-   * The id builder.
+   * The cache.
    *
-   * @var \Drupal\commerce_crefopay\Client\Builder\IdBuilder
+   * @var \Drupal\Core\Cache\CacheBackendInterface
    */
-  protected $idBuilder;
+  protected $cache;
 
   /**
    * AbstractClient constructor.
@@ -100,8 +84,23 @@ abstract class AbstractClient {
     $this->addressBuilder = $address_builder;
     $this->basketBuilder = $basket_builder;
     $this->amountBuilder = $amount_builder;
-
     $this->cache = $cache;
+  }
+
+  /**
+   * Handles Api exceptions and throws more specific Exceptions.
+   */
+  protected function handleValidationExceptions(ApiError $api_error, $order_id) {
+    if (
+      $api_error->getCode() === 2008 ||
+      $api_error->getCode() === 2050
+
+    ) {
+      throw new OrderIdAlreadyExistsException($order_id);
+    }
+    else {
+      throw $api_error;
+    }
   }
 
 }

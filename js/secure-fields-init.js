@@ -40,7 +40,8 @@
           "The credit card is expired.": Drupal.t("The credit card is expired."),
           "Invalid card number.": Drupal.t("Invalid card number."),
           "The field paymentMethod is missing.": Drupal.t("The field paymentMethod is missing."),
-          "Payment error: The payment has been rejected. Please use another payment method.": Drupal.t("Payment error: The payment has been rejected. Please use another payment method.")
+          "Payment error: The payment has been rejected. Please use another payment method.": Drupal.t("Payment error: The payment has been rejected. Please use another payment method."),
+          "Configuration error. Domain is not matching": Drupal.t("Configuration error. Domain is not matching"),
         };
         // Deselect selected bank account.
         $("input[name='paymentMethod'], input[data-crefopay='paymentInstrument.bankAccountHolder'], input[data-crefopay='paymentInstrument.iban'], input[data-crefopay='paymentInstrument.bic']")
@@ -74,6 +75,7 @@
           new SecureFieldsClient(shopPublicKey,
             drupalSettings.crefopay.orderId,
             function (response) {
+              debugger
               if (response.resultCode === 0) {
                 // Successful registration, continue to next page using
                 // JavaScript
@@ -89,8 +91,16 @@
                 var errorContainer = $('.crefopay-form__error');
                 errorContainer.addClass('crefopay-form__error--show');
                 errorContainer.empty();
+                if (response.message) {
+                  var translatedMessage = response.message;
+                  if (errorMessages[translatedMessage] != null) {
+                    translatedMessage = errorMessages[translatedMessage];
+                  }
+                  errorContainer.append('<div class="crefopay-form__error-item">' + translatedMessage + '</div>');
+                }
+
                 for (var i in response.errorDetails) {
-                  var translatedMessage = response.errorDetails[i].description;
+                  translatedMessage = response.errorDetails[i].description;
                   if (errorMessages[translatedMessage] != null) {
                     translatedMessage = errorMessages[translatedMessage];
                   }
