@@ -116,6 +116,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
   public function defaultConfiguration() {
     $default_configuration = [
       'store_id' => '',
+      'public_key' => '',
     ];
     return $default_configuration + parent::defaultConfiguration();
   }
@@ -134,6 +135,13 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
       ]),
       '#default_value' => $this->configuration['store_id'] ?? '',
     ];
+    $form['public_key'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Public Key'),
+      '#description' => $this->t('The public key of store.'),
+      '#default_value' => $this->configuration['public_key'] ?? '',
+    ];
+
     return $form;
   }
 
@@ -146,6 +154,7 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     if (!$form_state->getErrors()) {
       $values = $form_state->getValue($form['#parents']);
       $this->configuration['store_id'] = $values['store_id'];
+      $this->configuration['public_key'] = $values['public_key'];
     }
   }
 

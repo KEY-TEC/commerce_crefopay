@@ -23,8 +23,6 @@ use CrefoPay\Library\Request\Objects\Amount;
 use CrefoPay\Library\Request\Objects\AmountRange;
 use CrefoPay\Library\Response\SuccessResponse;
 
-
-
 /**
  * Subscription client implementation.
  */
@@ -41,14 +39,11 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
     $this->cache->delete('crefopay_plans');
   }
 
-
   /**
    * {@inheritdoc}
    */
   public function updateSubscription(Order $order, Price $amount, $action) {
-    $config = $this->configProvider->getConfig();
-    $context = ['order' => $order];
-    $this->moduleHandler->alter('crefopay_config', $config, $context);
+    $config = $this->configProvider->getConfig(['order' => $order]);
     $subscription_create_request = new RequestUpdateSubscription($config);
     $subscription_create_request->setSubscriptionID($this->idBuilder->id($order));
     $subscription_create_request->setAction($action);
@@ -70,9 +65,7 @@ class SubscriptionClient extends AbstractClient implements SubscriptionClientInt
    * {@inheritdoc}
    */
   public function createSubscription(Order $order, User $user, ProfileInterface $billing_profile, $plan_reference, ProfileInterface $shipping_profile = NULL, $integration_type = Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type = UserType::USER_TYPE_PRIVATE, int $trial_days = NULL, $risk_class = RiskClass::RISK_CLASS_DEFAULT) {
-    $config = $this->configProvider->getConfig();
-    $context = ['order' => $order];
-    $this->moduleHandler->alter('crefopay_config', $config, $context);
+    $config = $this->configProvider->getConfig(['order' => $order]);
     $subscription_create_request = new RequestCreateSubscription($config);
     $subscription_create_request->setSubscriptionID($this->idBuilder->id($order));
     $subscription_create_request->setIntegrationType($integration_type);

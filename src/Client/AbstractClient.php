@@ -11,19 +11,11 @@ use Drupal\commerce_crefopay\Client\Builder\IdBuilder;
 use Drupal\commerce_crefopay\ConfigProviderInterface;
 use Drupal\Core\Cache\CacheBackendInterface;
 use CrefoPay\Library\Api\Exception\ApiError;
-use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
  * Abstract CrefoPay API client class.
  */
 abstract class AbstractClient {
-
-  /**
-   * The module handler.
-   *
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface
-   */
-  protected $moduleHandler;
 
   /**
    * The config provider.
@@ -84,8 +76,7 @@ abstract class AbstractClient {
   /**
    * AbstractClient constructor.
    */
-  public function __construct(ModuleHandlerInterface $module_handler, ConfigProviderInterface $config_provider, IdBuilder $id_builder, PersonBuilder $person_builder, CompanyBuilder $company_builder, AddressBuilder $address_builder, BasketBuilder $basket_builder, AmountBuilder $amount_builder, CacheBackendInterface $cache) {
-    $this->moduleHandler = $module_handler;
+  public function __construct(ConfigProviderInterface $config_provider, IdBuilder $id_builder, PersonBuilder $person_builder, CompanyBuilder $company_builder, AddressBuilder $address_builder, BasketBuilder $basket_builder, AmountBuilder $amount_builder, CacheBackendInterface $cache) {
     $this->configProvider = $config_provider;
     $this->idBuilder = $id_builder;
     $this->personBuilder = $person_builder;

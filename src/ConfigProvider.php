@@ -4,21 +4,40 @@ namespace Drupal\commerce_crefopay;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use CrefoPay\Library\Config;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
  * ConfigProvider default implementation.
  */
 class ConfigProvider implements ConfigProviderInterface {
 
-  private $configFactory;
+  /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
 
-  private $mode;
+  /**
+   * The current mode being used, either live or test.
+   *
+   * @var string
+   */
+  protected $mode;
+
+  /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
 
   /**
    * ConfigProvider constructor.
    */
-  public function __construct(ConfigFactoryInterface $config_factory) {
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler) {
     $this->configFactory = $config_factory;
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -42,8 +61,8 @@ class ConfigProvider implements ConfigProviderInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConfig() {
-    return new Config($this->getConfigArray());
+  public function getConfig(array $context = []) {
+    return new Config($this->getConfigArray($context));
   }
 
   /**
@@ -83,9 +102,10 @@ class ConfigProvider implements ConfigProviderInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConfigArray() {
+  public function getConfigArray(array $context = []) {
     $config = $this->configFactory->get('commerce_crefopay.settings');
-    return [
+
+    $config_ary = [
       'baseUrl' => $this->getApiUrl(),
       'storeID' => $config->get('storeID'),
       'shopPublicKey' => $config->get('shopPublicKey'),
@@ -93,6 +113,13 @@ class ConfigProvider implements ConfigProviderInterface {
       'merchantPassword' => $config->get('merchantPassword'),
       'logEnabled' => FALSE,
     ];
+
+    if (!empty($context)) {
+      // Allow config alter when context is provided.
+      $this->moduleHandler->alter('crefopay_config', $config_ary, $context);
+    }
+
+    return $config_ary;
   }
 
 }

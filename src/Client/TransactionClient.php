@@ -34,9 +34,7 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
    * {@inheritdoc}
    */
   public function reserveTransaction(Order $order, $payment_method, $payment_instrument_id) {
-    $config = $this->configProvider->getConfig();
-    $context = ['order' => $order];
-    $this->moduleHandler->alter('crefopay_config', $config, $context);
+    $config = $this->configProvider->getConfig(['order' => $order]);
     $request = new RequestReserve($config);
     $request->setOrderID($this->idBuilder->id($order));
     $request->setPaymentMethod($payment_method);
@@ -53,9 +51,7 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
    * {@inheritdoc}
    */
   public function getTransactionPaymentInstruments(Order $order) {
-    $config = $this->configProvider->getConfig();
-    $context = ['order' => $order];
-    $this->moduleHandler->alter('crefopay_config', $config, $context);
+    $config = $this->configProvider->getConfig(['order' => $order]);
     $request = new RequestGetTransactionPaymentInstruments($config);
     $request->setOrderID($this->idBuilder->id($order));
     $get_transaction = new GetTransactionPaymentInstruments($config, $request);
@@ -77,9 +73,7 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
    */
   public function refund(PaymentInterface $payment, Price $amount, $description, $capture_id) {
     $order = $payment->getOrder();
-    $config = $this->configProvider->getConfig();
-    $context = ['order' => $order];
-    $this->moduleHandler->alter('crefopay_config', $config, $context);
+    $config = $this->configProvider->getConfig(['order' => $order]);
     $request = new RequestRefund($config);
     $request->setOrderID($this->idBuilder->id($order));
     $request->setRefundDescription($description);
@@ -103,9 +97,7 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
    * {@inheritdoc}
    */
   public function getTransactionStatus(Order $order) {
-    $config = $this->configProvider->getConfig();
-    $context = ['order' => $order];
-    $this->moduleHandler->alter('crefopay_config', $config, $context);
+    $config = $this->configProvider->getConfig(['order' => $order]);
     $request = new RequestGetTransactionStatus($config);
     $request->setOrderID($this->idBuilder->id($order));
     $get_transaction = new GetTransactionStatus($config, $request);
@@ -130,9 +122,7 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
    * {@inheritdoc}
    */
   public function createTransaction(Order $order, User $user, ProfileInterface $billing_profile, $integration_type = "HostedPageBefore", ProfileInterface $shipping_profile = NULL, $user_type = UserType::USER_TYPE_PRIVATE, $risk_class = RiskClass::RISK_CLASS_DEFAULT) {
-    $config = $this->configProvider->getConfig();
-    $context = ['order' => $order];
-    $this->moduleHandler->alter('crefopay_config', $config, $context);
+    $config = $this->configProvider->getConfig(['order' => $order]);
     $request = new RequestCreateTransaction($config);
     $amount = $this->amountBuilder->buildFromOrder($order);
 

@@ -36,13 +36,17 @@ function commerce_crefopay_subscripton_plans_options() {
 /**
  * Implements hook_crefopay_config_alter().
  */
-function commerce_crefopay_crefopay_config_alter(Config $config, array $context) {
+function commerce_crefopay_crefopay_config_alter(array &$config, array $context) {
   $order = $context['order'] ?? NULL;
   /** @var \Drupal\commerce_payment\Entity\PaymentGatewayInterface $payment_gateway */
   if (!empty($order) && $order->hasField('payment_gateway') && $payment_gateway = $order->payment_gateway->entity) {
-    $plugin_config = $payment_gateway->getPluginConfiguration();
-    if (strpos($payment_gateway->getPluginId(), 'crefopay') !== FALSE && !empty($payment_gateway->getPluginConfiguration()['store_id'])) {
-      $config->setData(['storeID' => $payment_gateway->getPluginConfiguration()['store_id']]);
+    if (strpos($payment_gateway->getPluginId(), 'crefopay') !== FALSE) {
+      if (!empty($payment_gateway->getPluginConfiguration()['store_id'])) {
+        $config['storeID'] = $payment_gateway->getPluginConfiguration()['store_id'];
+      }
+      if (!empty($payment_gateway->getPluginConfiguration()['public_key'])) {
+        $config['shopPublicKey'] = $payment_gateway->getPluginConfiguration()['public_key'];
+      }
     }
   }
 }
