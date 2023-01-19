@@ -2,6 +2,9 @@
 
 namespace Drupal\commerce_crefopay\Client;
 
+use CrefoPay\Library\Api\Capture as CaptureApi;
+use CrefoPay\Library\Request\Capture;
+use CrefoPay\Library\Request\Objects\Amount;
 use CrefoPay\Library\Risk\RiskClass;
 use Drupal\address\AddressInterface;
 use Drupal\commerce_order\Entity\Order;
@@ -57,6 +60,27 @@ class TransactionClient extends AbstractClient implements TransactionClientInter
     $get_transaction = new GetTransactionPaymentInstruments($config, $request);
     try {
       $result = $get_transaction->sendRequest();
+      if ($result instanceof SuccessResponse) {
+        $all_data = $result->getAllData();
+        return $all_data;
+      }
+    }
+    catch (ApiError $api_error) {
+      $this->handleValidationExceptions($api_error, $this->idBuilder->id($order));
+    }
+    return NULL;
+  }
+
+  public function capture(PaymentInterface $payment){
+    $order = $payment->getOrder();
+    $transaction_status = $this->getTransactionStatus($order);
+    $capture_request = new Capture($this->configProvider->getConfig());
+    $capture_request->setCaptureID($this->idBuilder->id($order).'xxx');
+    $capture_request->setOrderID($this->idBuilder->id($order));
+    $capture_request->setAmount(new Amount(100));
+    $capture = new CaptureApi($this->configProvider->getConfig(), $capture_request);
+    try {
+      $result = $capture->sendRequest();
       if ($result instanceof SuccessResponse) {
         $all_data = $result->getAllData();
         return $all_data;

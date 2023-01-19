@@ -47,3 +47,9 @@ services:
       - '@commerce_crefopay.import_manager'
     tags:
       - { name: drush.command }
+  commerce_crefopay.order_placed_subscriber:
+    class: Drupal\commerce_crefopay\EventSubscriber\OrderPlacedSubscriber
+    arguments:
+      - '@entity_type.manager'
+    tags:
+      - { name: event_subscriber }

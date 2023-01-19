@@ -201,6 +201,12 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     }
   }
 
+  public function capture(PaymentInterface $payment) {
+    $this->transactionClient->capture($payment);
+    $this->updatePayment($payment);
+    $payment->save();
+  }
+
   public function createPayment($order, $amount = 0, $remote_id = NULL, $state = 'new') {
     $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
 
