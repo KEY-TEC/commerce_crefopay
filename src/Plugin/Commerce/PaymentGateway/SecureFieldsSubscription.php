@@ -46,12 +46,17 @@ class SecureFieldsSubscription extends BasePaymentGateway {
     $instruments = NULL;
     $items = $order->getItems();
     $plan_reference = NULL;
+    $trial_days = NULL;
+
     foreach ($items as $item) {
       $purchased_product = $item->getPurchasedEntity();
 
       if ($purchased_product->hasField('field_subscription_plan') &&
         $purchased_product->field_subscription_plan->entity != NULL) {
-        $plan_reference = $purchased_product->field_subscription_plan->entity->crefopay_subscription_plan->value;
+        /** @var \Drupal\sw_subscription\Entity\SubscriptionPlanInterface $subscription_plan */
+        $subscription_plan = $purchased_product->field_subscription_plan->entity;
+        $trial_days = $subscription_plan->getTrialDays();
+        $plan_reference = $subscription_plan->crefopay_subscription_plan->value;
         break;
       }
       else if ($purchased_product->hasField('crefopay_subscription_plan') &&
@@ -94,7 +99,6 @@ class SecureFieldsSubscription extends BasePaymentGateway {
         }
       }
 
-      $trial_days = NULL;
       if (!empty($data['trial_days'])) {
         $trial_days = $data['trial_days'];
       }
