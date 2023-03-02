@@ -64,7 +64,8 @@ class Callback extends ControllerBase {
   public function notification(Request $request) {
     $response['result'] = 'ok';
     $params = $request->request->all();
-    $this->getLogger('commerce_payment')->info('Incoming notification: ' . json_encode($params));
+    // PM: temporarily removed debug log.
+    //$this->getLogger('commerce_payment')->info('Incoming notification: ' . json_encode($params));
 
     if (0 === strpos($request->headers->get('Content-Type'), 'application/x-www-form-urlencoded')) {
       $notification = new PaymentNotification();
