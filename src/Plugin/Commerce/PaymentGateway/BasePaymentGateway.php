@@ -237,6 +237,14 @@ abstract class BasePaymentGateway extends OffsitePaymentGatewayBase {
     }
     $payment->setState($state);
 
+    if ($order->getState()->getId() == 'draft' && in_array($state, [
+        'completed',
+        'authorization',
+      ])) {
+      $order->getState()->applyTransitionById('place');
+      $order->save();
+    }
+
     $payment_method = $payment->getPaymentMethod();
     if ($payment_method == NULL) {
       $remote_payment_method = $transaction_status['additionalData']['paymentMethod'];
