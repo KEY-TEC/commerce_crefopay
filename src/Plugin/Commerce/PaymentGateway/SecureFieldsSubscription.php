@@ -82,6 +82,7 @@ class SecureFieldsSubscription extends BasePaymentGateway {
       $data = [
         'user_type' => $user_type,
         'risk_class' => $risk_class,
+        'trial_days' => NULL,
       ];
       $context = ['order' => $order];
       \Drupal::moduleHandler()
@@ -98,9 +99,12 @@ class SecureFieldsSubscription extends BasePaymentGateway {
         }
       }
 
-      $trial_days = NULL;
+      if (!empty($data['trial_days'])) {
+        $trial_days = $data['trial_days'];
+      }
+      /*$trial_days = NULL;
       \Drupal::moduleHandler()
-        ->alter('commerce_transaction_trial_days', $trial_days, $context);
+        ->alter('commerce_transaction_trial_days', $trial_days, $context);*/
       $instruments = $this->subscriptionClient->createSubscription($order, $user, $billing_profile, $plan_reference, $shipment_address, Type::INTEGRATION_TYPE_SECURE_FIELDS, $user_type, $trial_days, $risk_class);
     }
     catch (OrderIdAlreadyExistsException $oe) {
